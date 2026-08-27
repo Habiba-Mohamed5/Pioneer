@@ -1,0 +1,103 @@
+/* Custom Styles for Pioneer Medical Wear */
+body {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.logo-gradient {
+    background: linear-gradient(135deg, #111 0%, #333 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 10px; }
+
+.custom-scrollbar::-webkit-scrollbar { height: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #AA8C2C; border-radius: 10px; }
+
+/* Modals */
+#productModal.show, #checkoutModal.show, #sizeModal.show {
+    display: flex;
+    opacity: 1;
+}
+#productModal.show > div { transform: translateY(0); }
+@media (min-width: 640px) {
+    #productModal.show > div { transform: scale(1); }
+}
+#checkoutModal.show > div, #sizeModal.show > div { transform: scale(1); }
+
+/* Buttons */
+.size-btn.active {
+    border-color: #dc2626;
+    background-color: #fef2f2;
+    color: #991b1b;
+}
+
+.color-btn {
+    position: relative;
+    border: 2px solid transparent;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.color-btn.active {
+    border-color: #dc2626;
+    transform: scale(1.15);
+    box-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
+    z-index: 10;
+}
+.color-btn::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid #dc2626;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.color-btn.active::after {
+    opacity: 1;
+}
+
+/* Animations */
+.animate-bounce-x {
+    animation: bounce-x 1s infinite;
+}
+@keyframes bounce-x {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-25%); }
+}
+
+/* Toast Animation */
+.toast-enter {
+    animation: slideInUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+.toast-leave {
+    animation: fadeOut 0.5s ease forwards;
+}
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(100%) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes fadeOut {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.9); }
+}
+
+.cta-button {
+    animation: heartbeat 2s infinite;
+}
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    10% { transform: scale(1.05); }
+    20% { transform: scale(1); }
+    30% { transform: scale(1.05); }
+    40% { transform: scale(1); }
+    100% { transform: scale(1); }
+}
+
+/* Sticky CTA */
+.show-sticky {
+    transform: translateY(0) !important;
+}
