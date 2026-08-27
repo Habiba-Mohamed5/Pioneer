@@ -1,10 +1,10 @@
 const colors = [
-    { id: 'black', name: 'الأسود', hex: '#1f2022', images: ['Black_1.jpg', 'black_2.jpg', 'black_3.jpg'] },
-    { id: 'teal', name: 'الجنزاري', hex: '#1f4e5b', images: ['tael_1.jpg', 'tael_2.jpg', 'tael_3.jpg'] },
-    { id: 'navy', name: 'الكحلي', hex: '#1b263b', images: ['navy_1.jpg', 'navy_2.jpg', 'navy_3.jpg'] },
-    { id: 'blue', name: 'الأزرق', hex: '#274c77', images: ['blue_1.jpg', 'blue_2.jpg', 'blue_3.jpg'] },
-    { id: 'olive', name: 'الزيتي', hex: '#4a5d23', images: ['olive_1.jpg', 'olive_2.jpg', 'olive_3.jpg'] },
-    { id: 'pink', name: 'البينك', hex: '#e5989b', images: ['pink_1.png', 'pink_2.jpg', 'pink_3.jpg'] },
+    { id: 'black', name: 'Black', hex: '#1f2022', images: ['Black_1.jpg', 'black_2.jpg', 'black_3.jpg'] },
+    { id: 'teal', name: 'Teal', hex: '#1f4e5b', images: ['tael_1.jpg', 'tael_2.jpg', 'tael_3.jpg'] },
+    { id: 'navy', name: 'Navy', hex: '#1b263b', images: ['navy_1.jpg', 'navy_2.jpg', 'navy_3.jpg'] },
+    { id: 'blue', name: 'Blue', hex: '#274c77', images: ['blue_1.jpg', 'blue_2.jpg', 'blue_3.jpg'] },
+    { id: 'olive', name: 'Olive', hex: '#4a5d23', images: ['olive_1.jpg', 'olive_2.jpg', 'olive_3.jpg'] },
+    { id: 'pink', name: 'Pink', hex: '#e5989b', images: ['pink_1.png', 'pink_2.jpg', 'pink_3.jpg'] },
 ];
 
 let selectedProduct = { color: colors[0], size: null, quantity: 1 };
