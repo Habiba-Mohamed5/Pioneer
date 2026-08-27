@@ -413,7 +413,7 @@ function submitOrder(customerData = null) {
         msg += `- رقم الهاتف: ${customerData.phone}\n\n`;
 
         // -- إرسال البيانات إلى Google Sheets في الخلفية --
-        const scriptURL = 'YOUR_GOOGLE_SCRIPT_URL_HERE'; // سيتم وضع رابط جوجل شيت هنا
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbw9pdbnke6Bmg3oRtgtOTx8oEGCcO1IyBSBx-9xH1UUilUF0flO2QoAsoLaVbkVl1CG_w/exec';
         
         const productDetailsText = `اللون: ${selectedProduct.color.name} | المقاس: ${selectedProduct.size} | الكمية: ${selectedProduct.quantity} | الإجمالي: ${finalTotal}`;
         
