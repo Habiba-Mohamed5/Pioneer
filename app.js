@@ -406,11 +406,35 @@ function submitOrder(customerData = null) {
     }
     
     if (customerData) {
-        msg += `*بيانات العميل (حجز سريع):*\n`;
+        msg += `*بيانات العميل:*\n`;
         msg += `- الاسم: ${customerData.name}\n`;
-        msg += `- الهاتف: ${customerData.phone}\n`;
         msg += `- المحافظة: ${customerData.gov}\n`;
         msg += `- العنوان: ${customerData.address}\n`;
+        msg += `- رقم الهاتف: ${customerData.phone}\n\n`;
+
+        // -- إرسال البيانات إلى Google Sheets في الخلفية --
+        const scriptURL = 'YOUR_GOOGLE_SCRIPT_URL_HERE'; // سيتم وضع رابط جوجل شيت هنا
+        
+        const productDetailsText = `اللون: ${selectedProduct.color.name} | المقاس: ${selectedProduct.size} | الكمية: ${selectedProduct.quantity} | الإجمالي: ${finalTotal}`;
+        
+        try {
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: customerData.name,
+                    phone: customerData.phone,
+                    city: customerData.gov,
+                    address: customerData.address,
+                    productDetails: productDetailsText
+                })
+            });
+        } catch (error) {
+            console.error('Error saving to sheet:', error);
+        }
+        // ------------------------------------------------
+
     } else {
         msg += `*طلب سريع (بدون تسجيل مسبق)*\n`;
     }
