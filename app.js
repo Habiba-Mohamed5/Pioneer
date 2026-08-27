@@ -413,7 +413,7 @@ function submitOrder(customerData = null) {
         msg += `- رقم الهاتف: ${customerData.phone}\n\n`;
 
         // -- إرسال البيانات إلى Google Sheets في الخلفية --
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbw9pdbnke6Bmg3oRtgtOTx8oEGCcO1IyBSBx-9xH1UUilUF0flO2QoAsoLaVbkVl1CG_w/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec';
         
         const productDetailsText = `اللون: ${selectedProduct.color.name} | المقاس: ${selectedProduct.size} | الكمية: ${selectedProduct.quantity} | الإجمالي: ${finalTotal}`;
         
