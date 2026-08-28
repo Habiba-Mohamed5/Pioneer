@@ -353,6 +353,17 @@ buyBtn.addEventListener('click', () => {
         alert('سارع باختيار المقاس قبل نفاذ الكمية!');
         return;
     }
+    
+    // Meta Pixel AddToCart
+    if (typeof fbq === 'function') {
+        fbq('track', 'AddToCart', {
+            value: calculatePrice(selectedProduct.quantity).total,
+            currency: 'EGP',
+            content_ids: [selectedProduct.color.id],
+            content_type: 'product'
+        });
+    }
+    
     closeProductModal();
     openCheckoutModal();
 });
@@ -442,6 +453,16 @@ function submitOrder(customerData = null) {
                     productDetails: productDetailsText
                 })
             });
+            
+            // Meta Pixel Purchase
+            if (typeof fbq === 'function') {
+                fbq('track', 'Purchase', {
+                    value: finalTotal,
+                    currency: 'EGP',
+                    content_ids: [selectedProduct.color.id],
+                    content_type: 'product'
+                });
+            }
         } catch (error) {
             console.error('Error saving to sheet:', error);
         }
