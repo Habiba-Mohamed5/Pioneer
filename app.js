@@ -395,6 +395,7 @@ function closeCheckoutModal() {
     setTimeout(() => {
         checkoutModal.classList.add('hidden');
         clearInterval(checkoutInterval);
+        triggerAbandonedCart();
     }, 300);
 }
 closeCheckoutBtn.addEventListener('click', closeCheckoutModal);
@@ -411,7 +412,7 @@ function submitOrder(customerData = null) {
     
     if (selectedProduct.quantity === 1) {
         msg += `- السعر الإجمالي للمنتجات: ${finalTotal} ج.م\n`;
-        msg += `🎁 (ملاحظة هامة: تم إخبار العميل بحصوله على خصم 50 ج.م من مصاريف الشحن الأساسية)\n\n`;
+        msg += `🎁 (ملاحظة هامة: تم إخبار العميل بحصوله على خصم 20% من مصاريف الشحن الأساسية)\n\n`;
     } else {
         msg += `- السعر الإجمالي: ${finalTotal} ج.م (${pricing.shipping})\n\n`;
     }
@@ -480,8 +481,11 @@ function submitOrder(customerData = null) {
     closeCheckoutModal();
 }
 
+let isSubmitted = false;
+
 document.getElementById('checkoutForm').addEventListener('submit', (e) => {
     e.preventDefault();
+    isSubmitted = true;
     const name = document.getElementById('custName').value;
     const phone = document.getElementById('custPhone').value;
     const phone2 = document.getElementById('custPhone2').value;
@@ -493,13 +497,12 @@ document.getElementById('checkoutForm').addEventListener('submit', (e) => {
     closeModalFunc(document.getElementById('checkoutModal'));
 });
 
-// -- Abandoned Checkout Tracking (تتبع العملاء الذين لم يكملوا الطلب) --
+// تتبع السلة المتروكة عند إغلاق النافذة بدون تأكيد الطلب
 let hasSentPartial = false;
-document.getElementById('custPhone').addEventListener('blur', (e) => {
-    const phoneVal = e.target.value.trim();
+function triggerAbandonedCart() {
+    const phoneVal = document.getElementById('custPhone').value.trim();
     const nameVal = document.getElementById('custName').value.trim();
-    // نرسلها إذا كتب رقم هاتف معقول، ونمنع التكرار لنفس العميل
-    if (phoneVal.length >= 10 && !hasSentPartial) {
+    if (phoneVal.length >= 10 && !hasSentPartial && !isSubmitted) {
         hasSentPartial = true; 
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec';
         
@@ -516,7 +519,7 @@ document.getElementById('custPhone').addEventListener('blur', (e) => {
             })
         }).catch(err => console.log(err));
     }
-});
+}
 
 skipBtn.addEventListener('click', () => { submitOrder(null); });
 
