@@ -414,12 +414,18 @@ function submitOrder(customerData = null) {
         if (customerData.phone2) {
             msg += `- رقم هاتف بديل: ${customerData.phone2}\n`;
         }
+        if (customerData.notes) {
+            msg += `- ملاحظات العميل: ${customerData.notes}\n`;
+        }
         msg += `\n`;
 
         // -- إرسال البيانات إلى Google Sheets في الخلفية --
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec';
         
-        const productDetailsText = `اللون: ${selectedProduct.color.name} | المقاس: ${selectedProduct.size} | الكمية: ${selectedProduct.quantity} | الإجمالي: ${finalTotal}`;
+        let productDetailsText = `اللون: ${selectedProduct.color.name} | المقاس: ${selectedProduct.size} | الكمية: ${selectedProduct.quantity} | الإجمالي: ${finalTotal}`;
+        if (customerData.notes) {
+            productDetailsText += ` | ملاحظات: ${customerData.notes}`;
+        }
         let fullPhone = customerData.phone;
         if (customerData.phone2) fullPhone += " / " + customerData.phone2;
         
@@ -460,8 +466,9 @@ document.getElementById('checkoutForm').addEventListener('submit', (e) => {
     const phone2 = document.getElementById('custPhone2').value;
     const gov = document.getElementById('custGov').value;
     const address = document.getElementById('custAddress').value;
+    const notes = document.getElementById('custNotes').value;
     
-    submitOrder({ name, phone, phone2, gov, address });
+    submitOrder({ name, phone, phone2, gov, address, notes });
     closeModalFunc(document.getElementById('checkoutModal'));
 });
 

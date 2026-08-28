@@ -207,13 +207,16 @@
                 </div>
 
                 <!-- Quantity -->
-                <div class="mb-4 flex items-center justify-between bg-gray-50 p-2 rounded-xl border border-gray-100">
-                    <h4 class="font-bold text-gray-800 ml-2">الكمية:</h4>
-                    <div class="flex items-center bg-white rounded-lg border shadow-sm">
-                        <button id="qtyMinus" class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-red-600 font-bold transition">-</button>
-                        <input type="number" id="qtyInput" value="1" min="1" class="w-10 h-10 text-center font-black text-lg bg-transparent border-none focus:ring-0 outline-none" readonly>
-                        <button id="qtyPlus" class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-green-600 font-bold transition">+</button>
+                <div class="mb-4">
+                    <div class="flex items-center justify-between bg-gray-50 p-2 rounded-xl border border-gray-100">
+                        <h4 class="font-bold text-gray-800 ml-2">الكمية:</h4>
+                        <div class="flex items-center bg-white rounded-lg border shadow-sm">
+                            <button id="qtyMinus" class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-red-600 font-bold transition">-</button>
+                            <input type="number" id="qtyInput" value="1" min="1" class="w-10 h-10 text-center font-black text-lg bg-transparent border-none focus:ring-0 outline-none" readonly>
+                            <button id="qtyPlus" class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-green-600 font-bold transition">+</button>
+                        </div>
                     </div>
+                    <p class="text-[11px] text-gray-500 font-bold mt-1 text-center"><i class="fa-solid fa-circle-info"></i> إذا كنت تريد مقاسات أو ألوان مختلفة، اختر إجمالي الكمية هنا واكتب التفاصيل في خطوة الدفع.</p>
                 </div>
 
             </div>
@@ -301,6 +304,10 @@
                         <div>
                             <label class="block text-gray-800 text-sm font-bold mb-1">العنوان بالتفصيل <span class="text-red-500">*</span></label>
                             <textarea id="custAddress" rows="2" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-red-500 focus:ring-0 outline-none transition bg-white" required></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-gray-800 text-sm font-bold mb-1">ملاحظات (ألوان أو مقاسات أخرى) <span class="text-gray-400 font-normal">(اختياري)</span></label>
+                            <textarea id="custNotes" rows="2" placeholder="مثال: أريد القطعة الثانية أسود مقاس L..." class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-red-500 focus:ring-0 outline-none transition bg-white"></textarea>
                         </div>
                     </div>
                     
