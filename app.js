@@ -393,7 +393,7 @@ function submitOrder(customerData = null) {
     let finalTotal = pricing.total;
     
     let msg = `*طلب مستعجل 🚨*\n\n`;
-    msg += `- المنتج: سكراب طبي فاخر\n`;
+    msg += `- المنتج: Medical Scrub\n`;
     msg += `- اللون: ${selectedProduct.color.name}\n`;
     msg += `- المقاس: ${selectedProduct.size}\n`;
     msg += `- الكمية: ${selectedProduct.quantity}\n`;
