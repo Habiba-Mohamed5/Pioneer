@@ -410,12 +410,18 @@ function submitOrder(customerData = null) {
         msg += `- الاسم: ${customerData.name}\n`;
         msg += `- المحافظة: ${customerData.gov}\n`;
         msg += `- العنوان: ${customerData.address}\n`;
-        msg += `- رقم الهاتف: ${customerData.phone}\n\n`;
+        msg += `- رقم الهاتف: ${customerData.phone}\n`;
+        if (customerData.phone2) {
+            msg += `- رقم هاتف بديل: ${customerData.phone2}\n`;
+        }
+        msg += `\n`;
 
         // -- إرسال البيانات إلى Google Sheets في الخلفية --
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec';
         
         const productDetailsText = `اللون: ${selectedProduct.color.name} | المقاس: ${selectedProduct.size} | الكمية: ${selectedProduct.quantity} | الإجمالي: ${finalTotal}`;
+        let fullPhone = customerData.phone;
+        if (customerData.phone2) fullPhone += " / " + customerData.phone2;
         
         try {
             fetch(scriptURL, {
@@ -423,8 +429,8 @@ function submitOrder(customerData = null) {
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    name: customerData.name,
-                    phone: customerData.phone,
+                    name: customerData.name + " (مكتمل)",
+                    phone: fullPhone,
                     city: customerData.gov,
                     address: customerData.address,
                     productDetails: productDetailsText
@@ -447,15 +453,41 @@ function submitOrder(customerData = null) {
     closeCheckoutModal();
 }
 
-checkoutForm.addEventListener('submit', (e) => {
+document.getElementById('checkoutForm').addEventListener('submit', (e) => {
     e.preventDefault();
-    const customerData = {
-        name: document.getElementById('custName').value,
-        phone: document.getElementById('custPhone').value,
-        gov: document.getElementById('custGov').value,
-        address: document.getElementById('custAddress').value,
-    };
-    submitOrder(customerData);
+    const name = document.getElementById('custName').value;
+    const phone = document.getElementById('custPhone').value;
+    const phone2 = document.getElementById('custPhone2').value;
+    const gov = document.getElementById('custGov').value;
+    const address = document.getElementById('custAddress').value;
+    
+    submitOrder({ name, phone, phone2, gov, address });
+    closeModalFunc(document.getElementById('checkoutModal'));
+});
+
+// -- Abandoned Checkout Tracking (تتبع العملاء الذين لم يكملوا الطلب) --
+let hasSentPartial = false;
+document.getElementById('custPhone').addEventListener('blur', (e) => {
+    const phoneVal = e.target.value.trim();
+    const nameVal = document.getElementById('custName').value.trim();
+    // نرسلها إذا كتب رقم هاتف معقول، ونمنع التكرار لنفس العميل
+    if (phoneVal.length >= 10 && !hasSentPartial) {
+        hasSentPartial = true; 
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec';
+        
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: (nameVal || "بدون اسم") + " (لم يكمل الأوردر)",
+                phone: phoneVal,
+                city: "-",
+                address: "-",
+                productDetails: `Medical Scrub | ${selectedProduct.color.name} | ${selectedProduct.size} | Qty: ${selectedProduct.quantity}`
+            })
+        }).catch(err => console.log(err));
+    }
 });
 
 skipBtn.addEventListener('click', () => { submitOrder(null); });
