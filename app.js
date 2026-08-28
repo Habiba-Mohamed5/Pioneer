@@ -395,7 +395,6 @@ function closeCheckoutModal() {
     setTimeout(() => {
         checkoutModal.classList.add('hidden');
         clearInterval(checkoutInterval);
-        triggerAbandonedCart();
     }, 300);
 }
 closeCheckoutBtn.addEventListener('click', closeCheckoutModal);
@@ -497,10 +496,10 @@ document.getElementById('checkoutForm').addEventListener('submit', (e) => {
     closeModalFunc(document.getElementById('checkoutModal'));
 });
 
-// تتبع السلة المتروكة عند إغلاق النافذة بدون تأكيد الطلب
+// -- Abandoned Checkout Tracking (تتبع العملاء الذين لم يكملوا الطلب) --
 let hasSentPartial = false;
-function triggerAbandonedCart() {
-    const phoneVal = document.getElementById('custPhone').value.trim();
+document.getElementById('custPhone').addEventListener('blur', (e) => {
+    const phoneVal = e.target.value.trim();
     const nameVal = document.getElementById('custName').value.trim();
     if (phoneVal.length >= 10 && !hasSentPartial && !isSubmitted) {
         hasSentPartial = true; 
@@ -519,7 +518,7 @@ function triggerAbandonedCart() {
             })
         }).catch(err => console.log(err));
     }
-}
+});
 
 skipBtn.addEventListener('click', () => { submitOrder(null); });
 
