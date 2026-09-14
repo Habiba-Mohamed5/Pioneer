@@ -615,13 +615,38 @@ document.addEventListener('touchstart', trapHistory, {once: true});
 document.addEventListener('scroll', trapHistory, {once: true});
 
 window.addEventListener('popstate', (e) => {
-    // When the user presses the back button on mobile
     if (!hasShownExitPopup && !isSubmitted) {
         showExitPopup();
-        // Push state again so they don't actually leave the page when they close the popup
         history.pushState(null, null, location.href);
     }
 });
+
+// For Facebook In-App Browser (where the 'X' button kills the page instantly)
+// We must predict the exit before they press X.
+let lastScrollTop = 0;
+window.addEventListener('scroll', () => {
+    let st = window.pageYOffset || document.documentElement.scrollTop;
+    // Fast scroll up (usually means they are looking for the X or menu)
+    if (lastScrollTop - st > 70) {
+        showExitPopup();
+    }
+    lastScrollTop = st <= 0 ? 0 : st;
+    
+    // Reset idle timer on scroll
+    resetIdleTimer();
+});
+
+// Idle timer: if they stop scrolling/touching for 25 seconds, pop the discount
+let idleTimer;
+function resetIdleTimer() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+        showExitPopup();
+    }, 25000);
+}
+document.addEventListener('touchstart', resetIdleTimer);
+document.addEventListener('mousemove', resetIdleTimer);
+resetIdleTimer(); // start it initially
 
 closeExitPopupBtn.addEventListener('click', hideExitPopup);
 exitPopup.addEventListener('click', (e) => { if(e.target === exitPopup) hideExitPopup(); });
