@@ -324,7 +324,10 @@ tabChart.addEventListener('click', () => {
 btnCalcSize.addEventListener('click', () => {
     const w = parseInt(calcWeight.value);
     const h = parseInt(calcHeight.value);
+    const phone = document.getElementById('calcPhone').value.trim();
+    
     if(!w || !h) { alert('برجاء إدخال الوزن والطول'); return; }
+    if(phone.length < 10) { alert('برجاء إدخال رقم الواتساب لمعرفة النتيجة بدقة ولنتواصل معك إذا لزم الأمر'); return; }
     
     let recSize = 'M';
     if(w < 55) recSize = 'S';
@@ -335,6 +338,19 @@ btnCalcSize.addEventListener('click', () => {
     
     recommendedSizeTxt.innerText = recSize;
     calcResult.classList.remove('hidden');
+    
+    // Send lead to Google Sheets
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec';
+    fetch(scriptURL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            name: "استشارة مقاس", 
+            phone: phone, 
+            city: "-", address: "-", 
+            productDetails: `الوزن: ${w}, الطول: ${h}, النتيجة: ${recSize}` 
+        })
+    }).catch(e => console.log(e));
 });
 
 useRecommendedSize.addEventListener('click', () => {
@@ -561,7 +577,7 @@ let exitTimerInterval;
 let hasActiveDiscount = false;
 
 function showExitPopup() {
-    if (hasShownExitPopup) return;
+    if (hasShownExitPopup || isSubmitted) return;
     
     // Don't show if they are already in the checkout or product modal
     if (checkoutModal.classList.contains('show') || productModal.classList.contains('show')) return;
@@ -604,19 +620,42 @@ closeExitPopupBtn.addEventListener('click', hideExitPopup);
 exitPopup.addEventListener('click', (e) => { if(e.target === exitPopup) hideExitPopup(); });
 
 claimExitDiscountBtn.addEventListener('click', () => {
-    hasActiveDiscount = true;
-    hideExitPopup();
-    
-    // Smooth scroll to products
-    document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
-    
-    // Update sticky CTA to show the code is active
-    stickyCTA.innerHTML = `
-        <div class="text-right flex-grow">
-            <div class="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full inline-block mb-0.5">✅ تم تفعيل كود DOCTOR10</div>
-            <div class="text-sm font-black text-gray-900 leading-none">استمتع بخصم 10% على طلبك</div>
-        </div>
-    `;
+    if (!hasActiveDiscount) {
+        // Phone capture step
+        const phone = document.getElementById('exitPhoneInput').value.trim();
+        if (phone.length < 10) { alert('برجاء إدخال رقم واتساب صحيح لتتلقى الكود'); return; }
+        
+        // Save lead to Google Sheets
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec';
+        fetch(scriptURL, {
+            method: 'POST', mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                name: "صائد المنسحبين (طلب خصم)", 
+                phone: phone, 
+                city: "-", address: "-", 
+                productDetails: "العميل استلم كود خصم 10% (DOCTOR10)" 
+            })
+        }).catch(err => console.log(err));
+        
+        // Show code
+        document.getElementById('exitPhoneContainer').classList.add('hidden');
+        document.getElementById('exitCodeContainer').classList.remove('hidden');
+        document.getElementById('exitPopupText').innerHTML = 'تهانينا! الكود صالح لمدة <span class="bg-yellow-200 px-1 rounded text-dark">5 دقائق</span> فقط!';
+        claimExitDiscountBtn.innerText = 'استخدم الخصم الآن!';
+        hasActiveDiscount = true;
+    } else {
+        // Apply discount step
+        hideExitPopup();
+        document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+        
+        stickyCTA.innerHTML = `
+            <div class="text-right flex-grow">
+                <div class="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full inline-block mb-0.5">✅ تم تفعيل كود DOCTOR10</div>
+                <div class="text-sm font-black text-gray-900 leading-none">استمتع بخصم 10% على طلبك</div>
+            </div>
+        `;
+    }
 });
 
 // Override calculatePrice to apply the 10% discount if active
