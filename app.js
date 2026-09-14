@@ -601,20 +601,27 @@ document.addEventListener('mouseleave', (e) => {
     }
 });
 
-// Mobile: Fast scroll up or idle timeout
-let lastScrollTop = 0;
-window.addEventListener('scroll', () => {
-    let st = window.pageYOffset || document.documentElement.scrollTop;
-    // Fast scroll up
-    if (lastScrollTop - st > 100) {
-        showExitPopup();
+// Mobile: Back Button Trap (Exit Intent)
+let historyTrapped = false;
+function trapHistory() {
+    if (!historyTrapped) {
+        history.pushState(null, null, location.href);
+        historyTrapped = true;
     }
-    lastScrollTop = st <= 0 ? 0 : st;
+}
+// Browsers require a user interaction before allowing history manipulation to trap back button
+document.addEventListener('click', trapHistory, {once: true});
+document.addEventListener('touchstart', trapHistory, {once: true});
+document.addEventListener('scroll', trapHistory, {once: true});
+
+window.addEventListener('popstate', (e) => {
+    // When the user presses the back button on mobile
+    if (!hasShownExitPopup && !isSubmitted) {
+        showExitPopup();
+        // Push state again so they don't actually leave the page when they close the popup
+        history.pushState(null, null, location.href);
+    }
 });
-setTimeout(() => {
-    // Also show after 45 seconds if they haven't seen it
-    showExitPopup();
-}, 45000);
 
 closeExitPopupBtn.addEventListener('click', hideExitPopup);
 exitPopup.addEventListener('click', (e) => { if(e.target === exitPopup) hideExitPopup(); });
