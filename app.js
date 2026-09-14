@@ -552,4 +552,82 @@ setTimeout(() => {
     setInterval(showPurchaseToast, Math.random() * 7000 + 8000);
 }, 3000);
 
+// --- Exit Intent Popup Logic ---
+const exitPopup = document.getElementById('exitPopup');
+const closeExitPopupBtn = document.getElementById('closeExitPopup');
+const claimExitDiscountBtn = document.getElementById('claimExitDiscountBtn');
+let hasShownExitPopup = false;
+let exitTimerInterval;
+let hasActiveDiscount = false;
+
+function showExitPopup() {
+    if (hasShownExitPopup) return;
+    
+    // Don't show if they are already in the checkout or product modal
+    if (checkoutModal.classList.contains('show') || productModal.classList.contains('show')) return;
+    
+    hasShownExitPopup = true;
+    exitPopup.classList.remove('hidden');
+    setTimeout(() => { exitPopup.classList.add('show', 'opacity-100'); }, 10);
+    
+    exitTimerInterval = startTimer(5, 'exitTimer');
+}
+
+function hideExitPopup() {
+    exitPopup.classList.remove('show', 'opacity-100');
+    setTimeout(() => { exitPopup.classList.add('hidden'); }, 300);
+}
+
+// Desktop: Mouse leaves top of viewport
+document.addEventListener('mouseleave', (e) => {
+    if (e.clientY < 0) {
+        showExitPopup();
+    }
+});
+
+// Mobile: Fast scroll up or idle timeout
+let lastScrollTop = 0;
+window.addEventListener('scroll', () => {
+    let st = window.pageYOffset || document.documentElement.scrollTop;
+    // Fast scroll up
+    if (lastScrollTop - st > 100) {
+        showExitPopup();
+    }
+    lastScrollTop = st <= 0 ? 0 : st;
+});
+setTimeout(() => {
+    // Also show after 45 seconds if they haven't seen it
+    showExitPopup();
+}, 45000);
+
+closeExitPopupBtn.addEventListener('click', hideExitPopup);
+exitPopup.addEventListener('click', (e) => { if(e.target === exitPopup) hideExitPopup(); });
+
+claimExitDiscountBtn.addEventListener('click', () => {
+    hasActiveDiscount = true;
+    hideExitPopup();
+    
+    // Smooth scroll to products
+    document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+    
+    // Update sticky CTA to show the code is active
+    stickyCTA.innerHTML = `
+        <div class="text-right flex-grow">
+            <div class="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full inline-block mb-0.5">✅ تم تفعيل كود DOCTOR10</div>
+            <div class="text-sm font-black text-gray-900 leading-none">استمتع بخصم 10% على طلبك</div>
+        </div>
+    `;
+});
+
+// Override calculatePrice to apply the 10% discount if active
+const originalCalculatePrice = calculatePrice;
+calculatePrice = function(qty) {
+    let pricing = originalCalculatePrice(qty);
+    if (hasActiveDiscount) {
+        pricing.total = Math.floor(pricing.total * 0.9);
+        // Note: we don't change the shipping text, just the total amount
+    }
+    return pricing;
+}
+
 initProducts();
