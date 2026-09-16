@@ -109,7 +109,7 @@ function initProducts() {
             </div>
             <div class="p-3 text-center bg-gray-50 group-hover:bg-red-50 transition-colors">
                 <h3 class="font-black text-gray-900 text-sm mb-1">سكراب طبي - ${color.name}</h3>
-                <div class="text-red-600 font-black text-lg">900 ج.م <span class="text-xs text-gray-400 line-through font-normal">1100</span></div>
+                <div class="text-red-600 font-black text-lg">950 ج.م <span class="text-xs text-gray-400 line-through font-normal">1100</span></div>
             </div>
         `;
         card.addEventListener('click', () => openProductModal(color));
@@ -118,8 +118,8 @@ function initProducts() {
 }
 
 function calculatePrice(qty) {
-    if (qty === 1) return { total: 900, unit: 900, shipping: 'يضاف مصاريف الشحن' };
-    if (qty === 2) return { total: 1750, unit: 875, shipping: 'شحن مجاني' };
+    if (qty === 1) return { total: 950, unit: 950, shipping: 'يضاف مصاريف الشحن' };
+    if (qty === 2) return { total: 1800, unit: 900, shipping: 'شحن مجاني' };
     return { total: qty * 850, unit: 850, shipping: 'شحن مجاني' };
 }
 
@@ -195,15 +195,15 @@ function updateSizeAvailability() {
         b.classList.add('border-gray-200');
         const s = b.getAttribute('data-size');
         
-        // S and 3XL always out of stock globally
-        if(s === 'S' || s === '3XL') {
+        // S, XXL, 3XL always out of stock globally
+        if(s === 'S' || s === 'XXL' || s === '3XL') {
             b.className = 'size-btn w-10 h-10 rounded-lg border-2 border-gray-200 flex items-center justify-center font-bold text-gray-300 relative overflow-hidden cursor-not-allowed';
             b.innerHTML = `${s}<div class="absolute w-full h-0.5 bg-red-400 rotate-45 top-1/2 left-0 -mt-[1px]"></div>`;
             return;
         }
         
-        // Teal logic: only M and L available (disable XL and XXL)
-        if(selectedProduct.color.id === 'teal' && (s === 'XL' || s === 'XXL')) {
+        // XL is out of stock GLOBALLY except for teal and black
+        if(s === 'XL' && selectedProduct.color.id !== 'teal' && selectedProduct.color.id !== 'black') {
             b.className = 'size-btn w-10 h-10 rounded-lg border-2 border-gray-200 flex items-center justify-center font-bold text-gray-300 relative overflow-hidden cursor-not-allowed';
             b.innerHTML = `${s}<div class="absolute w-full h-0.5 bg-red-400 rotate-45 top-1/2 left-0 -mt-[1px]"></div>`;
             return;
@@ -666,7 +666,7 @@ claimExitDiscountBtn.addEventListener('click', () => {
                 name: "صائد المنسحبين (طلب خصم)", 
                 phone: phone, 
                 city: "-", address: "-", 
-                productDetails: "العميل استلم كود خصم 10% (DOCTOR10)" 
+                productDetails: "العميل استلم كود خصم 5% (DOCTOR5)" 
             })
         }).catch(err => console.log(err));
         
@@ -683,19 +683,19 @@ claimExitDiscountBtn.addEventListener('click', () => {
         
         stickyCTA.innerHTML = `
             <div class="text-right flex-grow">
-                <div class="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full inline-block mb-0.5">✅ تم تفعيل كود DOCTOR10</div>
-                <div class="text-sm font-black text-gray-900 leading-none">استمتع بخصم 10% على طلبك</div>
+                <div class="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full inline-block mb-0.5">✅ تم تفعيل كود DOCTOR5</div>
+                <div class="text-sm font-black text-gray-900 leading-none">استمتع بخصم 5% على طلبك</div>
             </div>
         `;
     }
 });
 
-// Override calculatePrice to apply the 10% discount if active
+// Override calculatePrice to apply the 5% discount if active
 const originalCalculatePrice = calculatePrice;
 calculatePrice = function(qty) {
     let pricing = originalCalculatePrice(qty);
     if (hasActiveDiscount) {
-        pricing.total = Math.floor(pricing.total * 0.9);
+        pricing.total = Math.floor(pricing.total - 50);
         // Note: we don't change the shipping text, just the total amount
     }
     return pricing;
