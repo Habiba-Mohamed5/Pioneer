@@ -354,6 +354,20 @@ btnCalcSize.addEventListener('click', () => {
             productDetails: `الوزن: ${w}, الطول: ${h}, النتيجة: ${recSize}` 
         })
     }).catch(e => console.log(e));
+
+    // Send to Vercel API for Telegram + Gemini
+    fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            type: 'size_guide',
+            phone: phone,
+            details: `وزن: ${w}، طول: ${h}`,
+            weight: w,
+            height: h,
+            resultSize: recSize
+        })
+    }).catch(e=>{});
 });
 
 useRecommendedSize.addEventListener('click', () => {
@@ -672,6 +686,17 @@ claimExitDiscountBtn.addEventListener('click', () => {
                 productDetails: "العميل استلم كود خصم 5% (DOCTOR5)" 
             })
         }).catch(err => console.log(err));
+        
+        // Send to Vercel API for Telegram + Gemini
+        fetch('/api/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'exit_intent',
+                phone: phone,
+                details: "استلم كود DOCTOR5"
+            })
+        }).catch(e=>{});
         
         // Show code
         document.getElementById('exitPhoneContainer').classList.add('hidden');
