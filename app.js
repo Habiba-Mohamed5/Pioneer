@@ -332,12 +332,37 @@ btnCalcSize.addEventListener('click', () => {
     if(!w || !h) { alert('برجاء إدخال الوزن والطول'); return; }
     if(phone.length < 10) { alert('برجاء إدخال رقم الواتساب لمعرفة النتيجة بدقة ولنتواصل معك إذا لزم الأمر'); return; }
     
-    let recSize = 'M';
-    if(w < 55) recSize = 'S';
-    else if(w >= 55 && w < 65) recSize = 'M';
-    else if(w >= 65 && w < 75) recSize = 'L';
-    else if(w >= 75 && w <= 85) recSize = 'XL';
-    else recSize = 'XXL'; 
+    let color = selectedProduct.color.id;
+    let idealSize = 'XXL';
+    if(w < 55) idealSize = 'S';
+    else if(w >= 55 && w < 65) idealSize = 'M';
+    else if(w >= 65 && w < 75) idealSize = 'L';
+    else if(w >= 75 && w <= 85) idealSize = 'XL';
+    else if(w > 85 && w <= 100) idealSize = 'XXL';
+    else idealSize = '3XL';
+
+    function checkStock(s, c) {
+        if (c === 'pink' || c === 'teal' || c === 'blue') return s !== '3XL';
+        if (c === 'black' || c === 'navy') return s === 'M';
+        if (c === 'olive') return s === 'M' || s === 'XXL';
+        return true;
+    }
+
+    let recSize = idealSize;
+    if (!checkStock(idealSize, color)) {
+        if (idealSize === 'L') {
+            if (w <= 69 && checkStock('M', color)) recSize = 'M';
+            else if (w >= 70 && checkStock('XL', color)) recSize = 'XL';
+        } else if (idealSize === 'XL') {
+            if (w <= 79 && checkStock('L', color)) recSize = 'L';
+            else if (w >= 80 && checkStock('XXL', color)) recSize = 'XXL';
+        } else if (idealSize === 'M') {
+            if (w >= 60 && checkStock('L', color)) recSize = 'L';
+            else if (w <= 59 && checkStock('S', color)) recSize = 'S';
+        } else if (idealSize === 'XXL') {
+            if (w <= 90 && checkStock('XL', color)) recSize = 'XL';
+        }
+    }
     
     recommendedSizeTxt.innerText = recSize;
     calcResult.classList.remove('hidden');
