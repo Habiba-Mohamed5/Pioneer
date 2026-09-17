@@ -534,6 +534,22 @@ function submitOrder(customerData = null) {
     const encodedMsg = encodeURIComponent(msg);
     const whatsappUrl = `https://wa.me/${merchantPhone}?text=${encodedMsg}`;
     
+    if (customerData && customerData.phone) {
+        fetch('/api/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'new_order',
+                phone: customerData.phone,
+                details: `طلب شراء سكراب ${selectedProduct.color.name} مقاس ${selectedProduct.size}`,
+                name: customerData.name,
+                color: selectedProduct.color.name,
+                resultSize: selectedProduct.size,
+                finalTotal: finalTotal
+            })
+        }).catch(e=>{});
+    }
+
     window.open(whatsappUrl, '_blank');
     closeCheckoutModal();
 }
