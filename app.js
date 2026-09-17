@@ -194,16 +194,19 @@ function updateSizeAvailability() {
         b.classList.remove('active', 'border-dark');
         b.classList.add('border-gray-200');
         const s = b.getAttribute('data-size');
+        const color = selectedProduct.color.id;
         
-        // S, XXL, 3XL always out of stock globally
-        if(s === 'S' || s === 'XXL' || s === '3XL') {
-            b.className = 'size-btn w-10 h-10 rounded-lg border-2 border-gray-200 flex items-center justify-center font-bold text-gray-300 relative overflow-hidden cursor-not-allowed';
-            b.innerHTML = `${s}<div class="absolute w-full h-0.5 bg-red-400 rotate-45 top-1/2 left-0 -mt-[1px]"></div>`;
-            return;
+        let isAvailable = true;
+        
+        if (color === 'pink' || color === 'teal' || color === 'blue') {
+            if (s === '3XL') isAvailable = false;
+        } else if (color === 'black' || color === 'navy') {
+            if (s !== 'M') isAvailable = false;
+        } else if (color === 'olive') {
+            if (s !== 'M' && s !== 'XXL') isAvailable = false;
         }
-        
-        // XL is out of stock GLOBALLY except for teal and black
-        if(s === 'XL' && selectedProduct.color.id !== 'teal' && selectedProduct.color.id !== 'black') {
+
+        if(!isAvailable) {
             b.className = 'size-btn w-10 h-10 rounded-lg border-2 border-gray-200 flex items-center justify-center font-bold text-gray-300 relative overflow-hidden cursor-not-allowed';
             b.innerHTML = `${s}<div class="absolute w-full h-0.5 bg-red-400 rotate-45 top-1/2 left-0 -mt-[1px]"></div>`;
             return;
