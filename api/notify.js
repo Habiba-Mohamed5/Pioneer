@@ -49,24 +49,25 @@ export default async function handler(req, res) {
         const waLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(aiMessage)}`;
 
         // 3. Send to Telegram
-        const tgText = `?? *???? ???? (${type === "size_guide" ? "??????? ????" : "??? ???"})*\n` +
-                       `?? ?????: \`${phone}\`\n` +
-                       `?? ????????: ${details}\n\n` +
-                       `?? *????? Gemini ????????:*\n_${aiMessage}_\n\n` +
-                       `?? [????? ??? ???????? ??? ??????](${waLink})`;
+        const tgText = `🚨 عميل جديد (${type === "size_guide" ? "استشارة مقاس" : "طلب خصم"})\n` +
+                       `📱 الرقم: ${phone}\n` +
+                       `ℹ️ التفاصيل: ${details}\n\n` +
+                       `🤖 رسالة Gemini المقترحة:\n${aiMessage}\n\n` +
+                       `👉 اضغطي هنا لإرسالها عبر واتساب:\n${waLink}`;
 
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        const tgRes = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 chat_id: TELEGRAM_CHAT_ID,
                 text: tgText,
-                parse_mode: "Markdown",
                 disable_web_page_preview: true
             })
         });
+        
+        const tgData = await tgRes.json();
 
-        res.status(200).json({ success: true });
+        res.status(200).json({ success: true, telegram: tgData });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
