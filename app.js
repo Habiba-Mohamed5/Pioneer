@@ -109,7 +109,7 @@ function initProducts() {
             </div>
             <div class="p-3 text-center bg-gray-50 group-hover:bg-red-50 transition-colors">
                 <h3 class="font-black text-gray-900 text-sm mb-1">سكراب طبي - ${color.name}</h3>
-                <div class="text-red-600 font-black text-lg">950 ج.م <span class="text-xs text-gray-400 line-through font-normal">1100</span></div>
+                <div class="text-red-600 font-black text-lg">900 ج.م <span class="text-xs text-gray-400 line-through font-normal">1300</span></div>
             </div>
         `;
         card.addEventListener('click', () => openProductModal(color));
@@ -118,7 +118,7 @@ function initProducts() {
 }
 
 function calculatePrice(qty) {
-    if (qty === 1) return { total: 950, unit: 950, shipping: 'يضاف مصاريف الشحن' };
+    if (qty === 1) return { total: 900, unit: 900, shipping: 'يضاف مصاريف الشحن' };
     if (qty === 2) return { total: 1800, unit: 900, shipping: 'شحن مجاني' };
     return { total: qty * 850, unit: 850, shipping: 'شحن مجاني' };
 }
@@ -477,8 +477,8 @@ function submitOrder(customerData = null) {
     msg += `- الكمية: ${selectedProduct.quantity}\n`;
     
     if (selectedProduct.quantity === 1) {
-        msg += `- السعر الإجمالي للمنتجات: ${finalTotal} ج.م\n`;
-        msg += `🎁 (ملاحظة هامة: تم إخبار العميل بحصوله على خصم 20% من مصاريف الشحن الأساسية)\n\n`;
+        msg += `- السعر الإجمالي: ${finalTotal} ج.م (+ مصاريف الشحن)\n`;
+        msg += `*عرض خاص: ضيف قطعة كمان وخد شحن مجاني!*\n\n`;
     } else {
         msg += `- السعر الإجمالي: ${finalTotal} ج.م (${pricing.shipping})\n\n`;
     }

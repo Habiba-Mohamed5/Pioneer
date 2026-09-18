@@ -29,9 +29,10 @@ export default async function handler(req, res) {
         }
         else if (type === "new_order") {
             tgTitle = "🎉 أوردر جديد (شراء)";
+            let shippingText = finalTotal >= 1800 ? "شحن مجاني 🎁" : "+ مصاريف الشحن 🚚";
             aiMessage = `أهلاً يا دكتور ${name || ""}، مع حضرتك فريق Pioneer للملابس الطبية 👨‍⚕️\n` + 
                         `بنتواصل مع حضرتك لتأكيد أوردر السكراب لون (${color}) مقاس (${resultSize}).\n` + 
-                        `الإجمالي ${finalTotal} جنيه شامل الشحن.\n` +
+                        `الإجمالي ${finalTotal} جنيه (${shippingText}).\n` +
                         `نأكد الأوردر ويتشحن لحضرتك؟`;
         }
 
