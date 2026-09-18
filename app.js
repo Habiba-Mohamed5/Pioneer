@@ -198,12 +198,18 @@ function updateSizeAvailability() {
         
         let isAvailable = true;
         
-        if (color === 'pink' || color === 'teal' || color === 'blue') {
+        if (color === 'pink') {
             if (s === '3XL') isAvailable = false;
-        } else if (color === 'black' || color === 'navy') {
-            if (s !== 'M') isAvailable = false;
         } else if (color === 'olive') {
-            if (s !== 'M' && s !== 'XXL') isAvailable = false;
+            if (s !== 'M' && s !== 'L' && s !== 'XXL') isAvailable = false;
+        } else if (color === 'blue') {
+            if (s !== 'XL' && s !== 'XXL') isAvailable = false;
+        } else if (color === 'navy') {
+            if (s !== 'M' && s !== 'L' && s !== 'XL' && s !== 'XXL') isAvailable = false;
+        } else if (color === 'teal') {
+            if (s !== 'M' && s !== 'XL') isAvailable = false;
+        } else if (color === 'black') {
+            if (s !== 'M' && s !== 'L') isAvailable = false;
         }
 
         if(!isAvailable) {
@@ -342,9 +348,12 @@ btnCalcSize.addEventListener('click', () => {
     else idealSize = '3XL';
 
     function checkStock(s, c) {
-        if (c === 'pink' || c === 'teal' || c === 'blue') return s !== '3XL';
-        if (c === 'black' || c === 'navy') return s === 'M';
-        if (c === 'olive') return s === 'M' || s === 'XXL';
+        if (c === 'pink') return s !== '3XL';
+        if (c === 'olive') return s === 'M' || s === 'L' || s === 'XXL';
+        if (c === 'blue') return s === 'XL' || s === 'XXL';
+        if (c === 'navy') return s === 'M' || s === 'L' || s === 'XL' || s === 'XXL';
+        if (c === 'teal') return s === 'M' || s === 'XL';
+        if (c === 'black') return s === 'M' || s === 'L';
         return true;
     }
 
