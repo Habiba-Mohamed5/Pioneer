@@ -1,3 +1,19 @@
+// --- Dynamic CMS Data ---
+let cmsData = { prices: { basePrice: 900, fakePrice: 1300, twoPiecesPrice: 1800 }, inventory: null };
+const scriptURL = "https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec";
+
+fetch(scriptURL + "?action=get_data")
+    .then(res => res.json())
+    .then(data => {
+        if(data.prices && data.inventory) {
+            cmsData = data;
+            document.querySelectorAll(".text-red-600.font-black.text-lg").forEach(el => {
+                el.innerHTML = `${cmsData.prices.basePrice} ج.م <span class="text-xs text-gray-400 line-through font-normal">${cmsData.prices.fakePrice}</span>`;
+            });
+            if (typeof selectedProduct !== "undefined" && selectedProduct.color) updateSizeAvailability();
+        }
+    }).catch(err => console.error("Failed to load CMS data:", err));
+
 const colors = [
     { id: 'black', name: 'Black', hex: '#1f2022', images: ['Black_1.jpg', 'black_2.jpg', 'black_3.jpg'] },
     { id: 'teal', name: 'Teal', hex: '#1f4e5b', images: ['tael_1.jpg', 'tael_2.jpg', 'tael_3.jpg'] },
@@ -109,7 +125,7 @@ function initProducts() {
             </div>
             <div class="p-3 text-center bg-gray-50 group-hover:bg-red-50 transition-colors">
                 <h3 class="font-black text-gray-900 text-sm mb-1">سكراب طبي - ${color.name}</h3>
-                <div class="text-red-600 font-black text-lg">900 ج.م <span class="text-xs text-gray-400 line-through font-normal">1300</span></div>
+                <div class="text-red-600 font-black text-lg">${cmsData.prices.basePrice} ج.م <span class="text-xs text-gray-400 line-through font-normal">${cmsData.prices.fakePrice}</span></div>
             </div>
         `;
         card.addEventListener('click', () => openProductModal(color));
@@ -118,9 +134,11 @@ function initProducts() {
 }
 
 function calculatePrice(qty) {
-    if (qty === 1) return { total: 900, unit: 900, shipping: 'يضاف مصاريف الشحن' };
-    if (qty === 2) return { total: 1800, unit: 900, shipping: 'شحن مجاني' };
-    return { total: qty * 850, unit: 850, shipping: 'شحن مجاني' };
+    let base = cmsData.prices.basePrice;
+    let two = cmsData.prices.twoPiecesPrice;
+    if (qty === 1) return { total: base, unit: base, shipping: 'يضاف مصاريف الشحن' };
+    if (qty === 2) return { total: two, unit: two / 2, shipping: 'شحن مجاني' };
+    return { total: qty * (two / 2 - 50), unit: (two / 2 - 50), shipping: 'شحن مجاني' };
 }
 
 // --- Slider Logic ---
