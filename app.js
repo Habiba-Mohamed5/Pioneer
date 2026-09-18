@@ -1,3 +1,7 @@
+// --- NEW: Dynamic CMS Data ---
+let cmsData = { prices: { basePrice: 900, fakePrice: 1300, twoPiecesPrice: 1800 }, inventory: null };
+const scriptURL = "https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec";
+fetch(scriptURL + "?action=get_data").then(res => res.json()).then(data => { if(data.prices && data.inventory) { cmsData = data; document.querySelectorAll(".text-red-600.font-black.text-lg").forEach(el => { el.innerHTML = `${cmsData.prices.basePrice} ج.م <span class="text-xs text-gray-400 line-through font-normal">${cmsData.prices.fakePrice}</span>`; }); if (typeof selectedProduct !== "undefined" && selectedProduct.color) updateSizeAvailability(); } }).catch(err => console.error("Failed to load CMS data:", err));
 const colors = [
     { id: 'black', name: 'Black', hex: '#1f2022', images: ['Black_1.jpg', 'black_2.jpg', 'black_3.jpg'] },
     { id: 'teal', name: 'Teal', hex: '#1f4e5b', images: ['tael_1.jpg', 'tael_2.jpg', 'tael_3.jpg'] },
@@ -86,7 +90,7 @@ function startTimer(durationMinutes, elementId) {
 }
 startTimer(15, 'globalTimer');
 setInterval(() => {
-    liveViewersEl.innerHTML = `${Math.floor(Math.random() * (75 - 25 + 1) + 25)} شخص يشاهدون الآن`;
+    liveViewersEl.innerHTML = `${Math.floor(Math.random() * (75 - 25 + 1) + 25)} Ø´Ø®Øµ ÙŠØ´Ø§Ù‡Ø¯ÙˆÙ† Ø§Ù„Ø¢Ù†`;
 }, 10000);
 
 // --- Initialize Products ---
@@ -94,22 +98,15 @@ function initProducts() {
     colors.forEach(color => {
         const card = document.createElement('div');
         card.className = 'bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 group border border-gray-100 relative';
-        const badges = ['🔥 الأكثر طلباً', '⚡ ينفذ سريعاً', '⭐ حصري'];
-        const randomBadge = badges[Math.floor(Math.random() * badges.length)];
-        
+        card.className = 'bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer group hover:shadow-md transition-all border border-gray-100';
         card.innerHTML = `
-            <div class="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded-full z-10 animate-pulse">
-                ${randomBadge}
-            </div>
-            <div class="relative w-full aspect-[3/4] overflow-hidden bg-gray-100">
-                <img src="${color.images[0]}" alt="${color.name}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" onerror="this.src='https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=800&q=80'">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                    <span class="bg-white text-red-600 font-bold px-4 py-2 rounded-full text-sm shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all">اختر المقاس</span>
-                </div>
+            <div class="relative aspect-[3/4] overflow-hidden bg-gray-100">
+                <img src="${color.images[0]}" alt="${color.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=600&q=80'">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </div>
             <div class="p-3 text-center bg-gray-50 group-hover:bg-red-50 transition-colors">
-                <h3 class="font-black text-gray-900 text-sm mb-1">سكراب طبي - ${color.name}</h3>
-                <div class="text-red-600 font-black text-lg">900 ج.م <span class="text-xs text-gray-400 line-through font-normal">1300</span></div>
+                <h3 class="font-black text-gray-900 text-sm mb-1">Ø³ÙƒØ±Ø§Ø¨ Ø·Ø¨ÙŠ - ${color.name}</h3>
+                <div class="text-red-600 font-black text-lg">${cmsData.prices.basePrice} Ø¬.Ù… <span class="text-xs text-gray-400 line-through font-normal">${cmsData.prices.fakePrice}</span></div>
             </div>
         `;
         card.addEventListener('click', () => openProductModal(color));
@@ -118,9 +115,11 @@ function initProducts() {
 }
 
 function calculatePrice(qty) {
-    if (qty === 1) return { total: 900, unit: 900, shipping: 'يضاف مصاريف الشحن' };
-    if (qty === 2) return { total: 1800, unit: 900, shipping: 'شحن مجاني' };
-    return { total: qty * 850, unit: 850, shipping: 'شحن مجاني' };
+    let base = cmsData.prices.basePrice;
+    let two = cmsData.prices.twoPiecesPrice;
+    if (qty === 1) return { total: base, unit: base, shipping: 'ÙŠØ¶Ø§Ù Ù…ØµØ§Ø±ÙŠÙ Ø§Ù„Ø´Ø­Ù†' };
+    if (qty === 2) return { total: two, unit: two / 2, shipping: 'Ø´Ø­Ù† Ù…Ø¬Ø§Ù†ÙŠ' };
+    return { total: qty * (two / 2 - 50), unit: (two / 2 - 50), shipping: 'Ø´Ø­Ù† Ù…Ø¬Ø§Ù†ÙŠ' };
 }
 
 // --- Slider Logic ---
@@ -198,18 +197,23 @@ function updateSizeAvailability() {
         
         let isAvailable = true;
         
-        if (color === 'pink') {
-            if (s === '3XL') isAvailable = false;
-        } else if (color === 'olive') {
-            if (s !== 'M' && s !== 'L' && s !== 'XXL') isAvailable = false;
-        } else if (color === 'blue') {
-            if (s !== 'XL' && s !== 'XXL') isAvailable = false;
-        } else if (color === 'navy') {
-            if (s !== 'M' && s !== 'L' && s !== 'XL' && s !== 'XXL') isAvailable = false;
-        } else if (color === 'teal') {
-            if (s !== 'M' && s !== 'XL') isAvailable = false;
-        } else if (color === 'black') {
-            if (s !== 'M' && s !== 'L') isAvailable = false;
+        if (cmsData.inventory && cmsData.inventory[color]) {
+            isAvailable = cmsData.inventory[color][s] > 0;
+        } else {
+            // Fallback hardcoded if API failed
+            if (color === 'pink') {
+                if (s === '3XL') isAvailable = false;
+            } else if (color === 'olive') {
+                if (s !== 'M' && s !== 'L' && s !== 'XXL') isAvailable = false;
+            } else if (color === 'blue') {
+                if (s !== 'XL' && s !== 'XXL') isAvailable = false;
+            } else if (color === 'navy') {
+                if (s !== 'M' && s !== 'L' && s !== 'XL' && s !== 'XXL') isAvailable = false;
+            } else if (color === 'teal') {
+                if (s !== 'M' && s !== 'XL') isAvailable = false;
+            } else if (color === 'black') {
+                if (s !== 'M' && s !== 'L') isAvailable = false;
+            }
         }
 
         if(!isAvailable) {
@@ -260,16 +264,16 @@ function updateModalUI() {
 
     const pricing = calculatePrice(selectedProduct.quantity);
     currentBaseTotal = pricing.total;
-    modalPrice.innerText = `${currentBaseTotal} ج.م`;
-    totalPriceBtn.innerText = `(${currentBaseTotal} ج.م)`;
+    modalPrice.innerText = `${currentBaseTotal} Ø¬.Ù…`;
+    totalPriceBtn.innerText = `(${currentBaseTotal} Ø¬.Ù…)`;
 
     if (selectedProduct.quantity === 1) {
         pricingMessage.className = 'bg-blue-50 border border-blue-200 text-blue-700 p-2.5 rounded-xl text-xs sm:text-sm font-bold text-center mb-3 transition-all flex items-center justify-center gap-2 shadow-sm';
-        pricingMessage.innerHTML = '<i class="fa-solid fa-gift animate-pulse text-lg"></i> <span>أضف قطعة أخرى للحصول على شحن مجاني!</span>';
+        pricingMessage.innerHTML = '<i class="fa-solid fa-gift animate-pulse text-lg"></i> <span>Ø£Ø¶Ù Ù‚Ø·Ø¹Ø© Ø£Ø®Ø±Ù‰ Ù„Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø´Ø­Ù† Ù…Ø¬Ø§Ù†ÙŠ!</span>';
         urgencyBar.classList.add('hidden');
     } else if (selectedProduct.quantity === 2) {
         pricingMessage.className = 'bg-green-50 border border-green-200 text-green-700 p-2.5 rounded-xl text-xs sm:text-sm font-black text-center mb-3 transition-all flex items-center justify-center gap-2 shadow-sm';
-        pricingMessage.innerHTML = '<span class="text-lg">🎉</span> <span>شحن مجاني! أضف قطعة ثالثة وسينخفض السعر لـ 850 ج.م للقطعة.</span>';
+        pricingMessage.innerHTML = '<span class="text-lg">ðŸŽ‰</span> <span>Ø´Ø­Ù† Ù…Ø¬Ø§Ù†ÙŠ! Ø£Ø¶Ù Ù‚Ø·Ø¹Ø© Ø«Ø§Ù„Ø«Ø© ÙˆØ³ÙŠÙ†Ø®ÙØ¶ Ø§Ù„Ø³Ø¹Ø± Ù„Ù€ 850 Ø¬.Ù… Ù„Ù„Ù‚Ø·Ø¹Ø©.</span>';
         if(urgencyBar.classList.contains('hidden')){
             urgencyBar.classList.remove('hidden');
             clearInterval(urgencyCountdownInterval);
@@ -277,7 +281,7 @@ function updateModalUI() {
         }
     } else {
         pricingMessage.className = 'bg-green-50 border border-green-200 text-green-700 p-2.5 rounded-xl text-xs sm:text-sm font-black text-center mb-3 transition-all flex items-center justify-center gap-2 shadow-sm';
-        pricingMessage.innerHTML = '<span class="text-lg">🔥</span> <span>السعر الآن 850 ج.م للقطعة + شحن مجاني!</span>';
+        pricingMessage.innerHTML = '<span class="text-lg">ðŸ”¥</span> <span>Ø§Ù„Ø³Ø¹Ø± Ø§Ù„Ø¢Ù† 850 Ø¬.Ù… Ù„Ù„Ù‚Ø·Ø¹Ø© + Ø´Ø­Ù† Ù…Ø¬Ø§Ù†ÙŠ!</span>';
     }
 }
 
@@ -335,8 +339,8 @@ btnCalcSize.addEventListener('click', () => {
     const h = parseInt(calcHeight.value);
     const phone = document.getElementById('calcPhone').value.trim();
     
-    if(!w || !h) { alert('برجاء إدخال الوزن والطول'); return; }
-    if(phone.length < 10) { alert('برجاء إدخال رقم الواتساب لمعرفة النتيجة بدقة ولنتواصل معك إذا لزم الأمر'); return; }
+    if(!w || !h) { alert('Ø¨Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ù„ÙˆØ²Ù† ÙˆØ§Ù„Ø·ÙˆÙ„'); return; }
+    if(phone.length < 10) { alert('Ø¨Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ø±Ù‚Ù… Ø§Ù„ÙˆØ§ØªØ³Ø§Ø¨ Ù„Ù…Ø¹Ø±ÙØ© Ø§Ù„Ù†ØªÙŠØ¬Ø© Ø¨Ø¯Ù‚Ø© ÙˆÙ„Ù†ØªÙˆØ§ØµÙ„ Ù…Ø¹Ùƒ Ø¥Ø°Ø§ Ù„Ø²Ù… Ø§Ù„Ø£Ù…Ø±'); return; }
     
     let color = selectedProduct.color.id;
     let idealSize = 'XXL';
@@ -348,6 +352,9 @@ btnCalcSize.addEventListener('click', () => {
     else idealSize = '3XL';
 
     function checkStock(s, c) {
+        if (cmsData.inventory && cmsData.inventory[c]) {
+            return cmsData.inventory[c][s] > 0;
+        }
         if (c === 'pink') return s !== '3XL';
         if (c === 'olive') return s === 'M' || s === 'L' || s === 'XXL';
         if (c === 'blue') return s === 'XL' || s === 'XXL';
@@ -382,10 +389,10 @@ btnCalcSize.addEventListener('click', () => {
         method: 'POST', mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-            name: "استشارة مقاس", 
+            name: "Ø§Ø³ØªØ´Ø§Ø±Ø© Ù…Ù‚Ø§Ø³", 
             phone: phone, 
             city: "-", address: "-", 
-            productDetails: `الوزن: ${w}, الطول: ${h}, النتيجة: ${recSize}` 
+            productDetails: `Ø§Ù„ÙˆØ²Ù†: ${w}, Ø§Ù„Ø·ÙˆÙ„: ${h}, Ø§Ù„Ù†ØªÙŠØ¬Ø©: ${recSize}` 
         })
     }).catch(e => console.log(e));
 
@@ -396,7 +403,7 @@ btnCalcSize.addEventListener('click', () => {
         body: JSON.stringify({
             type: 'size_guide',
             phone: phone,
-            details: `وزن: ${w}، طول: ${h}`,
+            details: `ÙˆØ²Ù†: ${w}ØŒ Ø·ÙˆÙ„: ${h}`,
             weight: w,
             height: h,
             resultSize: recSize
@@ -409,7 +416,7 @@ useRecommendedSize.addEventListener('click', () => {
         setSize(recommendedSizeTxt.innerText);
         closeSizeGuide();
     } else {
-        alert('نعتذر، مقاس XXL نفذ من المخزون حالياً.');
+        alert('Ù†Ø¹ØªØ°Ø±ØŒ Ù…Ù‚Ø§Ø³ XXL Ù†ÙØ° Ù…Ù† Ø§Ù„Ù…Ø®Ø²ÙˆÙ† Ø­Ø§Ù„ÙŠØ§Ù‹.');
     }
 });
 
@@ -417,7 +424,7 @@ useRecommendedSize.addEventListener('click', () => {
 let checkoutInterval;
 buyBtn.addEventListener('click', () => {
     if (!selectedProduct.size) {
-        alert('سارع باختيار المقاس قبل نفاذ الكمية!');
+        alert('Ø³Ø§Ø±Ø¹ Ø¨Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ù…Ù‚Ø§Ø³ Ù‚Ø¨Ù„ Ù†ÙØ§Ø° Ø§Ù„ÙƒÙ…ÙŠØ©!');
         return;
     }
     
@@ -470,39 +477,39 @@ function submitOrder(customerData = null) {
     const pricing = calculatePrice(selectedProduct.quantity);
     let finalTotal = pricing.total;
     
-    let msg = `*طلب مستعجل 🚨*\n\n`;
-    msg += `- المنتج: Medical Scrub\n`;
-    msg += `- اللون: ${selectedProduct.color.name}\n`;
-    msg += `- المقاس: ${selectedProduct.size}\n`;
-    msg += `- الكمية: ${selectedProduct.quantity}\n`;
+    let msg = `*Ø·Ù„Ø¨ Ù…Ø³ØªØ¹Ø¬Ù„ ðŸš¨*\n\n`;
+    msg += `- Ø§Ù„Ù…Ù†ØªØ¬: Medical Scrub\n`;
+    msg += `- Ø§Ù„Ù„ÙˆÙ†: ${selectedProduct.color.name}\n`;
+    msg += `- Ø§Ù„Ù…Ù‚Ø§Ø³: ${selectedProduct.size}\n`;
+    msg += `- Ø§Ù„ÙƒÙ…ÙŠØ©: ${selectedProduct.quantity}\n`;
     
     if (selectedProduct.quantity === 1) {
-        msg += `- السعر الإجمالي: ${finalTotal} ج.م (+ مصاريف الشحن)\n`;
-        msg += `*عرض خاص: ضيف قطعة كمان وخد شحن مجاني!*\n\n`;
+        msg += `- Ø§Ù„Ø³Ø¹Ø± Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ: ${finalTotal} Ø¬.Ù… (+ Ù…ØµØ§Ø±ÙŠÙ Ø§Ù„Ø´Ø­Ù†)\n`;
+        msg += `*Ø¹Ø±Ø¶ Ø®Ø§Øµ: Ø¶ÙŠÙ Ù‚Ø·Ø¹Ø© ÙƒÙ…Ø§Ù† ÙˆØ®Ø¯ Ø´Ø­Ù† Ù…Ø¬Ø§Ù†ÙŠ!*\n\n`;
     } else {
-        msg += `- السعر الإجمالي: ${finalTotal} ج.م (${pricing.shipping})\n\n`;
+        msg += `- Ø§Ù„Ø³Ø¹Ø± Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ: ${finalTotal} Ø¬.Ù… (${pricing.shipping})\n\n`;
     }
     
     if (customerData) {
-        msg += `*بيانات العميل:*\n`;
-        msg += `- الاسم: ${customerData.name}\n`;
-        msg += `- المحافظة: ${customerData.gov}\n`;
-        msg += `- العنوان: ${customerData.address}\n`;
-        msg += `- رقم الهاتف: ${customerData.phone}\n`;
+        msg += `*Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¹Ù…ÙŠÙ„:*\n`;
+        msg += `- Ø§Ù„Ø§Ø³Ù…: ${customerData.name}\n`;
+        msg += `- Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©: ${customerData.gov}\n`;
+        msg += `- Ø§Ù„Ø¹Ù†ÙˆØ§Ù†: ${customerData.address}\n`;
+        msg += `- Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ: ${customerData.phone}\n`;
         if (customerData.phone2) {
-            msg += `- رقم هاتف بديل: ${customerData.phone2}\n`;
+            msg += `- Ø±Ù‚Ù… Ù‡Ø§ØªÙ Ø¨Ø¯ÙŠÙ„: ${customerData.phone2}\n`;
         }
         if (customerData.notes) {
-            msg += `- ملاحظات العميل: ${customerData.notes}\n`;
+            msg += `- Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ø¹Ù…ÙŠÙ„: ${customerData.notes}\n`;
         }
         msg += `\n`;
 
-        // -- إرسال البيانات إلى Google Sheets في الخلفية --
+        // -- Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¥Ù„Ù‰ Google Sheets ÙÙŠ Ø§Ù„Ø®Ù„ÙÙŠØ© --
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec';
         
-        let productDetailsText = `اللون: ${selectedProduct.color.name} | المقاس: ${selectedProduct.size} | الكمية: ${selectedProduct.quantity} | الإجمالي: ${finalTotal}`;
+        let productDetailsText = `Ø§Ù„Ù„ÙˆÙ†: ${selectedProduct.color.name} | Ø§Ù„Ù…Ù‚Ø§Ø³: ${selectedProduct.size} | Ø§Ù„ÙƒÙ…ÙŠØ©: ${selectedProduct.quantity} | Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ: ${finalTotal}`;
         if (customerData.notes) {
-            productDetailsText += ` | ملاحظات: ${customerData.notes}`;
+            productDetailsText += ` | Ù…Ù„Ø§Ø­Ø¸Ø§Øª: ${customerData.notes}`;
         }
         let fullPhone = customerData.phone;
         if (customerData.phone2) fullPhone += " / " + customerData.phone2;
@@ -513,7 +520,7 @@ function submitOrder(customerData = null) {
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    name: customerData.name + " (مكتمل)",
+                    name: customerData.name + " (Ù…ÙƒØªÙ…Ù„)",
                     phone: fullPhone,
                     city: customerData.gov,
                     address: customerData.address,
@@ -536,7 +543,7 @@ function submitOrder(customerData = null) {
         // ------------------------------------------------
 
     } else {
-        msg += `*طلب سريع (بدون تسجيل مسبق)*\n`;
+        msg += `*Ø·Ù„Ø¨ Ø³Ø±ÙŠØ¹ (Ø¨Ø¯ÙˆÙ† ØªØ³Ø¬ÙŠÙ„ Ù…Ø³Ø¨Ù‚)*\n`;
     }
     
     const merchantPhone = "201070331386"; 
@@ -550,7 +557,7 @@ function submitOrder(customerData = null) {
             body: JSON.stringify({
                 type: 'new_order',
                 phone: customerData.phone,
-                details: `طلب شراء سكراب ${selectedProduct.color.name} مقاس ${selectedProduct.size}`,
+                details: `Ø·Ù„Ø¨ Ø´Ø±Ø§Ø¡ Ø³ÙƒØ±Ø§Ø¨ ${selectedProduct.color.name} Ù…Ù‚Ø§Ø³ ${selectedProduct.size}`,
                 name: customerData.name,
                 color: selectedProduct.color.name,
                 resultSize: selectedProduct.size,
@@ -579,7 +586,7 @@ document.getElementById('checkoutForm').addEventListener('submit', (e) => {
     closeModalFunc(document.getElementById('checkoutModal'));
 });
 
-// -- Abandoned Checkout Tracking (تتبع العملاء الذين لم يكملوا الطلب) --
+// -- Abandoned Checkout Tracking (ØªØªØ¨Ø¹ Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡ Ø§Ù„Ø°ÙŠÙ† Ù„Ù… ÙŠÙƒÙ…Ù„ÙˆØ§ Ø§Ù„Ø·Ù„Ø¨) --
 let hasSentPartial = false;
 document.getElementById('custPhone').addEventListener('blur', (e) => {
     const phoneVal = e.target.value.trim();
@@ -593,7 +600,7 @@ document.getElementById('custPhone').addEventListener('blur', (e) => {
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                name: (nameVal || "بدون اسم") + " (لم يكمل الأوردر)",
+                name: (nameVal || "Ø¨Ø¯ÙˆÙ† Ø§Ø³Ù…") + " (Ù„Ù… ÙŠÙƒÙ…Ù„ Ø§Ù„Ø£ÙˆØ±Ø¯Ø±)",
                 phone: phoneVal,
                 city: "-",
                 address: "-",
@@ -606,8 +613,8 @@ document.getElementById('custPhone').addEventListener('blur', (e) => {
 skipBtn.addEventListener('click', () => { submitOrder(null); });
 
 // --- Social Proof Toasts ---
-const names = ['أحمد', 'محمد', 'محمود', 'سارة', 'نهى', 'كريم', 'مصطفى', 'ياسمين', 'إسلام', 'نورهان'];
-const govs = ['القاهرة', 'الجيزة', 'الإسكندرية', 'المنصورة', 'طنطا', 'أسيوط', 'الزقازيق'];
+const names = ['Ø£Ø­Ù…Ø¯', 'Ù…Ø­Ù…Ø¯', 'Ù…Ø­Ù…ÙˆØ¯', 'Ø³Ø§Ø±Ø©', 'Ù†Ù‡Ù‰', 'ÙƒØ±ÙŠÙ…', 'Ù…ØµØ·ÙÙ‰', 'ÙŠØ§Ø³Ù…ÙŠÙ†', 'Ø¥Ø³Ù„Ø§Ù…', 'Ù†ÙˆØ±Ù‡Ø§Ù†'];
+const govs = ['Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©', 'Ø§Ù„Ø¬ÙŠØ²Ø©', 'Ø§Ù„Ø¥Ø³ÙƒÙ†Ø¯Ø±ÙŠØ©', 'Ø§Ù„Ù…Ù†ØµÙˆØ±Ø©', 'Ø·Ù†Ø·Ø§', 'Ø£Ø³ÙŠÙˆØ·', 'Ø§Ù„Ø²Ù‚Ø§Ø²ÙŠÙ‚'];
 function showPurchaseToast() {
     const name = names[Math.floor(Math.random() * names.length)];
     const gov = govs[Math.floor(Math.random() * govs.length)];
@@ -619,10 +626,10 @@ function showPurchaseToast() {
     toast.innerHTML = `
         <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 border border-gray-200"><img src="${color.images[0]}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=800&q=80'"></div>
         <div class="flex-grow">
-            <div class="text-sm font-bold text-gray-800">${name} من ${gov}</div>
-            <div class="text-xs text-gray-500 mt-0.5">اشترى سكراب ${color.name} الآن!</div>
+            <div class="text-sm font-bold text-gray-800">${name} Ù…Ù† ${gov}</div>
+            <div class="text-xs text-gray-500 mt-0.5">Ø§Ø´ØªØ±Ù‰ Ø³ÙƒØ±Ø§Ø¨ ${color.name} Ø§Ù„Ø¢Ù†!</div>
         </div>
-        <div class="text-red-500 text-xs font-bold animate-pulse">منذ لحظات</div>
+        <div class="text-red-500 text-xs font-bold animate-pulse">Ù…Ù†Ø° Ù„Ø­Ø¸Ø§Øª</div>
     `;
     toastContainer.appendChild(toast);
     setTimeout(() => {
@@ -722,7 +729,7 @@ claimExitDiscountBtn.addEventListener('click', () => {
     if (!hasActiveDiscount) {
         // Phone capture step
         const phone = document.getElementById('exitPhoneInput').value.trim();
-        if (phone.length < 10) { alert('برجاء إدخال رقم واتساب صحيح لتتلقى الكود'); return; }
+        if (phone.length < 10) { alert('Ø¨Ø±Ø¬Ø§Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ø±Ù‚Ù… ÙˆØ§ØªØ³Ø§Ø¨ ØµØ­ÙŠØ­ Ù„ØªØªÙ„Ù‚Ù‰ Ø§Ù„ÙƒÙˆØ¯'); return; }
         
         // Save lead to Google Sheets
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec';
@@ -730,10 +737,10 @@ claimExitDiscountBtn.addEventListener('click', () => {
             method: 'POST', mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                name: "صائد المنسحبين (طلب خصم)", 
+                name: "ØµØ§Ø¦Ø¯ Ø§Ù„Ù…Ù†Ø³Ø­Ø¨ÙŠÙ† (Ø·Ù„Ø¨ Ø®ØµÙ…)", 
                 phone: phone, 
                 city: "-", address: "-", 
-                productDetails: "العميل استلم كود خصم 5% (DOCTOR5)" 
+                productDetails: "Ø§Ù„Ø¹Ù…ÙŠÙ„ Ø§Ø³ØªÙ„Ù… ÙƒÙˆØ¯ Ø®ØµÙ… 5% (DOCTOR5)" 
             })
         }).catch(err => console.log(err));
         
@@ -744,15 +751,15 @@ claimExitDiscountBtn.addEventListener('click', () => {
             body: JSON.stringify({
                 type: 'exit_intent',
                 phone: phone,
-                details: "استلم كود DOCTOR5"
+                details: "Ø§Ø³ØªÙ„Ù… ÙƒÙˆØ¯ DOCTOR5"
             })
         }).catch(e=>{});
         
         // Show code
         document.getElementById('exitPhoneContainer').classList.add('hidden');
         document.getElementById('exitCodeContainer').classList.remove('hidden');
-        document.getElementById('exitPopupText').innerHTML = 'تهانينا! الكود صالح لمدة <span class="bg-yellow-200 px-1 rounded text-dark">5 دقائق</span> فقط!';
-        claimExitDiscountBtn.innerText = 'استخدم الخصم الآن!';
+        document.getElementById('exitPopupText').innerHTML = 'ØªÙ‡Ø§Ù†ÙŠÙ†Ø§! Ø§Ù„ÙƒÙˆØ¯ ØµØ§Ù„Ø­ Ù„Ù…Ø¯Ø© <span class="bg-yellow-200 px-1 rounded text-dark">5 Ø¯Ù‚Ø§Ø¦Ù‚</span> ÙÙ‚Ø·!';
+        claimExitDiscountBtn.innerText = 'Ø§Ø³ØªØ®Ø¯Ù… Ø§Ù„Ø®ØµÙ… Ø§Ù„Ø¢Ù†!';
         hasActiveDiscount = true;
     } else {
         // Apply discount step
@@ -761,8 +768,8 @@ claimExitDiscountBtn.addEventListener('click', () => {
         
         stickyCTA.innerHTML = `
             <div class="text-right flex-grow">
-                <div class="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full inline-block mb-0.5">✅ تم تفعيل كود DOCTOR5</div>
-                <div class="text-sm font-black text-gray-900 leading-none">استمتع بخصم 5% على طلبك</div>
+                <div class="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full inline-block mb-0.5">âœ… ØªÙ… ØªÙØ¹ÙŠÙ„ ÙƒÙˆØ¯ DOCTOR5</div>
+                <div class="text-sm font-black text-gray-900 leading-none">Ø§Ø³ØªÙ…ØªØ¹ Ø¨Ø®ØµÙ… 5% Ø¹Ù„Ù‰ Ø·Ù„Ø¨Ùƒ</div>
             </div>
         `;
     }
