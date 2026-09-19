@@ -1,43 +1,3 @@
-// --- Dynamic CMS Data ---
-let cmsData = { prices: { basePrice: 900, fakePrice: 1300, twoPiecesPrice: 1800 }, inventory: null };
-const scriptURL = "https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec";
-
-fetch(scriptURL + "?action=get_data")
-    .then(res => res.json())
-    .then(data => {
-        if(data.prices && data.inventory) {
-            cmsData = data;
-            document.querySelectorAll(".text-red-600.font-black.text-lg").forEach(el => {
-                el.innerHTML = `${cmsData.prices.basePrice} ج.م <span class="text-xs text-gray-400 line-through font-normal">${cmsData.prices.fakePrice}</span>`;
-            });
-            if (typeof selectedProduct !== "undefined" && selectedProduct.color) updateSizeAvailability();
-            
-            // 1. Announcement Bar
-            if (cmsData.announcement && cmsData.announcement.active && cmsData.announcement.text) {
-                const bar = document.getElementById('cmsAnnouncement');
-                if(bar) {
-                    bar.innerHTML = cmsData.announcement.text;
-                    bar.classList.remove('hidden');
-                    document.body.classList.replace('pt-[36px]', 'pt-[72px]'); // Adjust padding for 2 bars
-                }
-            }
-
-            // 2. Populate Governorates
-            if (cmsData.shippingRates) {
-                const govSelect = document.getElementById('custGov');
-                if (govSelect) {
-                    govSelect.innerHTML = '<option value="">اختر المحافظة...</option>';
-                    Object.keys(cmsData.shippingRates).forEach(gov => {
-                        const opt = document.createElement('option');
-                        opt.value = gov;
-                        opt.textContent = gov;
-                        govSelect.appendChild(opt);
-                    });
-                }
-            }
-        }
-    }).catch(err => console.error("Failed to load CMS data:", err));
-
 const colors = [
     { id: 'black', name: 'Black', hex: '#1f2022', images: ['Black_1.jpg', 'black_2.jpg', 'black_3.jpg'] },
     { id: 'teal', name: 'Teal', hex: '#1f4e5b', images: ['tael_1.jpg', 'tael_2.jpg', 'tael_3.jpg'] },
@@ -149,7 +109,7 @@ function initProducts() {
             </div>
             <div class="p-3 text-center bg-gray-50 group-hover:bg-red-50 transition-colors">
                 <h3 class="font-black text-gray-900 text-sm mb-1">سكراب طبي - ${color.name}</h3>
-                <div class="text-red-600 font-black text-lg">${cmsData.prices.basePrice} ج.م <span class="text-xs text-gray-400 line-through font-normal">${cmsData.prices.fakePrice}</span></div>
+                <div class="text-red-600 font-black text-lg">950 ج.م <span class="text-xs text-gray-400 line-through font-normal">1100</span></div>
             </div>
         `;
         card.addEventListener('click', () => openProductModal(color));
@@ -158,11 +118,9 @@ function initProducts() {
 }
 
 function calculatePrice(qty) {
-    let base = cmsData.prices.basePrice;
-    let two = cmsData.prices.twoPiecesPrice;
-    if (qty === 1) return { total: base, unit: base, shipping: 'يضاف مصاريف الشحن' };
-    if (qty === 2) return { total: two, unit: two / 2, shipping: 'شحن مجاني' };
-    return { total: qty * (two / 2 - 50), unit: (two / 2 - 50), shipping: 'شحن مجاني' };
+    if (qty === 1) return { total: 950, unit: 950, shipping: 'يضاف مصاريف الشحن' };
+    if (qty === 2) return { total: 1800, unit: 900, shipping: 'شحن مجاني' };
+    return { total: qty * 850, unit: 850, shipping: 'شحن مجاني' };
 }
 
 // --- Slider Logic ---
@@ -240,18 +198,12 @@ function updateSizeAvailability() {
         
         let isAvailable = true;
         
-        if (color === 'pink') {
+        if (color === 'pink' || color === 'teal' || color === 'blue') {
             if (s === '3XL') isAvailable = false;
+        } else if (color === 'black' || color === 'navy') {
+            if (s !== 'M') isAvailable = false;
         } else if (color === 'olive') {
-            if (s !== 'M' && s !== 'L' && s !== 'XXL') isAvailable = false;
-        } else if (color === 'blue') {
-            if (s !== 'XL' && s !== 'XXL') isAvailable = false;
-        } else if (color === 'navy') {
-            if (s !== 'M' && s !== 'L' && s !== 'XL' && s !== 'XXL') isAvailable = false;
-        } else if (color === 'teal') {
-            if (s !== 'M' && s !== 'XL') isAvailable = false;
-        } else if (color === 'black') {
-            if (s !== 'M' && s !== 'L') isAvailable = false;
+            if (s !== 'M' && s !== 'XXL') isAvailable = false;
         }
 
         if(!isAvailable) {
@@ -390,12 +342,9 @@ btnCalcSize.addEventListener('click', () => {
     else idealSize = '3XL';
 
     function checkStock(s, c) {
-        if (c === 'pink') return s !== '3XL';
-        if (c === 'olive') return s === 'M' || s === 'L' || s === 'XXL';
-        if (c === 'blue') return s === 'XL' || s === 'XXL';
-        if (c === 'navy') return s === 'M' || s === 'L' || s === 'XL' || s === 'XXL';
-        if (c === 'teal') return s === 'M' || s === 'XL';
-        if (c === 'black') return s === 'M' || s === 'L';
+        if (c === 'pink' || c === 'teal' || c === 'blue') return s !== '3XL';
+        if (c === 'black' || c === 'navy') return s === 'M';
+        if (c === 'olive') return s === 'M' || s === 'XXL';
         return true;
     }
 
@@ -477,62 +426,9 @@ buyBtn.addEventListener('click', () => {
     openCheckoutModal();
 });
 
-let currentPromoDiscount = 0; // percentage
-let currentPromoCodeStr = "";
-
 function updateCheckoutPrice() {
-    let base = currentBaseTotal; // this already includes exit-intent 50 EGP discount if active
-    let shipping = 0;
-    
-    // Shipping based on Governorate (only if qty == 1)
-    if (selectedProduct.quantity === 1) {
-        const gov = document.getElementById('custGov').value;
-        if (gov && cmsData && cmsData.shippingRates && cmsData.shippingRates[gov]) {
-            shipping = cmsData.shippingRates[gov];
-        }
-    }
-    
-    // Promo Code discount
-    let promoDiscountAmt = 0;
-    if (currentPromoDiscount > 0) {
-        promoDiscountAmt = (base * currentPromoDiscount) / 100;
-    }
-    
-    let finalTotal = base + shipping - promoDiscountAmt;
-    
-    let text = `${finalTotal}`;
-    if (shipping > 0) text += ` (شامل الشحن)`;
-    else if (selectedProduct.quantity === 1) text += ` (+ مصاريف الشحن)`;
-    else text += ` (شحن مجاني)`;
-    
-    finalCheckoutPrice.innerText = text;
+    finalCheckoutPrice.innerText = currentBaseTotal;
 }
-
-// Add event listeners for dynamic checkout
-document.getElementById('custGov')?.addEventListener('change', updateCheckoutPrice);
-
-document.getElementById('applyPromoBtn')?.addEventListener('click', () => {
-    const code = document.getElementById('promoCode').value.trim().toUpperCase();
-    const msgEl = document.getElementById('promoMessage');
-    
-    if(!code) return;
-    
-    if (cmsData && cmsData.promoCodes && cmsData.promoCodes[code]) {
-        currentPromoDiscount = cmsData.promoCodes[code];
-        currentPromoCodeStr = code;
-        msgEl.textContent = `✅ تم تفعيل خصم ${currentPromoDiscount}% بنجاح!`;
-        msgEl.className = "text-xs font-bold mt-1 text-green-600";
-        msgEl.classList.remove('hidden');
-        updateCheckoutPrice();
-    } else {
-        currentPromoDiscount = 0;
-        currentPromoCodeStr = "";
-        msgEl.textContent = "❌ كود الخصم غير صحيح أو منتهي الصلاحية";
-        msgEl.className = "text-xs font-bold mt-1 text-red-600";
-        msgEl.classList.remove('hidden');
-        updateCheckoutPrice();
-    }
-});
 
 function openCheckoutModal() {
     updateCheckoutPrice();
@@ -564,29 +460,16 @@ closeCheckoutBtn.addEventListener('click', closeCheckoutModal);
 function submitOrder(customerData = null) {
     const pricing = calculatePrice(selectedProduct.quantity);
     let finalTotal = pricing.total;
-    let shippingAdded = 0;
     
-    if (customerData) {
-        if (selectedProduct.quantity === 1 && cmsData && cmsData.shippingRates && cmsData.shippingRates[customerData.gov]) {
-            shippingAdded = cmsData.shippingRates[customerData.gov];
-        }
-        if (currentPromoDiscount > 0) {
-            finalTotal = finalTotal - (finalTotal * currentPromoDiscount / 100);
-        } else if (hasActiveDiscount) {
-            finalTotal = finalTotal - (finalTotal * 5 / 100);
-        }
-        finalTotal += shippingAdded;
-    }
-    
-    let msg = `*طلب سكراب جديد*\n\n`;
+    let msg = `*طلب مستعجل 🚨*\n\n`;
     msg += `- المنتج: Medical Scrub\n`;
     msg += `- اللون: ${selectedProduct.color.name}\n`;
     msg += `- المقاس: ${selectedProduct.size}\n`;
     msg += `- الكمية: ${selectedProduct.quantity}\n`;
     
     if (selectedProduct.quantity === 1) {
-        msg += `- السعر الإجمالي: ${finalTotal} ج.م (+ مصاريف الشحن)\n`;
-        msg += `*عرض خاص: ضيف قطعة كمان وخد شحن مجاني!*\n\n`;
+        msg += `- السعر الإجمالي للمنتجات: ${finalTotal} ج.م\n`;
+        msg += `🎁 (ملاحظة هامة: تم إخبار العميل بحصوله على خصم 20% من مصاريف الشحن الأساسية)\n\n`;
     } else {
         msg += `- السعر الإجمالي: ${finalTotal} ج.م (${pricing.shipping})\n\n`;
     }
