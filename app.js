@@ -667,7 +667,7 @@ function submitOrder(customerData = null) {
     
     const merchantPhone = "201070331386"; 
     const encodedMsg = encodeURIComponent(msg);
-    const whatsappUrl = `https://wa.me/${merchantPhone}?text=${encodedMsg}`;
+    whatsappUrl = `https://wa.me/${merchantPhone}?text=${encodedMsg}`;
     
     if (customerData && customerData.phone) {
         fetch('/api/notify', {
