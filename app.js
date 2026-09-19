@@ -879,7 +879,7 @@ claimExitDiscountBtn.addEventListener('click', () => {
             body: JSON.stringify({
                 type: 'exit_intent',
                 phone: phone,
-                details: "استلم كود DOCTOR5"
+                details: "استلم كود الشحن DOCTOR5"
             })
         }).catch(e=>{});
         
@@ -897,21 +897,12 @@ claimExitDiscountBtn.addEventListener('click', () => {
         stickyCTA.innerHTML = `
             <div class="text-right flex-grow">
                 <div class="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full inline-block mb-0.5">✅ تم تفعيل كود DOCTOR5</div>
-                <div class="text-sm font-black text-gray-900 leading-none">استمتع بخصم 5% على طلبك</div>
+                <div class="text-sm font-black text-gray-900 leading-none">استمتع بخصم 50 ج.م على الشحن</div>
             </div>
         `;
     }
 });
 
-// Override calculatePrice to apply the 5% discount if active
-const originalCalculatePrice = calculatePrice;
-calculatePrice = function(qty) {
-    let pricing = originalCalculatePrice(qty);
-    if (hasActiveDiscount) {
-        pricing.total = Math.floor(pricing.total - 50);
-        // Note: we don't change the shipping text, just the total amount
-    }
-    return pricing;
-}
+// Override calculatePrice removed to keep base price untouched
 
 initProducts();
