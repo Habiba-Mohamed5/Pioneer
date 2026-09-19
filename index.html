@@ -261,6 +261,41 @@
     </div>
 
 
+    <!-- Upsell Modal -->
+    <div id="upsellModal" class="fixed inset-0 bg-black/80 z-[55] hidden flex items-center justify-center opacity-0 transition-opacity duration-300 p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-2xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[95vh]">
+            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white text-center relative flex-shrink-0">
+                <button id="closeUpsell" class="absolute top-3 right-3 text-white/80 hover:text-white">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+                <div class="text-5xl mb-2 animate-bounce">🎁</div>
+                <h3 class="text-2xl font-black mb-1 tracking-tight">أكمل شياكتك!</h3>
+                <p class="text-sm font-medium opacity-90">عرض حصري لك لثواني معدودة ⏳</p>
+            </div>
+            
+            <div class="p-6 overflow-y-auto flex-grow bg-gray-50">
+                <div class="bg-white border-2 border-indigo-100 rounded-xl p-4 text-center shadow-sm">
+                    <h4 class="text-xl font-bold text-gray-800 mb-2">كاب طبي (Bandana) مطابق للون السكراب!</h4>
+                    <p class="text-gray-600 text-sm mb-4">خامة ممتازة ومريحة جداً تناسب لون السكراب الذي اخترته تماماً.</p>
+                    
+                    <div class="flex justify-center items-center gap-3 mb-4">
+                        <span class="text-3xl font-black text-purple-600">99 ج.م</span>
+                        <span class="text-lg text-gray-400 line-through">150 ج.م</span>
+                    </div>
+                    
+                    <button id="acceptUpsellBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-4 rounded-xl shadow-lg transition-transform transform hover:scale-105 mb-3 flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-cart-plus text-xl"></i>
+                        <span>نعم، أضف الكاب للأوردر!</span>
+                    </button>
+                    
+                    <button id="rejectUpsellBtn" class="w-full bg-transparent hover:bg-gray-100 text-gray-500 font-bold py-2 px-4 rounded-xl transition text-sm underline">
+                        لا شكراً، أريد السكراب فقط
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Checkout Modal -->
     <div id="checkoutModal" class="fixed inset-0 bg-black/80 z-[55] hidden flex items-center justify-center opacity-0 transition-opacity duration-300 p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md rounded-2xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[95vh]">
