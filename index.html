@@ -329,7 +329,7 @@
                         </div>
                         <div>
                             <label class="block text-gray-800 text-sm font-bold mb-1">ملاحظات (ألوان أو مقاسات أخرى) <span class="text-gray-400 font-normal">(اختياري)</span></label>
-                            <textarea id="custNotes" rows="2" placeholder="مثال: أريد القطعة الثانية أسود مقاس L..." class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-red-500 focus:ring-0 outline-none transition bg-white"></textarea>
+                            <textarea id="custNotes" rows="2" placeholder="كود الخصم (إن وجد)" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-red-500 focus:ring-0 outline-none transition bg-white"></textarea>
                         </div>
                     </div>
                     
@@ -381,16 +381,16 @@
                     <div class="flex gap-3">
                         <div class="flex-1">
                             <label class="block text-xs font-bold mb-1 text-gray-700">الوزن (كجم)</label>
-                            <input type="number" id="calcWeight" placeholder="مثال: 75" class="w-full border-2 border-gray-200 rounded-lg px-3 py-2 font-bold focus:border-red-500 outline-none text-center">
+                            <input type="number" id="calcWeight" placeholder="كود الخصم (إن وجد)" class="w-full border-2 border-gray-200 rounded-lg px-3 py-2 font-bold focus:border-red-500 outline-none text-center">
                         </div>
                         <div class="flex-1">
                             <label class="block text-xs font-bold mb-1 text-gray-700">الطول (سم)</label>
-                            <input type="number" id="calcHeight" placeholder="مثال: 170" class="w-full border-2 border-gray-200 rounded-lg px-3 py-2 font-bold focus:border-red-500 outline-none text-center">
+                            <input type="number" id="calcHeight" placeholder="كود الخصم (إن وجد)" class="w-full border-2 border-gray-200 rounded-lg px-3 py-2 font-bold focus:border-red-500 outline-none text-center">
                         </div>
                     </div>
                     <div class="mt-3">
                         <label class="block text-xs font-bold mb-1 text-gray-700 text-right">رقم الواتساب (للاستشارة المجانية)</label>
-                        <input type="tel" id="calcPhone" placeholder="أدخل رقمك لمعرفة مقاسك بدقة..." class="w-full border-2 border-gray-200 rounded-lg px-3 py-2 font-bold focus:border-red-500 outline-none text-center" dir="ltr">
+                        <input type="tel" id="calcPhone" placeholder="كود الخصم (إن وجد)" class="w-full border-2 border-gray-200 rounded-lg px-3 py-2 font-bold focus:border-red-500 outline-none text-center" dir="ltr">
                     </div>
                     <button id="btnCalcSize" class="w-full bg-red-600 text-white font-black py-3 rounded-xl hover:bg-red-700 shadow-lg mt-4">احسب مقاسي</button>
                     
@@ -443,7 +443,7 @@
             <p class="text-gray-700 font-bold mb-4 text-sm leading-relaxed" id="exitPopupText">تقديراً لمهنتك الطبية، لدينا <span class="text-red-600">خصم سري 5%</span> لك وحدك! أدخل رقم الواتساب الخاص بك لنعرض لك كود الخصم فوراً.</p>
             
             <div id="exitPhoneContainer" class="w-full mb-4">
-                <input type="tel" id="exitPhoneInput" placeholder="رقم الواتساب..." class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-bold focus:border-red-500 outline-none text-center" dir="ltr">
+                <input type="tel" id="exitPhoneInput" placeholder="كود الخصم (إن وجد)" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 font-bold focus:border-red-500 outline-none text-center" dir="ltr">
             </div>
 
             <div id="exitCodeContainer" class="hidden bg-gray-100 border-2 border-dashed border-gray-400 rounded-lg w-full py-3 mb-4 flex justify-center items-center gap-2">
