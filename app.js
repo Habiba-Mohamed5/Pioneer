@@ -483,40 +483,6 @@ buyBtn.addEventListener('click', () => {
     }
     
     closeProductModal();
-    // Instead of checkout, show Upsell Modal!
-    selectedProduct.upsell = 0; // reset
-    openUpsellModal();
-});
-
-const upsellModal = document.getElementById('upsellModal');
-const acceptUpsellBtn = document.getElementById('acceptUpsellBtn');
-const rejectUpsellBtn = document.getElementById('rejectUpsellBtn');
-const closeUpsellBtn = document.getElementById('closeUpsell');
-
-function openUpsellModal() {
-    upsellModal.classList.remove('hidden');
-    setTimeout(() => { upsellModal.classList.add('show'); }, 10);
-}
-
-function closeUpsellModal() {
-    upsellModal.classList.remove('show');
-    setTimeout(() => { upsellModal.classList.add('hidden'); }, 300);
-}
-
-closeUpsellBtn.addEventListener('click', () => {
-    closeUpsellModal();
-    openCheckoutModal();
-});
-
-rejectUpsellBtn.addEventListener('click', () => {
-    selectedProduct.upsell = 0;
-    closeUpsellModal();
-    openCheckoutModal();
-});
-
-acceptUpsellBtn.addEventListener('click', () => {
-    selectedProduct.upsell = 99; // Medical Cap Price
-    closeUpsellModal();
     openCheckoutModal();
 });
 
@@ -526,11 +492,6 @@ let currentPromoCodeStr = "";
 function updateCheckoutPrice() {
     let base = currentBaseTotal; // this already includes exit-intent 50 EGP discount if active
     let shipping = 0;
-    
-    // Upsell
-    if (selectedProduct.upsell > 0) {
-        base += selectedProduct.upsell;
-    }
     
     // Shipping based on Governorate (only if qty == 1)
     if (selectedProduct.quantity === 1) {
@@ -614,11 +575,6 @@ function submitOrder(customerData = null) {
     let finalTotal = pricing.total;
     let shippingAdded = 0;
     
-    // Add upsell to final total before calculating discount
-    if (selectedProduct.upsell > 0) {
-        finalTotal += selectedProduct.upsell;
-    }
-    
     if (customerData) {
         if (selectedProduct.quantity === 1 && cmsData && cmsData.shippingRates && cmsData.shippingRates[customerData.gov]) {
             shippingAdded = cmsData.shippingRates[customerData.gov];
@@ -633,9 +589,6 @@ function submitOrder(customerData = null) {
     
     let msg = `*طلب سكراب جديد*\n\n`;
     msg += `- المنتج: Medical Scrub\n`;
-    if (selectedProduct.upsell > 0) {
-        msg += `- إضافات: Medical Cap (Bandana) مطابق للون\n`;
-    }
     msg += `- اللون: ${selectedProduct.color.name}\n`;
     msg += `- المقاس: ${selectedProduct.size}\n`;
     msg += `- الكمية: ${selectedProduct.quantity}\n`;
@@ -671,9 +624,6 @@ function submitOrder(customerData = null) {
         
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec';
         let productDetailsText = `اللون: ${selectedProduct.color.name} | المقاس: ${selectedProduct.size} | الكمية: ${selectedProduct.quantity} | الإجمالي: ${finalTotal}`;
-        if (selectedProduct.upsell > 0) {
-            productDetailsText += ` | إضافة: Bandana Cap`;
-        }
         if (customerData.notes) {
             productDetailsText += ` | ملاحظات: ${customerData.notes}`;
         }
