@@ -6,7 +6,16 @@ fetch(scriptURL + "?action=get_data")
     .then(res => res.json())
     .then(data => {
         if(data.prices && data.inventory) {
+            // Validate prices to prevent Excel errors (like typing names instead of numbers)
+            let bp = parseFloat(data.prices.basePrice);
+            let fp = parseFloat(data.prices.fakePrice);
+            let tp = parseFloat(data.prices.twoPiecesPrice);
+            
             cmsData = data;
+            cmsData.prices.basePrice = isNaN(bp) ? 900 : bp;
+            cmsData.prices.fakePrice = isNaN(fp) ? 1300 : fp;
+            cmsData.prices.twoPiecesPrice = isNaN(tp) ? 1800 : tp;
+
             document.querySelectorAll(".text-red-600.font-black.text-lg").forEach(el => {
                 el.innerHTML = `${cmsData.prices.basePrice} ج.م <span class="text-xs text-gray-400 line-through font-normal">${cmsData.prices.fakePrice}</span>`;
             });
