@@ -19,6 +19,13 @@ fetch(scriptURL + "?action=get_data")
             document.querySelectorAll(".text-red-600.font-black.text-lg").forEach(el => {
                 el.innerHTML = `${cmsData.prices.basePrice} ج.م <span class="text-xs text-gray-400 line-through font-normal">${cmsData.prices.fakePrice}</span>`;
             });
+            
+            // Update sticky CTA price
+            const stickyPriceContainer = document.querySelector("#stickyCTA .text-lg.font-black");
+            if (stickyPriceContainer) {
+                stickyPriceContainer.innerHTML = `${cmsData.prices.basePrice} ج.م <span class="text-xs line-through text-gray-400 font-normal">${cmsData.prices.fakePrice}</span>`;
+            }
+            
             if (typeof selectedProduct !== "undefined" && selectedProduct.color) updateSizeAvailability();
             
             // 1. Announcement Bar
@@ -312,6 +319,8 @@ function updateModalUI() {
     const pricing = calculatePrice(selectedProduct.quantity);
     currentBaseTotal = pricing.total;
     modalPrice.innerText = `${currentBaseTotal} ج.م`;
+    const modalFakePrice = document.getElementById('modalFakePrice');
+    if(modalFakePrice) modalFakePrice.innerText = `${cmsData.prices.fakePrice} ج.م`;
     totalPriceBtn.innerText = `(${currentBaseTotal} ج.م)`;
 
     if (selectedProduct.quantity === 1) {
