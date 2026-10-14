@@ -16,14 +16,14 @@ fetch(scriptURL + "?action=get_data")
             cmsData.prices.fakePrice = isNaN(fp) ? 1300 : fp;
             cmsData.prices.twoPiecesPrice = isNaN(tp) ? 1800 : tp;
 
-            document.querySelectorAll(".text-red-600.font-black.text-lg").forEach(el => {
-                el.innerHTML = `${cmsData.prices.basePrice} ج.م <span class="text-xs text-gray-400 line-through font-normal">${cmsData.prices.fakePrice}</span>`;
+            document.querySelectorAll(".product-price-tag, .text-red-600.font-black.text-lg").forEach(el => {
+                el.innerHTML = `<span>${cmsData.prices.basePrice} <span class="text-xs font-bold text-gray-300">EGP</span></span> <span class="text-xs text-gray-500 line-through font-normal font-mono">${cmsData.prices.fakePrice}</span>`;
             });
             
             // Update sticky CTA price
-            const stickyPriceContainer = document.querySelector("#stickyCTA .text-lg.font-black");
+            const stickyPriceContainer = document.querySelector("#stickyCTA .font-montserrat, #stickyCTA .text-lg.font-black");
             if (stickyPriceContainer) {
-                stickyPriceContainer.innerHTML = `${cmsData.prices.basePrice} ج.م <span class="text-xs line-through text-gray-400 font-normal">${cmsData.prices.fakePrice}</span>`;
+                stickyPriceContainer.innerHTML = `${cmsData.prices.basePrice} <span class="text-xs text-gold-400">EGP</span> <span class="text-[10px] line-through text-gray-500 font-normal">${cmsData.prices.fakePrice}</span>`;
             }
             
             if (typeof selectedProduct !== "undefined" && selectedProduct.color) updateSizeAvailability();
@@ -142,30 +142,43 @@ function startTimer(durationMinutes, elementId) {
 }
 startTimer(15, 'globalTimer');
 setInterval(() => {
-    liveViewersEl.innerHTML = `${Math.floor(Math.random() * (75 - 25 + 1) + 25)} شخص يشاهدون الآن`;
+    liveViewersEl.innerHTML = `${Math.floor(Math.random() * (75 - 25 + 1) + 25)} Doctors Browsing`;
 }, 10000);
 
 // --- Initialize Products ---
 function initProducts() {
     colors.forEach(color => {
         const card = document.createElement('div');
-        card.className = 'bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 group border border-gray-100 relative';
-        const badges = ['🔥 الأكثر طلباً', '⚡ ينفذ سريعاً', '⭐ حصري'];
+        card.className = 'bg-[#10141d] rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300 group border border-white/10 hover:border-gold-500/40 relative flex flex-col';
+        const badges = [
+            '✨ BESTSELLER',
+            '⚡ LIMITED BATCH',
+            '👑 SIGNATURE'
+        ];
         const randomBadge = badges[Math.floor(Math.random() * badges.length)];
         
         card.innerHTML = `
-            <div class="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded-full z-10 animate-pulse">
+            <div class="absolute top-2.5 right-2.5 bg-[#0a0d13]/85 text-gold-300 text-[10px] font-bold px-2.5 py-1 rounded-full z-10 border border-gold-500/30 backdrop-blur-md shadow-sm">
                 ${randomBadge}
             </div>
-            <div class="relative w-full aspect-[3/4] overflow-hidden bg-gray-100">
-                <img src="${color.images[0]}" alt="${color.name}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" onerror="this.src='https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=800&q=80'">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                    <span class="bg-white text-red-600 font-bold px-4 py-2 rounded-full text-sm shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all">اختر المقاس</span>
+            <div class="relative w-full aspect-[3/4] overflow-hidden bg-black">
+                <img src="${color.images[0]}" alt="${color.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-700" onerror="this.src='https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=800&q=80'">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+                    <span class="bg-gradient-to-r from-gold-400 to-gold-600 text-gray-950 font-black px-4 py-2 rounded-full text-xs shadow-xl tracking-wider transform translate-y-3 group-hover:translate-y-0 transition-all flex items-center gap-1.5">
+                        <span>SELECT SIZE</span>
+                        <span class="text-[10px] font-cairo">(اختر المقاس)</span>
+                    </span>
                 </div>
             </div>
-            <div class="p-3 text-center bg-gray-50 group-hover:bg-red-50 transition-colors">
-                <h3 class="font-black text-gray-900 text-sm mb-1">سكراب طبي - ${color.name}</h3>
-                <div class="text-red-600 font-black text-lg">${cmsData.prices.basePrice} ج.م <span class="text-xs text-gray-400 line-through font-normal">${cmsData.prices.fakePrice}</span></div>
+            <div class="p-3.5 text-center bg-[#10141d] group-hover:bg-[#141a24] transition-colors border-t border-white/5 flex-grow flex flex-col justify-between">
+                <div>
+                    <div class="text-[10px] font-bold text-gold-400 uppercase tracking-widest mb-0.5">Core Scrub Set</div>
+                    <h3 class="font-black text-white text-sm mb-1.5">${color.name} Edition</h3>
+                </div>
+                <div class="product-price-tag text-gold-400 font-black text-base sm:text-lg flex items-center justify-center gap-1.5 font-montserrat">
+                    <span>${cmsData.prices.basePrice} <span class="text-xs font-bold text-gray-300">EGP</span></span>
+                    <span class="text-xs text-gray-500 line-through font-normal font-mono">${cmsData.prices.fakePrice}</span>
+                </div>
             </div>
         `;
         card.addEventListener('click', () => openProductModal(color));
@@ -316,26 +329,26 @@ function updateModalUI() {
 
     const pricing = calculatePrice(selectedProduct.quantity);
     currentBaseTotal = pricing.total;
-    modalPrice.innerText = `${currentBaseTotal} ج.م`;
+    modalPrice.innerText = `${currentBaseTotal} EGP`;
     const modalFakePrice = document.getElementById('modalFakePrice');
-    if(modalFakePrice) modalFakePrice.innerText = `${cmsData.prices.fakePrice} ج.م`;
-    totalPriceBtn.innerText = `(${currentBaseTotal} ج.م)`;
+    if(modalFakePrice) modalFakePrice.innerText = `${cmsData.prices.fakePrice} EGP`;
+    totalPriceBtn.innerText = `(${currentBaseTotal} EGP)`;
 
     if (selectedProduct.quantity === 1) {
-        pricingMessage.className = 'bg-blue-50 border border-blue-200 text-blue-700 p-2.5 rounded-xl text-xs sm:text-sm font-bold text-center mb-3 transition-all flex items-center justify-center gap-2 shadow-sm';
-        pricingMessage.innerHTML = '<i class="fa-solid fa-gift animate-pulse text-lg"></i> <span>أضف قطعة أخرى للحصول على شحن مجاني!</span>';
+        pricingMessage.className = 'bg-gold-500/10 border border-gold-500/30 text-gold-300 p-2.5 rounded-xl text-xs font-semibold text-center mb-3 transition-all flex items-center justify-center gap-2';
+        pricingMessage.innerHTML = '<i class="fa-solid fa-gift text-gold-400 animate-pulse text-sm"></i> <span>Order 1 more set to unlock FREE VIP Delivery! (أضف طقماً آخر لشحن مجاني)</span>';
         urgencyBar.classList.add('hidden');
     } else if (selectedProduct.quantity === 2) {
-        pricingMessage.className = 'bg-green-50 border border-green-200 text-green-700 p-2.5 rounded-xl text-xs sm:text-sm font-black text-center mb-3 transition-all flex items-center justify-center gap-2 shadow-sm';
-        pricingMessage.innerHTML = '<span class="text-lg">🎉</span> <span>شحن مجاني! أضف قطعة ثالثة وسينخفض السعر لـ 850 ج.م للقطعة.</span>';
+        pricingMessage.className = 'bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 p-2.5 rounded-xl text-xs font-bold text-center mb-3 transition-all flex items-center justify-center gap-2';
+        pricingMessage.innerHTML = '<i class="fa-solid fa-sparkles text-emerald-400"></i> <span>VIP Privilege Unlocked: FREE Shipping Included! (شحن مجاني مفعّل لطلبك)</span>';
         if(urgencyBar.classList.contains('hidden')){
             urgencyBar.classList.remove('hidden');
             clearInterval(urgencyCountdownInterval);
             urgencyCountdownInterval = startTimer(30, 'countdown');
         }
     } else {
-        pricingMessage.className = 'bg-green-50 border border-green-200 text-green-700 p-2.5 rounded-xl text-xs sm:text-sm font-black text-center mb-3 transition-all flex items-center justify-center gap-2 shadow-sm';
-        pricingMessage.innerHTML = '<span class="text-lg">🔥</span> <span>السعر الآن 850 ج.م للقطعة + شحن مجاني!</span>';
+        pricingMessage.className = 'bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 p-2.5 rounded-xl text-xs font-bold text-center mb-3 transition-all flex items-center justify-center gap-2';
+        pricingMessage.innerHTML = '<i class="fa-solid fa-crown text-gold-400"></i> <span>VIP Privilege: 850 EGP/Set + FREE Express Shipping!</span>';
     }
 }
 
@@ -738,29 +751,46 @@ document.getElementById('custPhone').addEventListener('blur', (e) => {
 skipBtn.addEventListener('click', () => { submitOrder(null); });
 
 // --- Social Proof Toasts ---
-const names = ['أحمد', 'محمد', 'محمود', 'سارة', 'نهى', 'كريم', 'مصطفى', 'ياسمين', 'إسلام', 'نورهان'];
-const govs = ['القاهرة', 'الجيزة', 'الإسكندرية', 'المنصورة', 'طنطا', 'أسيوط', 'الزقازيق'];
+const drProfiles = [
+    { name: 'Dr. Ahmed H.', place: 'القصر العيني' },
+    { name: 'Dr. Mohamed S.', place: 'مستشفى الدمرداش' },
+    { name: 'Dr. Mahmoud K.', place: 'مستشفى عين شمس' },
+    { name: 'Dr. Sara M.', place: 'الإسكندرية' },
+    { name: 'Dr. Karim T.', place: 'مستشفى 57357' },
+    { name: 'Dr. Mostafa E.', place: 'المنصورة' },
+    { name: 'Dr. Yasmine A.', place: 'طنطا' },
+    { name: 'Dr. Nourhan F.', place: 'أسيوط' }
+];
+
 function showPurchaseToast() {
-    const name = names[Math.floor(Math.random() * names.length)];
-    const gov = govs[Math.floor(Math.random() * govs.length)];
+    const dr = drProfiles[Math.floor(Math.random() * drProfiles.length)];
     const color = colors[Math.floor(Math.random() * colors.length)];
     const toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) return;
     
     const toast = document.createElement('div');
-    toast.className = 'bg-white rounded-xl shadow-2xl border-l-4 border-red-600 p-3 flex items-center gap-3 toast-enter pointer-events-auto max-w-xs';
+    toast.className = 'bg-[#10141d]/95 backdrop-blur-md text-white rounded-2xl shadow-2xl border border-gold-500/40 p-3.5 flex items-center gap-3 toast-enter pointer-events-auto max-w-xs';
     toast.innerHTML = `
-        <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 border border-gray-200"><img src="${color.images[0]}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=800&q=80'"></div>
-        <div class="flex-grow">
-            <div class="text-sm font-bold text-gray-800">${name} من ${gov}</div>
-            <div class="text-xs text-gray-500 mt-0.5">اشترى سكراب ${color.name} الآن!</div>
+        <div class="w-11 h-11 rounded-full overflow-hidden flex-shrink-0 bg-black border border-gold-500/40 shadow-sm">
+            <img src="${color.images[0]}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=800&q=80'">
         </div>
-        <div class="text-red-500 text-xs font-bold animate-pulse">منذ لحظات</div>
+        <div class="flex-grow">
+            <div class="text-xs font-bold text-white flex items-center gap-1 font-montserrat">
+                <span>${dr.name}</span>
+                <span class="text-gray-400 font-normal font-cairo">(${dr.place})</span>
+            </div>
+            <div class="text-[11px] text-gold-300 font-medium mt-0.5">Ordered ${color.name} Scrub Set</div>
+            <div class="text-[10px] text-emerald-400 font-semibold flex items-center gap-1 mt-0.5">
+                <i class="fa-solid fa-circle-check text-[9px]"></i>
+                <span>Verified Physician Order • طلب مؤكد</span>
+            </div>
+        </div>
     `;
     toastContainer.appendChild(toast);
     setTimeout(() => {
         toast.classList.replace('toast-enter', 'toast-leave');
-        setTimeout(() => toast.remove(), 500);
-    }, 4000);
+        setTimeout(() => toast.remove(), 400);
+    }, 4500);
 }
 setTimeout(() => {
     showPurchaseToast();
