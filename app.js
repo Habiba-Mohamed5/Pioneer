@@ -637,7 +637,7 @@ function submitOrder(customerData = null) {
         }
     }
     
-    let whatsappUrl = `https://wa.me/201099365738?text=${encodeURIComponent(msg)}`;
+    let whatsappUrl = `https://wa.me/201069337788?text=${encodeURIComponent(msg)}`;
     
     if (customerData) {
         buyBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تأكيد الطلب...';
@@ -685,7 +685,7 @@ function submitOrder(customerData = null) {
         msg += `*طلب سريع (بدون تسجيل مسبق)*\n`;
     }
     
-    const merchantPhone = "201070331386"; 
+    const merchantPhone = "201069337788"; 
     const encodedMsg = encodeURIComponent(msg);
     whatsappUrl = `https://wa.me/${merchantPhone}?text=${encodedMsg}`;
     
