@@ -55,12 +55,12 @@ fetch(scriptURL + "?action=get_data")
     }).catch(err => console.error("Failed to load CMS data:", err));
 
 const colors = [
-    { id: 'black', name: 'Black', hex: '#1f2022', images: ['Black_1.jpg', 'black_2.jpg', 'black_3.jpg'] },
-    { id: 'teal', name: 'Teal', hex: '#1f4e5b', images: ['tael_1.jpg', 'tael_2.jpg', 'tael_3.jpg'] },
-    { id: 'navy', name: 'Navy', hex: '#1b263b', images: ['navy_1.jpg', 'navy_2.jpg', 'navy_3.jpg'] },
-    { id: 'blue', name: 'Blue', hex: '#274c77', images: ['blue_1.jpg', 'blue_2.jpg', 'blue_3.jpg'] },
-    { id: 'olive', name: 'Olive', hex: '#4a5d23', images: ['olive_1.jpg', 'olive_2.jpg', 'olive_3.jpg'] },
-    { id: 'pink', name: 'Pink', hex: '#e5989b', images: ['pink_1.png', 'pink_2.jpg', 'pink_3.jpg'] },
+    { id: 'black', name: 'Onyx Black', hex: '#1f2022', images: ['Black_1.jpg', 'black_2.jpg', 'black_3.jpg'] },
+    { id: 'navy', name: 'Royal Navy', hex: '#1b263b', images: ['navy_1.jpg', 'navy_2.jpg', 'navy_3.jpg'] },
+    { id: 'blue', name: 'Ceil Blue', hex: '#274c77', images: ['blue_1.jpg', 'blue_2.jpg', 'blue_3.jpg'] },
+    { id: 'olive', name: 'Forest Olive', hex: '#4a5d23', images: ['olive_1.jpg', 'olive_2.jpg', 'olive_3.jpg'] },
+    { id: 'teal', name: 'Deep Teal', hex: '#1f4e5b', images: ['tael_1.jpg', 'tael_2.jpg', 'tael_3.jpg'] },
+    { id: 'pink', name: 'Dusty Rose', hex: '#e5989b', images: ['pink_1.png', 'pink_2.jpg', 'pink_3.jpg'] },
 ];
 
 let selectedProduct = { color: colors[0], size: null, quantity: 1 };
@@ -171,8 +171,8 @@ function initProducts() {
             </div>
             <div class="p-3.5 text-center bg-white group-hover:bg-slate-50 transition-colors border-t border-slate-100 flex-grow flex flex-col justify-between">
                 <div>
-                    <div class="text-[10px] font-bold text-gold-600 uppercase tracking-widest mb-0.5">Core Scrub Set</div>
-                    <h3 class="font-black text-slate-900 text-sm mb-1">${color.name} Edition</h3>
+                    <h3 class="font-black text-slate-900 text-sm sm:text-base tracking-tight mb-0.5">${color.name}</h3>
+                    <div class="text-[10px] font-bold text-gold-600 uppercase tracking-widest mb-1.5">Core Scrub Set</div>
                 </div>
                 <div class="product-price-tag text-slate-900 font-black text-base sm:text-lg flex items-center justify-center gap-1.5 font-montserrat">
                     <span>${cmsData.prices.basePrice} <span class="text-xs font-bold text-slate-500">EGP</span></span>
@@ -323,6 +323,8 @@ qtyPlus.addEventListener('click', () => {
 
 let urgencyCountdownInterval;
 function updateModalUI() {
+    const modalTitle = document.getElementById('modalTitle');
+    if (modalTitle) modalTitle.innerText = `${selectedProduct.color.name} Set`;
     selectedColorName.innerText = selectedProduct.color.name;
     qtyInput.value = selectedProduct.quantity;
 
@@ -334,20 +336,20 @@ function updateModalUI() {
     totalPriceBtn.innerText = `(${currentBaseTotal} EGP)`;
 
     if (selectedProduct.quantity === 1) {
-        pricingMessage.className = 'bg-gold-500/10 border border-gold-500/30 text-gold-300 p-2.5 rounded-xl text-xs font-semibold text-center mb-3 transition-all flex items-center justify-center gap-2';
-        pricingMessage.innerHTML = '<i class="fa-solid fa-gift text-gold-400 animate-pulse text-sm"></i> <span>Order 1 more set to unlock FREE VIP Delivery! (أضف طقماً آخر لشحن مجاني)</span>';
+        pricingMessage.className = 'bg-amber-50 border border-amber-200 text-amber-900 p-2.5 rounded-xl text-xs font-semibold text-center mb-3 transition-all flex items-center justify-center gap-2';
+        pricingMessage.innerHTML = '<i class="fa-solid fa-gift text-amber-600 animate-pulse text-sm"></i> <span>Order 1 more set to unlock FREE VIP Delivery! (أضف طقماً آخر لشحن مجاني)</span>';
         urgencyBar.classList.add('hidden');
     } else if (selectedProduct.quantity === 2) {
-        pricingMessage.className = 'bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 p-2.5 rounded-xl text-xs font-bold text-center mb-3 transition-all flex items-center justify-center gap-2';
-        pricingMessage.innerHTML = '<i class="fa-solid fa-sparkles text-emerald-400"></i> <span>VIP Privilege Unlocked: FREE Shipping Included! (شحن مجاني مفعّل لطلبك)</span>';
+        pricingMessage.className = 'bg-emerald-50 border border-emerald-200 text-emerald-900 p-2.5 rounded-xl text-xs font-bold text-center mb-3 transition-all flex items-center justify-center gap-2';
+        pricingMessage.innerHTML = '<i class="fa-solid fa-sparkles text-emerald-600"></i> <span>VIP Privilege Unlocked: FREE Shipping Included! (شحن مجاني مفعّل لطلبك)</span>';
         if(urgencyBar.classList.contains('hidden')){
             urgencyBar.classList.remove('hidden');
             clearInterval(urgencyCountdownInterval);
             urgencyCountdownInterval = startTimer(30, 'countdown');
         }
     } else {
-        pricingMessage.className = 'bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 p-2.5 rounded-xl text-xs font-bold text-center mb-3 transition-all flex items-center justify-center gap-2';
-        pricingMessage.innerHTML = '<i class="fa-solid fa-crown text-gold-400"></i> <span>VIP Privilege: 850 EGP/Set + FREE Express Shipping!</span>';
+        pricingMessage.className = 'bg-emerald-50 border border-emerald-200 text-emerald-900 p-2.5 rounded-xl text-xs font-bold text-center mb-3 transition-all flex items-center justify-center gap-2';
+        pricingMessage.innerHTML = '<i class="fa-solid fa-crown text-amber-600"></i> <span>VIP Privilege: 850 EGP/Set + FREE Express Shipping!</span>';
     }
 }
 
