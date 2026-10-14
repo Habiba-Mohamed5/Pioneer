@@ -1,7 +1,9 @@
-/* Custom Luxury Styles for Pioneer Medical Wear */
+/* Custom Minimalist Luxury Styles for Pioneer Medical Wear (FIGS Inspired) */
 body {
     -webkit-tap-highlight-color: transparent;
     font-family: 'Montserrat', 'Cairo', sans-serif;
+    background-color: #fafafa;
+    color: #1e293b;
 }
 
 .font-montserrat {
@@ -13,23 +15,20 @@ body {
 }
 
 .gold-gradient-text {
-    background: linear-gradient(135deg, #dfbe79 0%, #c59b4c 50%, #9e7830 100%);
+    background: linear-gradient(135deg, #b88d3f 0%, #d4af37 50%, #9e7830 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
-.gold-border-glow {
-    box-shadow: 0 0 15px rgba(197, 155, 76, 0.35);
-}
-
 /* Scrollbars */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #0f141c; }
-::-webkit-scrollbar-thumb { background: #c59b4c; border-radius: 10px; }
+::-webkit-scrollbar-track { background: #f8fafc; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
 .custom-scrollbar::-webkit-scrollbar { height: 4px; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #c59b4c; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
 
 /* Modals */
 #productModal.show, #checkoutModal.show, #sizeModal.show, #exitPopup.show {
@@ -47,10 +46,10 @@ body {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .size-btn.active {
-    border-color: #c59b4c !important;
-    background-color: #0b0e14 !important;
-    color: #dfbe79 !important;
-    box-shadow: 0 4px 14px rgba(197, 155, 76, 0.3);
+    border-color: #0f172a !important;
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
 }
 
 /* Color Buttons */
@@ -60,9 +59,9 @@ body {
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .color-btn.active {
-    border-color: #c59b4c;
+    border-color: #0f172a;
     transform: scale(1.15);
-    box-shadow: 0 0 16px rgba(197, 155, 76, 0.6);
+    box-shadow: 0 0 14px rgba(15, 23, 42, 0.35);
     z-index: 10;
 }
 .color-btn::after {
@@ -70,7 +69,7 @@ body {
     position: absolute;
     inset: -4px;
     border-radius: 50%;
-    border: 2px solid #c59b4c;
+    border: 2px solid #b88d3f;
     opacity: 0;
     transition: opacity 0.2s;
 }
@@ -86,21 +85,21 @@ body {
     animation: fadeOut 0.4s ease forwards;
 }
 @keyframes slideInUp {
-    from { opacity: 0; transform: translateY(100%) scale(0.92); }
+    from { opacity: 0; transform: translateY(100%) scale(0.95); }
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 @keyframes fadeOut {
     from { opacity: 1; transform: scale(1); }
-    to { opacity: 0; transform: scale(0.92); }
+    to { opacity: 0; transform: scale(0.95); }
 }
 
-/* Subtle Hero Button Pulse */
+/* Hero Button */
 .cta-button {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 .cta-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(212, 175, 55, 0.45);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
 }
 
 /* Sticky CTA */

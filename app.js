@@ -149,7 +149,7 @@ setInterval(() => {
 function initProducts() {
     colors.forEach(color => {
         const card = document.createElement('div');
-        card.className = 'bg-[#10141d] rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300 group border border-white/10 hover:border-gold-500/40 relative flex flex-col';
+        card.className = 'bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group border border-slate-200/90 hover:border-slate-400 overflow-hidden cursor-pointer relative flex flex-col';
         const badges = [
             '✨ BESTSELLER',
             '⚡ LIMITED BATCH',
@@ -158,26 +158,26 @@ function initProducts() {
         const randomBadge = badges[Math.floor(Math.random() * badges.length)];
         
         card.innerHTML = `
-            <div class="absolute top-2.5 right-2.5 bg-[#0a0d13]/85 text-gold-300 text-[10px] font-bold px-2.5 py-1 rounded-full z-10 border border-gold-500/30 backdrop-blur-md shadow-sm">
+            <div class="absolute top-2.5 right-2.5 bg-slate-900/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full z-10 border border-slate-700 shadow-sm">
                 ${randomBadge}
             </div>
-            <div class="relative w-full aspect-[3/4] overflow-hidden bg-black">
+            <div class="relative w-full aspect-[3/4] overflow-hidden bg-slate-100">
                 <img src="${color.images[0]}" alt="${color.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-700" onerror="this.src='https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=800&q=80'">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                    <span class="bg-gradient-to-r from-gold-400 to-gold-600 text-gray-950 font-black px-4 py-2 rounded-full text-xs shadow-xl tracking-wider transform translate-y-3 group-hover:translate-y-0 transition-all flex items-center gap-1.5">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+                    <span class="bg-slate-900 text-white font-bold px-4 py-2 rounded-full text-xs shadow-lg tracking-wider transform translate-y-3 group-hover:translate-y-0 transition-all flex items-center gap-1.5">
                         <span>SELECT SIZE</span>
-                        <span class="text-[10px] font-cairo">(اختر المقاس)</span>
+                        <span class="text-[10px] font-cairo text-slate-300">(اختر المقاس)</span>
                     </span>
                 </div>
             </div>
-            <div class="p-3.5 text-center bg-[#10141d] group-hover:bg-[#141a24] transition-colors border-t border-white/5 flex-grow flex flex-col justify-between">
+            <div class="p-3.5 text-center bg-white group-hover:bg-slate-50 transition-colors border-t border-slate-100 flex-grow flex flex-col justify-between">
                 <div>
-                    <div class="text-[10px] font-bold text-gold-400 uppercase tracking-widest mb-0.5">Core Scrub Set</div>
-                    <h3 class="font-black text-white text-sm mb-1.5">${color.name} Edition</h3>
+                    <div class="text-[10px] font-bold text-gold-600 uppercase tracking-widest mb-0.5">Core Scrub Set</div>
+                    <h3 class="font-black text-slate-900 text-sm mb-1">${color.name} Edition</h3>
                 </div>
-                <div class="product-price-tag text-gold-400 font-black text-base sm:text-lg flex items-center justify-center gap-1.5 font-montserrat">
-                    <span>${cmsData.prices.basePrice} <span class="text-xs font-bold text-gray-300">EGP</span></span>
-                    <span class="text-xs text-gray-500 line-through font-normal font-mono">${cmsData.prices.fakePrice}</span>
+                <div class="product-price-tag text-slate-900 font-black text-base sm:text-lg flex items-center justify-center gap-1.5 font-montserrat">
+                    <span>${cmsData.prices.basePrice} <span class="text-xs font-bold text-slate-500">EGP</span></span>
+                    <span class="text-xs text-slate-400 line-through font-normal font-mono">${cmsData.prices.fakePrice}</span>
                 </div>
             </div>
         `;
@@ -769,18 +769,18 @@ function showPurchaseToast() {
     if (!toastContainer) return;
     
     const toast = document.createElement('div');
-    toast.className = 'bg-[#10141d]/95 backdrop-blur-md text-white rounded-2xl shadow-2xl border border-gold-500/40 p-3.5 flex items-center gap-3 toast-enter pointer-events-auto max-w-xs';
+    toast.className = 'bg-white/95 backdrop-blur-md text-slate-900 rounded-2xl shadow-xl border border-slate-200/90 p-3.5 flex items-center gap-3 toast-enter pointer-events-auto max-w-xs';
     toast.innerHTML = `
-        <div class="w-11 h-11 rounded-full overflow-hidden flex-shrink-0 bg-black border border-gold-500/40 shadow-sm">
+        <div class="w-11 h-11 rounded-full overflow-hidden flex-shrink-0 bg-slate-100 border border-slate-200 shadow-sm">
             <img src="${color.images[0]}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=800&q=80'">
         </div>
         <div class="flex-grow">
-            <div class="text-xs font-bold text-white flex items-center gap-1 font-montserrat">
+            <div class="text-xs font-bold text-slate-900 flex items-center gap-1 font-montserrat" dir="ltr">
                 <span>${dr.name}</span>
-                <span class="text-gray-400 font-normal font-cairo">(${dr.place})</span>
+                <span class="text-slate-500 font-normal font-cairo">(${dr.place})</span>
             </div>
-            <div class="text-[11px] text-gold-300 font-medium mt-0.5">Ordered ${color.name} Scrub Set</div>
-            <div class="text-[10px] text-emerald-400 font-semibold flex items-center gap-1 mt-0.5">
+            <div class="text-[11px] text-slate-600 font-medium mt-0.5" dir="ltr">Ordered ${color.name} Scrub Set</div>
+            <div class="text-[10px] text-emerald-700 font-semibold flex items-center gap-1 mt-0.5">
                 <i class="fa-solid fa-circle-check text-[9px]"></i>
                 <span>Verified Physician Order • طلب مؤكد</span>
             </div>
