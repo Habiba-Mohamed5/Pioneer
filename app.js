@@ -164,9 +164,8 @@ function initProducts() {
             <div class="relative w-full aspect-[3/4] overflow-hidden bg-slate-100">
                 <img src="${color.images[0]}" alt="${color.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-700" onerror="this.src='https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=800&q=80'">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                    <span class="bg-slate-900 text-white font-bold px-4 py-2 rounded-full text-xs shadow-lg tracking-wider transform translate-y-3 group-hover:translate-y-0 transition-all flex items-center gap-1.5">
-                        <span>SELECT SIZE</span>
-                        <span class="text-[10px] font-cairo text-slate-300">(اختر المقاس)</span>
+                    <span class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-full text-xs shadow-lg tracking-wider transform translate-y-3 group-hover:translate-y-0 transition-all" dir="ltr">
+                        SELECT SIZE
                     </span>
                 </div>
             </div>
@@ -782,7 +781,7 @@ function showPurchaseToast() {
             <div class="text-[11px] text-slate-600 font-medium mt-0.5" dir="ltr">Ordered ${color.name} Scrub Set</div>
             <div class="text-[10px] text-emerald-700 font-semibold flex items-center gap-1 mt-0.5">
                 <i class="fa-solid fa-circle-check text-[9px]"></i>
-                <span>Verified Physician Order • طلب مؤكد</span>
+                <span dir="ltr">Verified Physician Order</span>
             </div>
         </div>
     `;
