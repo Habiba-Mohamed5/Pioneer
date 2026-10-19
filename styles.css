@@ -1,4 +1,4 @@
-/* Custom Minimalist Luxury Styles for Pioneer Medical Wear (FIGS Inspired) */
+/* Custom Minimalist Luxury Styles for Pioneer Medical Wear (Orova & FIGS Inspired) */
 body {
     -webkit-tap-highlight-color: transparent;
     font-family: 'Montserrat', 'Cairo', sans-serif;
@@ -41,15 +41,50 @@ body {
 }
 #checkoutModal.show > div, #sizeModal.show > div, #exitPopup.show > div { transform: scale(1); }
 
-/* Size Buttons */
+/* Orova-Style Size Buttons with Diagonal Out-Of-Stock Slash */
 .size-btn {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 52px;
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    background: #ffffff;
+    color: #0f172a;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+}
+.size-btn:hover:not(.disabled) {
+    border-color: #0f172a;
 }
 .size-btn.active {
-    border-color: #0f172a !important;
     background-color: #0f172a !important;
     color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+    border-color: #0f172a !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+}
+.size-btn.disabled {
+    color: #94a3b8 !important;
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    cursor: not-allowed;
+    overflow: hidden;
+}
+.size-btn.disabled::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1.5px;
+    background: #cbd5e1;
+    transform: rotate(-25deg);
 }
 
 /* Color Buttons */
@@ -75,6 +110,61 @@ body {
 }
 .color-btn.active::after {
     opacity: 1;
+}
+
+/* Ghost Button for Hero */
+.ghost-btn {
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    color: #ffffff;
+    background: rgba(15, 23, 42, 0.25);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+}
+.ghost-btn:hover {
+    background: #ffffff;
+    color: #0f172a !important;
+    border-color: #ffffff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Orova Clean Accordions */
+.accordion-item {
+    border-bottom: 1px solid #e2e8f0;
+}
+.accordion-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    cursor: pointer;
+    transition: color 0.2s;
+    user-select: none;
+}
+.accordion-header:hover {
+    color: #b88d3f;
+}
+.accordion-icon {
+    transition: transform 0.25s ease;
+    font-size: 12px;
+    color: #64748b;
+}
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease-out, opacity 0.25s ease;
+    opacity: 0;
+}
+.accordion-item.active .accordion-content {
+    max-height: 400px;
+    opacity: 1;
+    padding-bottom: 14px;
+}
+.accordion-item.active .accordion-icon {
+    transform: rotate(45deg);
 }
 
 /* Toast Animation */
