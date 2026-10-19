@@ -90,6 +90,7 @@ const contentChart = document.getElementById('contentChart');
 const btnCalcSize = document.getElementById('btnCalcSize');
 const calcWeight = document.getElementById('calcWeight');
 const calcHeight = document.getElementById('calcHeight');
+const calcPhone = document.getElementById('calcPhone');
 const calcResult = document.getElementById('calcResult');
 const recommendedSizeTxt = document.getElementById('recommendedSizeTxt');
 const useRecommendedSize = document.getElementById('useRecommendedSize');
@@ -99,6 +100,12 @@ const checkoutModal = document.getElementById('checkoutModal');
 const closeCheckoutBtn = document.getElementById('closeCheckout');
 const checkoutForm = document.getElementById('checkoutForm');
 const skipBtn = document.getElementById('skipBtn');
+const custName = document.getElementById('custName');
+const custPhone = document.getElementById('custPhone');
+const custPhone2 = document.getElementById('custPhone2');
+const custGov = document.getElementById('custGov');
+const custAddress = document.getElementById('custAddress');
+const custNotes = document.getElementById('custNotes');
 
 // --- Pricing Logic ---
 function calculatePrice(qty) {
@@ -342,13 +349,81 @@ if (tabChart && tabCalc) {
     });
 }
 
-// Smart Size Calculator Calculation
+// --- Lead Tracking & Abandoned Checkout Capture System ---
+let isOrderSubmitted = false;
+const capturedPhoneNumbers = new Set();
+
+function logLeadToGoogleSheet(leadData) {
+    if (!leadData || !leadData.phone) return;
+    const cleanDigits = leadData.phone.replace(/\D/g, '');
+    if (cleanDigits.length < 10) return;
+
+    try {
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(leadData)
+        });
+    } catch (err) {
+        console.error('Google Sheet lead error:', err);
+    }
+}
+
+function captureAbandonedCheckoutLead() {
+    if (isOrderSubmitted || !custPhone) return;
+    const phoneVal = custPhone.value.trim();
+    const cleanDigits = phoneVal.replace(/\D/g, '');
+    if (cleanDigits.length < 10) return;
+
+    const cacheKey = `abandoned_${cleanDigits}`;
+    if (capturedPhoneNumbers.has(cacheKey)) return;
+    capturedPhoneNumbers.add(cacheKey);
+
+    const nameVal = custName ? custName.value.trim() : '';
+    const govVal = custGov ? custGov.value : '';
+    const addrVal = custAddress ? custAddress.value.trim() : '';
+
+    const leadInfo = {
+        name: (nameVal ? `د. ${nameVal}` : "عميل مهتم") + " (لم يكمل الطلب)",
+        phone: phoneVal,
+        city: govVal || "-",
+        address: addrVal || "-",
+        productDetails: `سكراب طبي | لون: ${selectedProduct.color.name} | مقاس: ${selectedProduct.size || 'لم يحدد'} | كمية: ${selectedProduct.quantity}`
+    };
+
+    logLeadToGoogleSheet(leadInfo);
+
+    // Telegram Notification with Direct WhatsApp Chat Link
+    fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            type: 'abandoned_checkout',
+            phone: phoneVal,
+            name: nameVal || "دكتور مهتم",
+            color: selectedProduct.color.name,
+            resultSize: selectedProduct.size || "غير محدد",
+            details: `بدأ كتابة بياناته في صفحة الدفع ولم يكمل بعد | ${selectedProduct.color.name} (${selectedProduct.size || 'غير محدد'})`
+        })
+    }).catch(e => {});
+}
+
+// --- Smart Size Calculator Calculation & Lead Capture ---
 if (btnCalcSize) {
     btnCalcSize.addEventListener('click', () => {
         const w = parseFloat(calcWeight.value);
         const h = parseFloat(calcHeight.value);
+        const phone = calcPhone ? calcPhone.value.trim() : '';
+        
         if (!w || !h) {
-            alert('Please enter valid height and weight values');
+            alert('Please enter your weight and height values');
+            return;
+        }
+
+        if (!phone || phone.replace(/\D/g, '').length < 10) {
+            alert('Please enter your WhatsApp number to receive your fit recommendation & VIP consultation');
+            if (calcPhone) calcPhone.focus();
             return;
         }
         
@@ -362,6 +437,51 @@ if (btnCalcSize) {
         
         recommendedSizeTxt.innerText = rec;
         calcResult.classList.remove('hidden');
+
+        // Always log Size Guide Lead to Google Sheet
+        logLeadToGoogleSheet({
+            name: "استشارة مقاس (حاسبة)",
+            phone: phone,
+            city: "حاسبة المقاسات",
+            address: `وزن: ${w} كجم - طول: ${h} سم`,
+            productDetails: `استعلام مقاس | الموديل المختار: ${selectedProduct.color.name} | المقاس المقترح: ${rec} (وزن ${w}كجم / طول ${h}سم)`
+        });
+
+        // Always trigger Telegram VIP Alert
+        fetch('/api/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'size_guide',
+                phone: phone,
+                weight: w,
+                height: h,
+                resultSize: rec,
+                details: `وزن: ${w} كجم، طول: ${h} سم، المقاس المقترح: ${rec} (${selectedProduct.color.name})`
+            })
+        }).catch(e => {});
+    });
+}
+
+if (calcPhone) {
+    calcPhone.addEventListener('blur', () => {
+        const phone = calcPhone.value.trim();
+        const cleanDigits = phone.replace(/\D/g, '');
+        if (cleanDigits.length >= 10) {
+            const cacheKey = `calc_${cleanDigits}`;
+            if (!capturedPhoneNumbers.has(cacheKey)) {
+                capturedPhoneNumbers.add(cacheKey);
+                const w = calcWeight && calcWeight.value ? `${calcWeight.value} كجم` : '-';
+                const h = calcHeight && calcHeight.value ? `${calcHeight.value} سم` : '-';
+                logLeadToGoogleSheet({
+                    name: "استشارة مقاس (رقم مدخل)",
+                    phone: phone,
+                    city: "حاسبة المقاسات",
+                    address: `وزن: ${w} - طول: ${h}`,
+                    productDetails: `استعلام مقاس | الموديل المختار: ${selectedProduct.color.name}`
+                });
+            }
+        }
     });
 }
 
@@ -387,13 +507,38 @@ if (buyBtn) {
 
 if (closeCheckoutBtn) {
     closeCheckoutBtn.addEventListener('click', () => {
+        captureAbandonedCheckoutLead();
         checkoutModal.classList.remove('show');
         setTimeout(() => { checkoutModal.classList.add('hidden'); }, 300);
     });
 }
 
+if (checkoutModal) {
+    checkoutModal.addEventListener('click', (e) => {
+        if (e.target === checkoutModal) {
+            captureAbandonedCheckoutLead();
+            checkoutModal.classList.remove('show');
+            setTimeout(() => { checkoutModal.classList.add('hidden'); }, 300);
+        }
+    });
+}
+
+// Track input on customer phone field
+let phoneDebounceTimer = null;
+if (custPhone) {
+    custPhone.addEventListener('blur', captureAbandonedCheckoutLead);
+    custPhone.addEventListener('input', () => {
+        const cleanDigits = custPhone.value.replace(/\D/g, '');
+        if (cleanDigits.length >= 11) {
+            clearTimeout(phoneDebounceTimer);
+            phoneDebounceTimer = setTimeout(captureAbandonedCheckoutLead, 2500);
+        }
+    });
+}
+
 // --- Order Submission (WhatsApp + Google Sheet + Meta Pixel) ---
 function submitOrder(customerData = null) {
+    isOrderSubmitted = true;
     const pricing = calculatePrice(selectedProduct.quantity);
     let finalTotal = pricing.total;
     
@@ -430,7 +575,7 @@ function submitOrder(customerData = null) {
                     name: customerData.name,
                     phone: fullPhone,
                     city: customerData.gov,
-                    address: customerData.address,
+                    address: customerData.address + (customerData.notes ? ` (Notes: ${customerData.notes})` : ''),
                     productDetails: productDetailsText
                 })
             });
@@ -456,7 +601,9 @@ function submitOrder(customerData = null) {
                 type: 'new_order',
                 phone: customerData.phone,
                 name: customerData.name,
-                details: `Order: ${selectedProduct.color.name} size ${selectedProduct.size}`,
+                color: selectedProduct.color.name,
+                resultSize: selectedProduct.size,
+                details: `طلب مؤكد: ${selectedProduct.color.name} مقاس ${selectedProduct.size} كمية ${selectedProduct.quantity} | العنوان: ${customerData.gov} - ${customerData.address}`,
                 finalTotal: finalTotal
             })
         }).catch(e => {});
@@ -472,12 +619,12 @@ function submitOrder(customerData = null) {
 if (checkoutForm) {
     checkoutForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const name = document.getElementById('custName').value.trim();
-        const phone = document.getElementById('custPhone').value.trim();
-        const phone2 = document.getElementById('custPhone2').value.trim();
-        const gov = document.getElementById('custGov').value;
-        const address = document.getElementById('custAddress').value.trim();
-        const notes = document.getElementById('custNotes').value.trim();
+        const name = custName ? custName.value.trim() : '';
+        const phone = custPhone ? custPhone.value.trim() : '';
+        const phone2 = custPhone2 ? custPhone2.value.trim() : '';
+        const gov = custGov ? custGov.value : '';
+        const address = custAddress ? custAddress.value.trim() : '';
+        const notes = custNotes ? custNotes.value.trim() : '';
         
         submitOrder({ name, phone, phone2, gov, address, notes });
     });
@@ -485,6 +632,7 @@ if (checkoutForm) {
 
 if (skipBtn) {
     skipBtn.addEventListener('click', () => {
+        captureAbandonedCheckoutLead();
         submitOrder(null);
     });
 }
