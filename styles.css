@@ -35,11 +35,17 @@ body {
     display: flex;
     opacity: 1;
 }
-#productModal.show > div { transform: translateY(0); }
+#productModal.show > div { 
+    transform: translateY(0); 
+    -webkit-overflow-scrolling: touch;
+}
 @media (min-width: 640px) {
     #productModal.show > div { transform: scale(1); }
 }
-#checkoutModal.show > div, #sizeModal.show > div, #exitPopup.show > div { transform: scale(1); }
+#checkoutModal.show > div, #sizeModal.show > div, #exitPopup.show > div { 
+    transform: scale(1); 
+    -webkit-overflow-scrolling: touch;
+}
 
 /* Orova-Style Size Buttons with Diagonal Out-Of-Stock Slash */
 .size-btn {
