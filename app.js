@@ -32,7 +32,7 @@ fetch(scriptURL + "?action=get_data")
             if (cmsData.shippingRates) {
                 const govSelect = document.getElementById('custGov');
                 if (govSelect) {
-                    govSelect.innerHTML = '<option value="">اختر المحافظة...</option>';
+                    govSelect.innerHTML = '<option value="">Select Governorate / اختر المحافظة...</option>';
                     Object.keys(cmsData.shippingRates).forEach(gov => {
                         const opt = document.createElement('option');
                         opt.value = gov;
@@ -104,9 +104,9 @@ const skipBtn = document.getElementById('skipBtn');
 function calculatePrice(qty) {
     let base = cmsData.prices.basePrice;
     let two = cmsData.prices.twoPiecesPrice;
-    if (qty === 1) return { total: base, unit: base, shipping: 'يضاف مصاريف الشحن' };
-    if (qty === 2) return { total: two, unit: two / 2, shipping: 'شحن مجاني' };
-    return { total: qty * (two / 2 - 50), unit: (two / 2 - 50), shipping: 'شحن مجاني' };
+    if (qty === 1) return { total: base, unit: base, shipping: 'Standard Shipping' };
+    if (qty === 2) return { total: two, unit: two / 2, shipping: 'Free Express Shipping' };
+    return { total: qty * (two / 2 - 50), unit: (two / 2 - 50), shipping: 'Free Express Shipping' };
 }
 
 // --- Initialize Catalog Grid (Clean Orova Minimalist Cards) ---
@@ -122,15 +122,15 @@ function initProducts() {
             <div class="relative w-full aspect-[3/4] overflow-hidden bg-slate-100">
                 <img src="${color.images[0]}" alt="${color.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-700" onerror="this.src='https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=800&q=80'">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                    <span class="bg-white text-slate-950 font-black px-5 py-2.5 rounded-full text-xs shadow-lg tracking-wider transform translate-y-3 group-hover:translate-y-0 transition-all uppercase" dir="ltr">
+                    <span class="bg-white text-slate-950 font-black px-5 py-2.5 rounded-full text-xs shadow-lg tracking-wider transform translate-y-3 group-hover:translate-y-0 transition-all uppercase">
                         Select Size & Color
                     </span>
                 </div>
             </div>
             <div class="p-4 text-center bg-white group-hover:bg-slate-50/50 transition-colors border-t border-slate-100 flex-grow flex flex-col justify-between">
                 <div>
-                    <h3 class="font-extrabold text-slate-900 text-sm sm:text-base tracking-tight mb-0.5" dir="ltr">${color.name}</h3>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5" dir="ltr">Core Scrub Set</div>
+                    <h3 class="font-extrabold text-slate-900 text-sm sm:text-base tracking-tight mb-0.5">${color.name}</h3>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Core Scrub Set</div>
                 </div>
                 <div class="product-price-tag text-slate-900 font-extrabold text-sm sm:text-base flex items-center justify-center gap-1.5 font-montserrat">
                     <span>${cmsData.prices.basePrice} <span class="text-xs font-bold text-slate-500">EGP</span></span>
@@ -210,9 +210,9 @@ function updateSizeAvailability() {
 
         if (!isAvailable) {
             btn.classList.add('disabled');
-            btn.title = 'نفد من المخزون';
+            btn.title = 'Sold Out';
         } else {
-            btn.title = `مقاس ${s}`;
+            btn.title = `Size ${s}`;
         }
     });
 }
@@ -259,9 +259,9 @@ function updateModalUI() {
 
     if (pricingMessage) {
         if (selectedProduct.quantity === 1) {
-            pricingMessage.innerHTML = '<i class="fa-solid fa-truck-fast text-gold-600"></i> <span>أضف طقماً إضافياً للحصول على شحن مجاني فوري</span>';
+            pricingMessage.innerHTML = '<i class="fa-solid fa-truck-fast text-gold-600"></i> <span>Add 1 more set to unlock complimentary express delivery</span>';
         } else {
-            pricingMessage.innerHTML = '<i class="fa-solid fa-sparkles text-emerald-600"></i> <span class="text-emerald-800 font-bold">تم تفعيل الشحن المجاني السريع لطلبك!</span>';
+            pricingMessage.innerHTML = '<i class="fa-solid fa-sparkles text-emerald-600"></i> <span class="text-emerald-800 font-bold">Complimentary VIP Express Delivery Unlocked!</span>';
         }
     }
 }
@@ -348,7 +348,7 @@ if (btnCalcSize) {
         const w = parseFloat(calcWeight.value);
         const h = parseFloat(calcHeight.value);
         if (!w || !h) {
-            alert('برجاء إدخال الطول والوزن بشكل صحيح');
+            alert('Please enter valid height and weight values');
             return;
         }
         
@@ -377,7 +377,7 @@ if (useRecommendedSize) {
 if (buyBtn) {
     buyBtn.addEventListener('click', () => {
         if (!selectedProduct.size) {
-            alert('برجاء اختيار المقاس المناسب أولاً 🩺');
+            alert('Please select your preferred size first');
             return;
         }
         checkoutModal.classList.remove('hidden');
@@ -397,20 +397,21 @@ function submitOrder(customerData = null) {
     const pricing = calculatePrice(selectedProduct.quantity);
     let finalTotal = pricing.total;
     
-    let msg = `*طلب سكراب طبي جديد (Pioneer)*\n\n`;
-    msg += `• الموديل: [Core Series] ${selectedProduct.color.name} Set\n`;
-    msg += `• المقاس: ${selectedProduct.size}\n`;
-    msg += `• الكمية: ${selectedProduct.quantity}\n`;
-    msg += `• الإجمالي: ${finalTotal} ج.م (${pricing.shipping})\n\n`;
+    let msg = `*NEW MEDICAL SCRUB ORDER (PIONEER)*\n\n`;
+    msg += `• Item: [Core Series] ${selectedProduct.color.name} Set\n`;
+    msg += `• Size: ${selectedProduct.size}\n`;
+    msg += `• Quantity: ${selectedProduct.quantity}\n`;
+    msg += `• Total: ${finalTotal} EGP (${pricing.shipping})\n`;
+    msg += `• Policy: Doorstep Inspection with Courier • 3-Day Size Exchange\n\n`;
     
     if (customerData) {
-        msg += `*بيانات التوصيل:*\n`;
-        msg += `• الاسم: ${customerData.name}\n`;
-        msg += `• الهاتف: ${customerData.phone}\n`;
-        if (customerData.phone2) msg += `• هاتف بديل: ${customerData.phone2}\n`;
-        msg += `• المحافظة: ${customerData.gov}\n`;
-        msg += `• العنوان: ${customerData.address}\n`;
-        if (customerData.notes) msg += `• ملاحظات: ${customerData.notes}\n`;
+        msg += `*DELIVERY INFORMATION:*\n`;
+        msg += `• Name: ${customerData.name}\n`;
+        msg += `• Phone: ${customerData.phone}\n`;
+        if (customerData.phone2) msg += `• Alt Phone: ${customerData.phone2}\n`;
+        msg += `• Governorate: ${customerData.gov}\n`;
+        msg += `• Address: ${customerData.address}\n`;
+        if (customerData.notes) msg += `• Special Notes: ${customerData.notes}\n`;
     }
     
     const merchantPhone = "201069337788";
@@ -455,7 +456,7 @@ function submitOrder(customerData = null) {
                 type: 'new_order',
                 phone: customerData.phone,
                 name: customerData.name,
-                details: `طلب ${selectedProduct.color.name} مقاس ${selectedProduct.size}`,
+                details: `Order: ${selectedProduct.color.name} size ${selectedProduct.size}`,
                 finalTotal: finalTotal
             })
         }).catch(e => {});
