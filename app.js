@@ -7,7 +7,7 @@
 // --- Constants & Unchanged Endpoints ---
 const PIXEL_ID = '1835661177259760';
 const WHATSAPP_NUMBER = '201031276469';
-const scriptURL = "https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbw6M0afjrZaoWWWOkB4m9GFOnE9DA1UMTOrk-uK7pj9x8-QX5BOqsecjGeGi3ScA1vrmQ/exec";
 const CMS_CACHE_KEY = 'pioneer_cms_cache_v3';
 const LANG_STORAGE_KEY = 'pioneer_lang_pref';
 const REQUIRE_PHONE_FOR_SIZE = false; // Config flag: default false. When true, requires phone before calculating size.
@@ -578,10 +578,11 @@ function fetchCmsData() {
                     localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(cmsData));
                 } catch (e) {}
 
-                // Update UI with new prices/announcements
+                // Update UI with new prices/announcements/inventory
                 updateAnnouncementBar();
                 populateGovernorates();
                 renderProductGrid();
+                updateSizeButtons();
                 updateModalPriceAndShipping();
                 updateCheckoutSummary();
             }

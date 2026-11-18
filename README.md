@@ -37,7 +37,7 @@ Configure the following environment variables in your Vercel Project Settings (`
 ## 3. How to Update Prices, Inventory & Shipping via Google Sheets CMS
 
 The storefront automatically syncs with the Google Apps Script spreadsheet endpoint:
-`https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec?action=get_data`
+`https://script.google.com/macros/s/AKfycbw6M0afjrZaoWWWOkB4m9GFOnE9DA1UMTOrk-uK7pj9x8-QX5BOqsecjGeGi3ScA1vrmQ/exec?action=get_data`
 
 ### Updating Prices
 In your Google Sheet under the **Prices** tab:

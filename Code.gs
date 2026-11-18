@@ -208,23 +208,32 @@ function handleOrderSubmission(ss, data) {
   const headers = getSheetHeaders(ordersSheet);
   const timestamp = new Date();
 
+  const productDetails = `سكراب: ${colorName} | مقاس: ${size} | كمية: ${qty}`;
   const rowObject = {
     'رقم الطلب': orderId,
+    'كود الطلب': orderId,
     'التاريخ': Utilities.formatDate(timestamp, 'Africa/Cairo', 'yyyy-MM-dd HH:mm:ss'),
+    'التاريخ والوقت': Utilities.formatDate(timestamp, 'Africa/Cairo', 'yyyy-MM-dd HH:mm:ss'),
     'الاسم': 'د. ' + name,
     'الموبايل': "'" + phone,
+    'رقم التليفون': "'" + phone,
     'رقم بديل': data.phone2 ? "'" + data.phone2 : '',
     'المحافظة': gov,
     'العنوان': address,
     'الموديل': 'Pioneer Scrub Haute Couture',
+    'المنتج والتفاصيل': productDetails,
     'اللون': colorName,
     'المقاس': size,
     'الكمية': qty,
     'إجمالي السكراب': subtotal,
+    'سعر البيع الأساسي': subtotal,
     'مصاريف الشحن': shippingCost,
+    'كلفة الشحن': shippingCost,
     'الإجمالي': finalTotal,
-    'طريقة الدفع': 'الدفع عند الاستلام (معاينة قبل الدفع)',
+    'السعر الإجمالي': finalTotal,
+    'طريقة الدفع': 'كاش عند الاستلام',
     'الحالة': 'جديد',
+    'حالة الأوردر': 'جديد',
     'ملاحظات': notes || '',
     'كود الخصم': data.promo || '',
     'Event ID': data.eventId || ''
