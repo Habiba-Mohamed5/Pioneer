@@ -83,7 +83,8 @@ export default async function handler(req, res) {
                 reply_markup: {
                     inline_keyboard: [[{ text: "👉 اضغط لمراسلته واتساب", url: waLink }]]
                 }
-            })
+            }),
+            signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(2500) : undefined
         });
         
         // Return only { ok: true } - do not echo raw Telegram response or errors

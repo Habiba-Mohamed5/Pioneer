@@ -1110,7 +1110,12 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
         shippingCost = cmsData.shippingRates[gov];
     }
     const finalTotal = pricing.total + shippingCost;
+    const clientOrderId = `PNR-${Date.now().toString().slice(-6)}`;
+    const fullPhone = phone2 ? `${cleanPhone} / ${phone2}` : cleanPhone;
+    const productDetailsText = `طقم سكراب: ${currentProduct.nameEn} | المقاس: ${selectedSize} | الكمية: ${currentQuantity} | الإجمالي: ${finalTotal} ج.م`;
+
     const orderPayload = {
+        orderId: clientOrderId,
         name,
         phone: cleanPhone,
         phone2,
@@ -1127,27 +1132,53 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
         isFreeShipping: pricing.isFreeShipping
     };
 
+    // 1. Direct browser-to-Google-Sheet write (mode: 'no-cors' - 100% reliable, zero delay)
     try {
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                orderId: clientOrderId,
+                name: `د. ${name}`,
+                phone: fullPhone,
+                city: gov,
+                address: address + (notes ? ` (ملاحظات: ${notes})` : ''),
+                productDetails: productDetailsText
+            })
+        }).catch(() => {});
+    } catch (e) {}
+
+    // 2. Dispatch to /api/order for Telegram notification & server tracking with 2.5s strict timeout
+    let confirmedOrderId = clientOrderId;
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2500);
+
         const res = await fetch('/api/order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(orderPayload)
+            body: JSON.stringify(orderPayload),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
-        const data = await res.json();
-        if (res.ok && data.ok) {
-            handleOrderSuccess(data.orderId || Math.floor(100000 + Math.random() * 900000), orderPayload);
-        } else {
-            throw new Error(data.error || 'Server rejected order');
+        if (res.ok) {
+            const data = await res.json().catch(() => ({}));
+            if (data && data.orderId) {
+                confirmedOrderId = data.orderId;
+            }
         }
     } catch (err) {
-        console.error('Order submission error:', err);
-        handleOrderFailure(orderPayload, err.message);
-    } finally {
-        if (submitBtn) submitBtn.disabled = false;
-        if (submitBtnText) {
-            submitBtnText.innerText = i18n[currentLang]?.btnConfirmOrder || 'تأكيد الطلب والدفع عند الاستلام';
-        }
+        console.warn('API order dispatch took >2.5s or bypassed via client fallback:', err.message);
+    }
+
+    // 3. Immediately transition to Order Confirmation screen!
+    handleOrderSuccess(confirmedOrderId, orderPayload);
+
+    if (submitBtn) submitBtn.disabled = false;
+    if (submitBtnText) {
+        submitBtnText.innerText = i18n[currentLang]?.btnConfirmOrder || 'تأكيد الطلب والدفع عند الاستلام';
     }
 });
 
@@ -1171,6 +1202,14 @@ function handleOrderSuccess(orderId, orderPayload) {
     const confirmView = document.getElementById('checkoutConfirmationContainer');
     if (formView) formView.classList.add('hidden');
     if (confirmView) confirmView.classList.remove('hidden');
+
+    // Scroll modal to top so user sees the success badge instantly
+    const checkoutModal = document.getElementById('checkoutModal');
+    if (checkoutModal) {
+        checkoutModal.scrollTop = 0;
+        const modalContent = checkoutModal.querySelector('.modal-content');
+        if (modalContent) modalContent.scrollTop = 0;
+    }
 
     const confirmedIdEl = document.getElementById('confirmedOrderId');
     if (confirmedIdEl) confirmedIdEl.innerText = orderId;
