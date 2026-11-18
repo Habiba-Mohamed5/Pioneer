@@ -86,11 +86,20 @@ export default async function handler(req, res) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+                timestamp: new Date().toISOString(),
                 orderId: orderId,
                 name: `د. ${name}`,
                 phone: fullPhone,
+                source: 'order',
+                color: color,
+                size: size,
+                quantity: quantity,
+                governorate: gov,
                 city: gov,
                 address: address + (notes ? ` (ملاحظات: ${notes})` : ''),
+                status: 'converted', // Converted order: buyers are never chased!
+                followed_up_at: '',
+                notes: notes || '',
                 productDetails: productDetailsText
             }),
             signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(2500) : undefined

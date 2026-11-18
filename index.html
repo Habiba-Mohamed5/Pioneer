@@ -437,13 +437,15 @@
                                         <div style="font-size: 0.6875rem; color: var(--muted); margin-bottom: 0.5rem;" data-i18n="calcRelaxedNote">بين مقاسين؟ اختر المقاس الأكبر لقصة مريحة. [CONFIRM]</div>
                                         <button type="button" id="useRecommendedSize" class="btn btn-accent" style="padding: 0.375rem 0.875rem; font-size: 0.75rem;" data-i18n="btnSelectRec">اختيار هذا المقاس ومتابعة الطلب</button>
                                         
-                                        <!-- Optional Phone to receive advice -->
+                                        <!-- Phone to receive size and size chart on WhatsApp -->
                                         <div style="margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px dashed var(--hairline);">
-                                            <span style="font-size: 0.6875rem; color: var(--muted);" data-i18n="calcPhoneOptional">تحب نبعتلك المقاس وتفاصيل التأكيد على الواتساب؟ (اختياري)</span>
+                                            <span style="font-size: 0.6875rem; color: var(--muted);" data-i18n="calcPhoneOptional">أرسل لي مقاسي مع دليل المقاسات على الواتساب</span>
                                             <div style="display: flex; gap: 0.375rem; margin-top: 0.375rem;">
-                                                <input type="tel" id="calcPhone" placeholder="010XXXXXXXX" class="input-field" style="font-size: 0.75rem; padding: 0.375rem 0.5rem;">
+                                                <input type="tel" id="calcPhone" placeholder="010XXXXXXXX" class="input-field" style="font-size: 0.75rem; padding: 0.375rem 0.5rem;" dir="ltr">
                                                 <button type="button" id="btnSendCalcPhone" class="btn btn-outline" style="font-size: 0.6875rem; padding: 0.375rem 0.625rem; white-space: nowrap;" data-i18n="btnSendWhatsApp">إرسال</button>
                                             </div>
+                                            <div id="calcPhoneFeedback" class="hidden" style="font-size: 0.6875rem; margin-top: 0.25rem;"></div>
+                                            <p class="consent-text" data-i18n="consentMicro">بإدخال رقمك فإنك توافق على التواصل معك بخصوص مقاسك واستفساراتك. يمكنك طلب إيقاف الرسائل في أي وقت بإرسال قف.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -526,6 +528,7 @@
                         <label for="custPhone" class="form-label" data-i18n="labelPhone">رقم الموبايل / واتساب *</label>
                         <input type="tel" id="custPhone" required class="input-field" placeholder="010XXXXXXXX" dir="ltr" style="text-align: start;">
                         <span id="custPhoneError" class="hidden" style="color: var(--danger); font-size: 0.6875rem;" data-i18n="errPhone">برجاء إدخال رقم مصري صحيح (11 رقم يبدأ بـ 01)</span>
+                        <p class="consent-text" data-i18n="consentMicro">بإدخال رقمك فإنك توافق على التواصل معك بخصوص طلبك أو استفسارك. يمكنك طلب إيقاف الرسائل في أي وقت بإرسال قف.</p>
                     </div>
 
                     <!-- 3. Governorate -->
@@ -675,6 +678,39 @@
             </div>
         </div>
     </div>
+
+    <!-- Exit Intent Bottom Sheet (Calm Luxury, One-Time per Session, Never Over Checkout) -->
+    <div id="exitIntentBackdrop" class="exit-sheet-backdrop hidden" aria-hidden="true"></div>
+    <aside id="exitIntentSheet" class="exit-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="exitSheetTitle">
+        <div class="exit-sheet-card">
+            <button type="button" id="closeExitSheet" class="modal-close exit-sheet-close" aria-label="Close">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
+            <div class="exit-sheet-header">
+                <div class="eyebrow" data-i18n="exitEyebrow">هدية ترحيبية خاصة</div>
+                <h3 id="exitSheetTitle" class="serif-title" style="font-size: 1.25rem; margin-top: 0.25rem;" data-i18n="exitTitle">شحن سريع مجاني على أول طلب لك</h3>
+                <!-- [CONFIRM: a REAL incentive, e.g. free express shipping on the first order] -->
+                <p style="font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem;" data-i18n="exitDesc">احصل على كود شحن مجاني (صالح لمدة 48 ساعة) يُرسل مباشرة لهاتفك للطلب في أي وقت.</p>
+            </div>
+            <form id="exitOfferForm" class="exit-sheet-body" novalidate style="margin-top: 0.75rem;">
+                <div id="exitOfferInputGroup">
+                    <div class="form-group" style="margin-bottom: 0.5rem;">
+                        <input type="tel" id="exitPhoneInput" placeholder="010XXXXXXXX" class="input-field" dir="ltr" style="text-align: start;" required>
+                        <span id="exitPhoneError" class="hidden" style="color: var(--danger); font-size: 0.6875rem;" data-i18n="errPhone">برجاء إدخال رقم مصري صحيح (11 رقم)</span>
+                        <p class="consent-text" data-i18n="consentMicro">بإدخال رقمك فإنك توافق على التواصل معك بخصوص طلبك أو استفسارك. يمكنك طلب إيقاف الرسائل في أي وقت بإرسال قف.</p>
+                    </div>
+                    <button type="submit" id="btnClaimExitOffer" class="btn btn-primary btn-full" style="padding: 0.625rem 1rem;">
+                        <span data-i18n="btnClaimExit">تفعيل كود الشحن المجاني</span>
+                    </button>
+                </div>
+                <div id="exitOfferSuccessView" class="hidden" style="text-align: center; padding: 0.5rem 0;">
+                    <div style="font-weight: 700; color: var(--accent); font-size: 1.125rem; letter-spacing: 0.05em; margin-bottom: 0.25rem;">PIONEER-VIP</div>
+                    <p style="font-size: 0.75rem; color: var(--ink); margin-bottom: 0.75rem;" data-i18n="exitSuccessMsg">تم ربط كود الشحن المجاني برقمك وصالح لمدة 48 ساعة. تم نسخ الكود تلقائياً!</p>
+                    <button type="button" id="btnContinueShoppingExit" class="btn btn-outline btn-full" style="padding: 0.5rem;" data-i18n="btnContinueShopping">متابعة تصفح الموديلات</button>
+                </div>
+            </form>
+        </div>
+    </aside>
 
     <!-- Floating WhatsApp Concierge Button -->
     <a href="https://wa.me/201031276469" target="_blank" rel="noopener noreferrer" class="floating-whatsapp" aria-label="Chat on WhatsApp">

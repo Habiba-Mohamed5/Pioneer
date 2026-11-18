@@ -10,6 +10,7 @@ const WHATSAPP_NUMBER = '201031276469';
 const scriptURL = "https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec";
 const CMS_CACHE_KEY = 'pioneer_cms_cache_v3';
 const LANG_STORAGE_KEY = 'pioneer_lang_pref';
+const REQUIRE_PHONE_FOR_SIZE = false; // Config flag: default false. When true, requires phone before calculating size.
 
 // --- Static Product Catalog (Haute Couture Medical Series) ---
 const PRODUCTS = [
@@ -312,7 +313,14 @@ const i18n = {
         orderNumLabel: "رقم الطلب:",
         confirmMsg: "شكراً لاختيارك بايونير. سيقوم فريق خدمة العملاء بالتواصل معك هاتفياً أو عبر الواتساب لتأكيد موعد الشحن خلال [CONFIRM: وقت التأكيد].",
         btnChatWhatsApp: "متابعة عبر الواتساب برقم الطلب",
-        alertSelectSize: "برجاء اختيار المقاس المطلوب أولاً"
+        alertSelectSize: "برجاء اختيار المقاس المطلوب أولاً",
+        consentMicro: "بإدخال رقمك فإنك توافق على التواصل معك بخصوص طلبك أو استفسارك. يمكنك طلب إيقاف الرسائل في أي وقت بإرسال قف.",
+        exitEyebrow: "هدية ترحيبية خاصة",
+        exitTitle: "شحن سريع مجاني على أول طلب لك",
+        exitDesc: "احصل على كود شحن مجاني (صالح لمدة 48 ساعة) يُرسل مباشرة لهاتفك للطلب في أي وقت.",
+        btnClaimExit: "تفعيل كود الشحن المجاني",
+        exitSuccessMsg: "تم ربط كود الشحن المجاني برقمك وصالح لمدة 48 ساعة. تم نسخ الكود تلقائياً!",
+        btnContinueShopping: "متابعة تصفح الموديلات"
     },
     en: {
         announcementDefault: "Complimentary express delivery on 2+ sets • Cash on Delivery",
@@ -430,7 +438,14 @@ const i18n = {
         orderNumLabel: "Order ID:",
         confirmMsg: "Thank you for choosing Pioneer. Our team will contact you by phone or WhatsApp to confirm delivery within [CONFIRM: confirmation window].",
         btnChatWhatsApp: "Chat with us on WhatsApp with Order ID",
-        alertSelectSize: "Please select your preferred size first"
+        alertSelectSize: "Please select your preferred size first",
+        consentMicro: "By entering your number you agree that we may contact you regarding your order or inquiry. You can opt out at any time by replying STOP.",
+        exitEyebrow: "Exclusive Welcome Gift",
+        exitTitle: "Complimentary Express Delivery on Your First Order",
+        exitDesc: "Receive a complimentary shipping voucher code (valid for 48 hours) sent directly to your phone to use anytime.",
+        btnClaimExit: "Claim Free Shipping Voucher",
+        exitSuccessMsg: "Your free delivery code is active for 48 hours. Copied to clipboard!",
+        btnContinueShopping: "Continue Exploring Collection"
     }
 };
 
@@ -672,6 +687,8 @@ function openProductModal(productId) {
     currentProduct = p;
     selectedSize = null;
     currentQuantity = 1;
+    hasViewedProduct = true;
+    if (typeof resetMobileInactivityTimer === 'function') resetMobileInactivityTimer();
 
     // Update Deep link in URL
     try {
@@ -900,7 +917,7 @@ document.getElementById('inlineSizeGuideLink')?.addEventListener('click', () => 
     }
 });
 
-// Size Calculator Calculation (No phone required!)
+// --- Smart Fit Calculator Logic ---
 document.getElementById('btnCalcSize')?.addEventListener('click', () => {
     const weight = parseFloat(document.getElementById('calcWeight')?.value);
     const height = parseFloat(document.getElementById('calcHeight')?.value);
@@ -908,6 +925,18 @@ document.getElementById('btnCalcSize')?.addEventListener('click', () => {
     if (!weight || !height) {
         alert(currentLang === 'ar' ? 'برجاء إدخال الوزن والطول' : 'Please enter height and weight');
         return;
+    }
+
+    // Config flag check: when true, require phone before revealing result
+    if (REQUIRE_PHONE_FOR_SIZE) {
+        const phoneInput = document.getElementById('calcPhone');
+        const phone = phoneInput ? phoneInput.value.trim() : '';
+        const cleanDigits = phone.replace(/\D/g, '');
+        if (!/^01[0125][0-9]{8}$/.test(cleanDigits)) {
+            alert(currentLang === 'ar' ? 'برجاء إدخال رقم الموبايل (11 رقم) لعرض المقاس وحفظه' : 'Please enter your 11-digit mobile number to view recommended size');
+            if (phoneInput) phoneInput.focus();
+            return;
+        }
     }
 
     let rec = 'L';
@@ -930,6 +959,21 @@ document.getElementById('btnCalcSize')?.addEventListener('click', () => {
 
     const resultBox = document.getElementById('calcResult');
     if (resultBox) resultBox.classList.remove('hidden');
+
+    if (REQUIRE_PHONE_FOR_SIZE) {
+        const phone = document.getElementById('calcPhone')?.value.trim();
+        const cleanDigits = phone.replace(/\D/g, '');
+        captureLead({
+            source: 'size_guide',
+            phone: cleanDigits,
+            name: currentLang === 'ar' ? 'استشارة مقاس' : 'Size Consultation',
+            color: currentProduct.nameEn,
+            size: rec,
+            quantity: 1,
+            notes: `الوزن: ${weight} كجم | الطول: ${height} سم | المقاس: ${rec}`,
+            details: `وزن: ${weight} كجم | طول: ${height} سم | مقاس: ${rec} | لون: ${currentProduct.nameEn}`
+        });
+    }
 });
 
 document.getElementById('useRecommendedSize')?.addEventListener('click', () => {
@@ -942,26 +986,46 @@ document.getElementById('useRecommendedSize')?.addEventListener('click', () => {
     }
 });
 
-// Optional WhatsApp phone from calculator
+// Optional WhatsApp phone from calculator: Send size & size chart on WhatsApp
 document.getElementById('btnSendCalcPhone')?.addEventListener('click', () => {
     const phoneInput = document.getElementById('calcPhone');
     const phone = phoneInput ? phoneInput.value.trim() : '';
     const cleanDigits = phone.replace(/\D/g, '');
+    const feedbackEl = document.getElementById('calcPhoneFeedback');
 
-    if (cleanDigits.length < 10) {
-        alert(currentLang === 'ar' ? 'برجاء إدخال رقم صحيح' : 'Please enter a valid phone number');
+    const egRegex = /^01[0125][0-9]{8}$/;
+    if (!egRegex.test(cleanDigits)) {
+        if (feedbackEl) {
+            feedbackEl.className = '';
+            feedbackEl.style.color = 'var(--danger)';
+            feedbackEl.innerText = currentLang === 'ar' ? 'برجاء إدخال رقم مصري صحيح (11 رقم)' : 'Please enter a valid 11-digit Egyptian number';
+            feedbackEl.classList.remove('hidden');
+        }
         return;
     }
 
+    const weight = document.getElementById('calcWeight')?.value || '-';
+    const height = document.getElementById('calcHeight')?.value || '-';
     const recSize = document.getElementById('recommendedSizeTxt')?.innerText || 'L';
+
     captureLead({
-        name: "استشارة مقاس (حاسبة)",
-        phone: phone,
-        details: `الموديل: ${currentProduct.nameEn} | المقاس المقترح: ${recSize}`
+        source: 'size_guide',
+        phone: cleanDigits,
+        name: currentLang === 'ar' ? 'استشارة مقاس' : 'Size Consultation',
+        color: currentProduct.nameEn,
+        size: recSize,
+        quantity: 1,
+        notes: `الوزن: ${weight} كجم | الطول: ${height} سم | المقاس: ${recSize}`,
+        details: `وزن: ${weight} كجم | طول: ${height} سم | مقاس: ${recSize} | لون: ${currentProduct.nameEn}`
     });
 
-    alert(currentLang === 'ar' ? 'تم تسجيل طلبك، وسيتواصل معك فريقنا.' : 'Recommendation saved. Our team will contact you.');
-    if (phoneInput) phoneInput.value = '';
+    if (feedbackEl) {
+        feedbackEl.className = '';
+        feedbackEl.style.color = 'var(--success)';
+        feedbackEl.innerText = currentLang === 'ar' ? '✓ تم إرسال المقاس لرقمك وسيتواصل معك فريقنا للمساعدة.' : '✓ Recommendation saved! Our team will reach out via WhatsApp.';
+        feedbackEl.classList.remove('hidden');
+    }
+    if (phoneInput) phoneInput.disabled = true;
 });
 
 // --- Checkout Modal Opening & Closing ---
@@ -1218,11 +1282,19 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+                timestamp: new Date().toISOString(),
                 orderId: clientOrderId,
                 name: `د. ${name}`,
                 phone: fullPhone,
-                city: gov,
+                source: 'order',
+                color: currentProduct.nameEn,
+                size: selectedSize || 'L',
+                quantity: currentQuantity,
+                governorate: gov,
                 address: address + (notes ? ` (ملاحظات: ${notes})` : ''),
+                status: 'converted', // Buyers are converted so they are never chased!
+                followed_up_at: '',
+                notes: notes || '',
                 productDetails: productDetailsText
             })
         }).catch(() => {});
@@ -1263,6 +1335,13 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
 
 function handleOrderSuccess(orderId, orderPayload) {
     isOrderCompleted = true;
+
+    // Mark phone as converted to exclude from abandoned lead chases
+    const cleanPhone = String(orderPayload.phone || '').replace(/\D/g, '');
+    if (cleanPhone) {
+        convertedPhones.add(cleanPhone);
+        try { sessionStorage.setItem('pioneer_converted_' + cleanPhone, 'true'); } catch(e) {}
+    }
 
     // Fire Purchase event ONLY after success!
     const purchaseEventId = generateEventId();
@@ -1341,76 +1420,286 @@ function handleOrderFailure(orderPayload, errMsg) {
 }
 
 // --- Lead Capture & Abandoned Checkout ---
+const convertedPhones = new Set();
+
 function captureLead(leadData) {
     if (!leadData || !leadData.phone) return;
-    const cleanDigits = leadData.phone.replace(/\D/g, '');
+    const cleanDigits = String(leadData.phone).replace(/\D/g, '');
     if (cleanDigits.length < 10) return;
 
-    if (capturedLeads.has(cleanDigits)) return;
-    capturedLeads.add(cleanDigits);
+    // Converted order check: buyers are converted so they are never chased!
+    if (convertedPhones.has(cleanDigits) || sessionStorage.getItem('pioneer_converted_' + cleanDigits) === 'true') {
+        return;
+    }
 
-    // Track Lead pixel event
+    const source = leadData.source || 'lead';
+    const dedupKey = cleanDigits + '_' + source;
+    if (capturedLeads.has(dedupKey) || sessionStorage.getItem('pioneer_lead_' + dedupKey) === 'true') {
+        return;
+    }
+    capturedLeads.add(dedupKey);
+    try { sessionStorage.setItem('pioneer_lead_' + dedupKey, 'true'); } catch(e) {}
+
+    const leadEventId = generateEventId();
+
+    // 1. Meta Pixel & Conversions API Lead Event
     trackPixelEvent('Lead', {
+        content_name: leadData.color || currentProduct.nameEn,
+        content_category: 'Medical Scrub',
         value: 0,
         currency: 'EGP',
-        phone: cleanDigits
-    });
+        phone: cleanDigits,
+        lead_source: source
+    }, leadEventId);
 
-    // Write to Google Sheet (fallback no-cors)
+    // 2. Direct browser-to-Google-Sheet write (mode: 'no-cors' - failsafe & instant)
     try {
         fetch(scriptURL, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                name: leadData.name || "عميل مهتم",
-                phone: leadData.phone,
-                city: leadData.gov || "-",
-                address: leadData.address || "-",
-                productDetails: leadData.details || `سكراب: ${currentProduct.nameEn}`
+                timestamp: new Date().toISOString(),
+                phone: cleanDigits,
+                name: leadData.name || (currentLang === 'ar' ? 'طبيب مهتم' : 'Interested Physician'),
+                source: source,
+                color: leadData.color || currentProduct.nameEn,
+                size: leadData.size || selectedSize || '-',
+                quantity: leadData.quantity || currentQuantity,
+                governorate: leadData.governorate || '-',
+                address: leadData.address || '-',
+                status: 'new',
+                followed_up_at: '',
+                notes: leadData.notes || '',
+                productDetails: leadData.details || `سكراب: ${leadData.color || currentProduct.nameEn} (مقاس ${leadData.size || '-'})`
             })
         }).catch(() => {});
     } catch (e) {}
 
-    // Alert Telegram via /api/notify
+    // 3. Alert Telegram via /api/notify (Priority: HOT for checkout_abandon, WARM for size_guide / exit_offer)
     try {
         fetch('/api/notify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                type: 'abandoned_checkout',
-                phone: leadData.phone,
-                name: leadData.name || "دكتور مهتم",
-                color: currentProduct.nameEn,
-                resultSize: selectedSize || "غير محدد",
-                details: leadData.details || `اهتمام بالسكراب ${currentProduct.nameEn}`
-            })
+                type: source,
+                phone: cleanDigits,
+                name: leadData.name || '',
+                color: leadData.color || currentProduct.nameEn,
+                resultSize: leadData.size || selectedSize || '',
+                quantity: leadData.quantity || currentQuantity,
+                governorate: leadData.governorate || '',
+                finalTotal: leadData.finalTotal || null,
+                details: leadData.details || leadData.notes || `مهتم بموديل ${leadData.color || currentProduct.nameEn}`
+            }),
+            signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(2500) : undefined
         }).catch(() => {});
     } catch (e) {}
 }
 
-function captureAbandonedCheckoutLead() {
+function captureAbandonedCheckoutLead(useBeacon = false) {
     if (isOrderCompleted) return;
     const phoneInput = document.getElementById('custPhone');
     const phone = phoneInput ? phoneInput.value.trim() : '';
     const cleanDigits = phone.replace(/\D/g, '');
-    if (cleanDigits.length < 10) return;
+    const egRegex = /^01[0125][0-9]{8}$/;
+    if (!egRegex.test(cleanDigits)) return;
 
-    const name = document.getElementById('custName')?.value.trim() || 'عميل في صفحة الدفع';
+    if (convertedPhones.has(cleanDigits) || sessionStorage.getItem('pioneer_converted_' + cleanDigits) === 'true') {
+        return;
+    }
+
+    const name = document.getElementById('custName')?.value.trim() || 'دكتور (سلة متروكة)';
     const gov = document.getElementById('custGov')?.value || '-';
     const address = document.getElementById('custAddress')?.value.trim() || '-';
+    const notes = document.getElementById('custNotes')?.value.trim() || '';
+    const pricing = calculatePricing(currentQuantity);
+    let shipping = 0;
+    if (!pricing.isFreeShipping && cmsData.shippingRates && cmsData.shippingRates[gov]) {
+        shipping = cmsData.shippingRates[gov];
+    }
+    const finalTotal = pricing.total + shipping;
 
-    captureLead({
-        name: `${name} (لم يكمل الطلب)`,
-        phone: phone,
-        gov,
-        address,
-        details: `وصل لصفحة الدفع: ${currentProduct.nameEn} (مقاس ${selectedSize || 'لم يحدد'})`
-    });
+    const leadPayload = {
+        source: 'checkout_abandon',
+        name: `${name} (سلة متروكة)`,
+        phone: cleanDigits,
+        color: currentProduct.nameEn,
+        size: selectedSize || 'غير محدد',
+        quantity: currentQuantity,
+        governorate: gov,
+        address: address,
+        notes: notes ? `ملاحظات: ${notes}` : '',
+        subtotal: pricing.total,
+        shipping: shipping,
+        finalTotal: finalTotal,
+        details: `طقم سكراب: ${currentProduct.nameEn} | المقاس: ${selectedSize || 'غير محدد'} | الكمية: ${currentQuantity} | الإجمالي: ${finalTotal} ج.م`
+    };
+
+    if (useBeacon && typeof navigator !== 'undefined' && navigator.sendBeacon) {
+        try {
+            const blob = new Blob([JSON.stringify({
+                type: 'checkout_abandon',
+                phone: cleanDigits,
+                name: name,
+                color: currentProduct.nameEn,
+                resultSize: selectedSize || '-',
+                quantity: currentQuantity,
+                governorate: gov,
+                finalTotal: finalTotal,
+                details: leadPayload.details
+            })], { type: 'application/json' });
+            navigator.sendBeacon('/api/notify', blob);
+        } catch(e) {}
+    }
+
+    captureLead(leadPayload);
 }
 
 // Track phone input on blur
-document.getElementById('custPhone')?.addEventListener('blur', captureAbandonedCheckoutLead);
+document.getElementById('custPhone')?.addEventListener('blur', () => captureAbandonedCheckoutLead(false));
+
+// Visibility change & pagehide beacon (Facebook / Instagram in-app browser exits)
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        const checkoutModal = document.getElementById('checkoutModal');
+        if (checkoutModal && checkoutModal.classList.contains('open') && !isOrderCompleted) {
+            captureAbandonedCheckoutLead(true);
+        }
+    }
+});
+
+window.addEventListener('pagehide', () => {
+    const checkoutModal = document.getElementById('checkoutModal');
+    if (checkoutModal && checkoutModal.classList.contains('open') && !isOrderCompleted) {
+        captureAbandonedCheckoutLead(true);
+    }
+});
+
+// --- Exit Intent Controller (Calm Luxury, One-Time per Session, Never Over Checkout) ---
+let hasViewedProduct = false;
+let exitIntentShown = false;
+let mobileInactivityTimer = null;
+let lastScrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+function checkExitIntentEligible() {
+    if (exitIntentShown) return false;
+    if (isOrderCompleted) return false;
+    if (sessionStorage.getItem('pioneer_exit_dismissed') === 'true') return false;
+    const checkoutModal = document.getElementById('checkoutModal');
+    if (checkoutModal && checkoutModal.classList.contains('open')) return false;
+    return true;
+}
+
+function triggerExitIntent() {
+    if (!checkExitIntentEligible()) return;
+    exitIntentShown = true;
+
+    const sheet = document.getElementById('exitIntentSheet');
+    const backdrop = document.getElementById('exitIntentBackdrop');
+    if (sheet && backdrop) {
+        backdrop.classList.remove('hidden');
+        sheet.classList.remove('hidden');
+        requestAnimationFrame(() => {
+            sheet.classList.add('open');
+        });
+    }
+}
+
+function closeExitSheet() {
+    sessionStorage.setItem('pioneer_exit_dismissed', 'true');
+    const sheet = document.getElementById('exitIntentSheet');
+    const backdrop = document.getElementById('exitIntentBackdrop');
+    if (sheet) sheet.classList.remove('open');
+    setTimeout(() => {
+        if (sheet) sheet.classList.add('hidden');
+        if (backdrop) backdrop.classList.add('hidden');
+    }, 350);
+}
+
+document.getElementById('closeExitSheet')?.addEventListener('click', closeExitSheet);
+document.getElementById('exitIntentBackdrop')?.addEventListener('click', closeExitSheet);
+
+// Desktop: Mouse leaves toward top of viewport
+document.addEventListener('mouseleave', (e) => {
+    if (e.clientY <= 0 && checkExitIntentEligible()) {
+        triggerExitIntent();
+    }
+});
+
+// Mobile (a): 45s of inactivity after viewing a product
+function resetMobileInactivityTimer() {
+    if (!hasViewedProduct || !checkExitIntentEligible()) return;
+    if (mobileInactivityTimer) clearTimeout(mobileInactivityTimer);
+    mobileInactivityTimer = setTimeout(() => {
+        if (checkExitIntentEligible()) {
+            triggerExitIntent();
+        }
+    }, 45000);
+}
+
+['touchstart', 'touchmove', 'scroll', 'click'].forEach(evt => {
+    document.addEventListener(evt, resetMobileInactivityTimer, { passive: true });
+});
+
+// Mobile (b): Fast scroll-up after viewing a product
+window.addEventListener('scroll', () => {
+    const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
+    if (hasViewedProduct && checkExitIntentEligible()) {
+        if (lastScrollY - currentScrollY > 85 && currentScrollY > 200) {
+            triggerExitIntent();
+        }
+    }
+    lastScrollY = currentScrollY <= 0 ? 0 : currentScrollY;
+}, { passive: true });
+
+// Mobile (c): First visibilitychange back to visible after being hidden
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && hasViewedProduct && checkExitIntentEligible()) {
+        triggerExitIntent();
+    }
+});
+
+// Claim Exit Offer Form Handler
+document.getElementById('exitOfferForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const phoneInput = document.getElementById('exitPhoneInput');
+    const phone = phoneInput ? phoneInput.value.trim() : '';
+    const cleanDigits = phone.replace(/\D/g, '');
+    const egRegex = /^01[0125][0-9]{8}$/;
+
+    const errorEl = document.getElementById('exitPhoneError');
+    if (!egRegex.test(cleanDigits)) {
+        if (errorEl) errorEl.classList.remove('hidden');
+        return;
+    }
+    if (errorEl) errorEl.classList.add('hidden');
+
+    captureLead({
+        source: 'exit_offer',
+        phone: cleanDigits,
+        name: currentLang === 'ar' ? 'عرض الخروج (PIONEER-VIP)' : 'Exit Offer (PIONEER-VIP)',
+        color: currentProduct.nameEn,
+        size: selectedSize || 'غير محدد',
+        quantity: currentQuantity,
+        notes: 'تفعيل كود شحن مجاني ترحيبي PIONEER-VIP (صالح 48 ساعة)',
+        details: `كود الشحن المجاني PIONEER-VIP | مهتم بـ: ${currentProduct.nameEn}`
+    });
+
+    sessionStorage.setItem('pioneer_exit_claimed', 'true');
+    sessionStorage.setItem('pioneer_exit_dismissed', 'true');
+
+    try {
+        if (navigator.clipboard) navigator.clipboard.writeText('PIONEER-VIP');
+    } catch(err) {}
+
+    const inputGroup = document.getElementById('exitOfferInputGroup');
+    const successView = document.getElementById('exitOfferSuccessView');
+    if (inputGroup) inputGroup.classList.add('hidden');
+    if (successView) successView.classList.remove('hidden');
+});
+
+document.getElementById('btnContinueShoppingExit')?.addEventListener('click', closeExitSheet);
 
 // --- Deep Linking (?color=navy or #navy) ---
 function handleDeepLinks() {
