@@ -8,7 +8,7 @@
 const PIXEL_ID = '1835661177259760';
 const WHATSAPP_NUMBER = '201031276469';
 const scriptURL = "https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec";
-const CMS_CACHE_KEY = 'pioneer_cms_cache_v2';
+const CMS_CACHE_KEY = 'pioneer_cms_cache_v3';
 const LANG_STORAGE_KEY = 'pioneer_lang_pref';
 
 // --- Static Product Catalog (Haute Couture Medical Series) ---
@@ -123,37 +123,51 @@ const PRODUCT_SPECS = {
     ]
 };
 
-// Default Shipping Rates Fallback (Egypt)
+// [CONFIRM: courier rates] - Default shipping table by governorate (70 - 100 EGP), overridable by CMS shippingRates
 const DEFAULT_SHIPPING_RATES = {
-    "القاهرة": 45,
-    "الجيزة": 45,
-    "الإسكندرية": 50,
-    "الدقهلية": 55,
-    "الغربية": 55,
-    "الشرقية": 55,
-    "القليوبية": 50,
-    "المنوفية": 55,
-    "البحيرة": 55,
-    "كفر الشيخ": 60,
-    "دمياط": 60,
-    "بورسعيد": 60,
-    "الإسماعيلية": 60,
-    "السويس": 60,
-    "الفيوم": 65,
-    "بني سويف": 65,
-    "المنيا": 70,
-    "أسيوط": 75,
-    "سوهاج": 75,
-    "قنا": 80,
-    "الأقصر": 85,
-    "أسوان": 85,
-    "البحر الأحمر": 90,
-    "مطروح": 90
+    // Cairo / Giza: 70 EGP
+    "القاهرة": 70,
+    "الجيزة": 70,
+
+    // Alexandria, Qalyubia, Dakahlia, Gharbia, Sharqia, Monufia, Beheira: 80 EGP
+    "الإسكندرية": 80,
+    "القليوبية": 80,
+    "الدقهلية": 80,
+    "الغربية": 80,
+    "الشرقية": 80,
+    "المنوفية": 80,
+    "البحيرة": 80,
+
+    // Port Said, Ismailia, Suez, Damietta, Kafr El Sheikh, Matrouh: 90 EGP
+    "بورسعيد": 90,
+    "الإسماعيلية": 90,
+    "السويس": 90,
+    "دمياط": 90,
+    "كفر الشيخ": 90,
+    "مطروح": 90,
+
+    // Fayoum, Beni Suef, Minya, Asyut, Sohag, Qena, Luxor, Aswan, Red Sea: 100 EGP
+    "الفيوم": 100,
+    "بني سويف": 100,
+    "المنيا": 100,
+    "أسيوط": 100,
+    "سوهاج": 100,
+    "قنا": 100,
+    "الأقصر": 100,
+    "أسوان": 100,
+    "البحر الأحمر": 100,
+    "شمال سيناء": 100,
+    "جنوب سيناء": 100,
+    "الوادي الجديد": 100
 };
 
 // --- Dynamic CMS State with LocalStorage Cache ---
 let cmsData = {
-    prices: { basePrice: 900, twoPiecesPrice: 1800 },
+    prices: {
+        basePrice: 900,
+        twoPiecesPrice: 1800,
+        threePlusUnitPrice: 850
+    },
     inventory: null,
     announcement: null,
     shippingRates: DEFAULT_SHIPPING_RATES
@@ -218,7 +232,7 @@ const i18n = {
         faq2Q: "ما هي سياسة استبدال المقاس إذا لم يكن مناسباً؟",
         faq2A: "نوفر استبدالاً للمقاس أو اللون خلال 3 أيام من الاستلام، بشرط الحفاظ على السكراب بحالته الأصلية غير ملبوس وغير مغسول وبالبطاقة الخاصة به.",
         faq3Q: "كم تستغرق مدة الشحن لمحافظتي؟",
-        faq3A: "القاهرة والجيزة والإسكندرية: خلال 24 إلى 48 ساعة عمل. باقي المحافظات: من 2 إلى 4 أيام عمل بحد أقصى.",
+        faq3A: "القاهرة والجيزة والإسكندرية والمحافظات: يتم التأكيد والتوصيل خلال 24 ساعة عمل مع إمكانية المعاينة قبل الدفع.",
         faq4Q: "ما هي تفاصيل تركيبة القماش؟",
         faq4A: "نسيج ثلاثي التركيب: بوليستر تقني مع رايون مع سباندكس مرن. يوفر متانة عالية ومقاومة للتجعد وملمساً ناعماً على البشرة.",
         faq5Q: "كيف أحصل على توصيل مجاني؟",
@@ -239,6 +253,7 @@ const i18n = {
         footerTagline: "الدفع عند الاستلام • المعاينة مع المندوب • استبدال خلال 3 أيام",
         modalEyebrow: "طقم سكراب بايونير الأساسي",
         modalCut: "قصة طبية مريحة • تصميم مناسب للجميع",
+        modalShippingLine: "الشحن 70 - 100 ج.م حسب المحافظة (مجاناً لطلب طقمين أو أكثر)",
         currency: "ج.م",
         labelColor: "اللون:",
         labelSize: "المقاس:",
@@ -246,6 +261,7 @@ const i18n = {
         btnBuy: "اطلب الآن والدفع عند الاستلام",
         freeShippingUnlocked: "تم تفعيل الشحن السريع المجاني لحسابك!",
         addMoreForFreeShipping: "أضف طقم إضافي لتفعيل الشحن المجاني",
+        delivery24hNotice: "التأكيد والتوصيل خلال 24 ساعة • معاينة قبل الدفع",
         accSizeTitle: "دليل المقاسات وحاسبة القياس الدقيقة",
         thSize: "المقاس",
         thChest: "محيط الصدر / العرض",
@@ -355,6 +371,7 @@ const i18n = {
         footerTagline: "Cash on Delivery • Doorstep Inspection • 3-Day Exchange",
         modalEyebrow: "Pioneer Core Series",
         modalCut: "Tailored athletic silhouette • Unisex cut",
+        modalShippingLine: "Shipping 70-100 EGP depending on governorate. Free for 2+ sets.",
         currency: "EGP",
         labelColor: "Color:",
         labelSize: "Size:",
@@ -362,6 +379,7 @@ const i18n = {
         btnBuy: "Order Now • Pay on Delivery",
         freeShippingUnlocked: "Complimentary Express Delivery Unlocked!",
         addMoreForFreeShipping: "Add 1 more set to unlock complimentary express delivery",
+        delivery24hNotice: "Confirmation & delivery within 24 hours • Inspect before payment",
         accSizeTitle: "Size Chart & Smart Fit Calculator",
         thSize: "Size",
         thChest: "Chest / Width",
@@ -446,10 +464,12 @@ function forwardToCapi(eventName, params, eventId) {
     } catch (e) {}
 }
 
-// --- Pricing Calculations (Rules Preserved) ---
+// --- Pricing Calculations (Override: 1 set = basePrice, 2 sets = twoPiecesPrice w/ Free Shipping, 3+ sets = qty * 850 w/ Free Shipping) ---
+// [CONFIRM: no fake crossed-out price used]
 function calculatePricing(qty) {
     const bp = cmsData.prices.basePrice || 900;
     const tp = cmsData.prices.twoPiecesPrice || 1800;
+    const unit3Plus = cmsData.prices.threePlusUnitPrice || 850;
     let total = 0;
     let isFreeShipping = false;
 
@@ -460,11 +480,11 @@ function calculatePricing(qty) {
         total = tp;
         isFreeShipping = true;
     } else {
-        total = qty * (tp / 2 - 50);
+        total = qty * unit3Plus;
         isFreeShipping = true;
     }
 
-    return { total, isFreeShipping };
+    return { total, isFreeShipping, unitPrice: qty >= 3 ? unit3Plus : (qty === 2 ? tp / 2 : bp) };
 }
 
 // --- DOM Initialization & Render ---
@@ -538,8 +558,10 @@ function fetchCmsData() {
             if (data && data.prices) {
                 const bp = parseFloat(data.prices.basePrice);
                 const tp = parseFloat(data.prices.twoPiecesPrice);
+                const tpu = parseFloat(data.prices.threePlusUnitPrice);
                 cmsData.prices.basePrice = isNaN(bp) ? 900 : bp;
                 cmsData.prices.twoPiecesPrice = isNaN(tp) ? 1800 : tp;
+                cmsData.prices.threePlusUnitPrice = isNaN(tpu) ? 850 : tpu;
 
                 if (data.inventory) cmsData.inventory = data.inventory;
                 if (data.shippingRates) cmsData.shippingRates = data.shippingRates;
@@ -578,13 +600,14 @@ function populateGovernorates() {
 
     const currentVal = govSelect.value;
     const rates = cmsData.shippingRates;
-    const defaultPlaceholder = i18n[currentLang]?.selectGov || 'Select governorate...';
+    const defaultPlaceholder = i18n[currentLang]?.selectGov || 'اختر المحافظة...';
+    const currency = i18n[currentLang]?.currency || 'ج.م';
 
     govSelect.innerHTML = `<option value="">${defaultPlaceholder}</option>`;
     Object.keys(rates).forEach(gov => {
         const opt = document.createElement('option');
         opt.value = gov;
-        opt.textContent = gov;
+        opt.textContent = `${gov} (${rates[gov]} ${currency})`;
         if (gov === currentVal) opt.selected = true;
         govSelect.appendChild(opt);
     });
@@ -609,6 +632,7 @@ function renderProductGrid() {
         const displayName = lang === 'ar' ? p.nameAr : p.nameEn;
         const price = cmsData.prices.basePrice || 900;
         const currency = dict.currency || 'ج.م';
+        const shippingNote = lang === 'ar' ? '+ الشحن يبدأ من 70 ج.م' : '+ shipping from 70 EGP';
 
         card.innerHTML = `
             <div class="product-card-media">
@@ -622,7 +646,10 @@ function renderProductGrid() {
                 <h3 class="product-card-name">${displayName}</h3>
                 <p class="product-card-meta">${lang === 'ar' ? 'طقم سكراب طبي مرن' : '4-Way Technical Scrub Set'}</p>
                 <div class="product-card-footer">
-                    <span class="product-card-price">${price} ${currency}</span>
+                    <div class="product-card-price-group">
+                        <span class="product-card-price">${price} ${currency}</span>
+                        <span class="product-card-shipping-note">${shippingNote}</span>
+                    </div>
                     <span class="product-card-action">${dict.viewProduct} &larr;</span>
                 </div>
             </div>
@@ -806,6 +833,21 @@ function updateModalPriceAndShipping() {
     const priceEl = document.getElementById('modalPrice');
     if (priceEl) priceEl.innerText = pricing.total;
 
+    const shippingLineEl = document.getElementById('modalShippingLine');
+    if (shippingLineEl) {
+        if (pricing.isFreeShipping) {
+            shippingLineEl.innerText = currentLang === 'ar'
+                ? 'تم تفعيل الشحن المجاني السريع لطلبك 🎁'
+                : 'Complimentary express delivery unlocked 🎁';
+            shippingLineEl.style.color = 'var(--success)';
+        } else {
+            shippingLineEl.innerText = currentLang === 'ar'
+                ? 'الشحن 70 - 100 ج.م حسب المحافظة (مجاناً لطلب طقمين أو أكثر)'
+                : 'Shipping 70-100 EGP depending on governorate. Free for 2+ sets.';
+            shippingLineEl.style.color = 'var(--muted)';
+        }
+    }
+
     const totalBtnEl = document.getElementById('totalPriceBtn');
     if (totalBtnEl) totalBtnEl.innerText = `(${pricing.total} ${currency})`;
 
@@ -815,13 +857,13 @@ function updateModalPriceAndShipping() {
             noteEl.className = 'shipping-privilege-note unlocked';
             noteEl.innerHTML = `
                 <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
-                <span>${dict.freeShippingUnlocked}</span>
+                <span>${currentLang === 'ar' ? 'تم تفعيل الشحن المجاني السريع لطلبك (طقمين أو أكثر)!' : 'Complimentary express delivery unlocked for your order!'}</span>
             `;
         } else {
             noteEl.className = 'shipping-privilege-note';
             noteEl.innerHTML = `
                 <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
-                <span>${dict.addMoreForFreeShipping}</span>
+                <span>${currentLang === 'ar' ? 'الشحن 70 - 100 ج.م حسب المحافظة • اطلب طقمين للشحن المجاني' : 'Shipping 70-100 EGP depending on governorate • Order 2 sets for free shipping'}</span>
             `;
         }
     }
@@ -1035,11 +1077,11 @@ function updateCheckoutSummary() {
         shippingLabel = `${shippingCost} ${currency}`;
     } else if (!chosenGov) {
         shippingCost = 0;
-        shippingLabel = dict.shippingPending;
+        shippingLabel = currentLang === 'ar' ? 'اختر المحافظة لمعرفة الشحن (70-100 ج.م)' : 'Select governorate for shipping (70-100 EGP)';
     } else {
-        // [CONFIRM: shipping rate missing for chosen governorate]
-        shippingCost = 50; // Fallback
-        shippingLabel = `${shippingCost} ${currency} [CONFIRM]`;
+        // [CONFIRM: courier rates]
+        shippingCost = 80;
+        shippingLabel = `${shippingCost} ${currency}`;
     }
 
     const shippingEl = document.getElementById('summaryShipping');
@@ -1048,7 +1090,43 @@ function updateCheckoutSummary() {
     const finalTotal = pricing.total + (pricing.isFreeShipping ? 0 : shippingCost);
     const totalEl = document.getElementById('summaryTotal');
     if (totalEl) totalEl.innerText = `${finalTotal} ${currency}`;
+
+    // "Add 1 more set for free shipping" nudge with dynamic saved amount from chosen governorate
+    const nudgeEl = document.getElementById('checkoutFreeShippingNudge');
+    const nudgeTextEl = document.getElementById('checkoutNudgeText');
+    if (nudgeEl && nudgeTextEl) {
+        if (currentQuantity === 1) {
+            nudgeEl.className = 'shipping-privilege-note';
+            const savedAmount = (chosenGov && cmsData.shippingRates && cmsData.shippingRates[chosenGov])
+                ? cmsData.shippingRates[chosenGov]
+                : null;
+
+            if (savedAmount) {
+                nudgeTextEl.innerHTML = currentLang === 'ar'
+                    ? `وفّر <strong>${savedAmount} ${currency}</strong> مصاريف شحن: اضغط هنا لإضافة طقم ثانٍ وشحن مجاني 🎁`
+                    : `Save <strong>${savedAmount} ${currency}</strong> on delivery: Click to add 2nd set for free shipping 🎁`;
+            } else {
+                nudgeTextEl.innerHTML = currentLang === 'ar'
+                    ? `وفّر مصاريف الشحن (70 - 100 ${currency}): اضغط هنا لإضافة طقم ثانٍ وشحن مجاني 🎁`
+                    : `Save 70-100 ${currency} on delivery: Click to add 2nd set for free shipping 🎁`;
+            }
+        } else {
+            nudgeEl.className = 'shipping-privilege-note unlocked';
+            nudgeTextEl.innerHTML = currentLang === 'ar'
+                ? `🎉 تم تفعيل الشحن المجاني السريع لطلبك (${currentQuantity} أطقم)!`
+                : `🎉 Complimentary express delivery applied (${currentQuantity} sets)!`;
+        }
+    }
 }
+
+// Click to Add 1 more set for free shipping
+document.getElementById('checkoutFreeShippingNudge')?.addEventListener('click', () => {
+    if (currentQuantity === 1) {
+        currentQuantity = 2;
+        updateModalPriceAndShipping();
+        updateCheckoutSummary();
+    }
+});
 
 // --- Order Submission (Real On-Site Order via /api/order.js) ---
 document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
@@ -1112,7 +1190,8 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     const finalTotal = pricing.total + shippingCost;
     const clientOrderId = `PNR-${Date.now().toString().slice(-6)}`;
     const fullPhone = phone2 ? `${cleanPhone} / ${phone2}` : cleanPhone;
-    const productDetailsText = `طقم سكراب: ${currentProduct.nameEn} | المقاس: ${selectedSize} | الكمية: ${currentQuantity} | الإجمالي: ${finalTotal} ج.م`;
+    const shippingDesc = pricing.isFreeShipping ? 'شحن مجاني 🎁' : `${shippingCost} ج.م مصاريف شحن`;
+    const productDetailsText = `طقم سكراب: ${currentProduct.nameEn} | المقاس: ${selectedSize} | الكمية: ${currentQuantity} | المطلوب: ${finalTotal} ج.م (${pricing.total} ج.م سكراب + ${shippingDesc}) | تأكيد وتوصيل خلال 24 ساعة`;
 
     const orderPayload = {
         orderId: clientOrderId,
@@ -1227,8 +1306,15 @@ function handleOrderSuccess(orderId, orderPayload) {
         confirmTotalEl.innerText = `${orderPayload.finalTotal} ${currency}`;
     }
 
-    // Prefill Secondary WhatsApp button
-    const waMsg = `مرحباً بايونير، أود الاستفسار عن طلبي رقم #${orderId} (${currentProduct.nameEn} - مقاس ${selectedSize}).`;
+    // Prefill Secondary WhatsApp button stating "total = price + shipping" correctly & delivery within 24 hours
+    const shippingText = orderPayload.isFreeShipping || orderPayload.shipping === 0
+        ? 'شحن مجاني 🎁'
+        : `${orderPayload.shipping} ${currency} مصاريف شحن`;
+
+    const waMsg = currentLang === 'ar'
+        ? `مرحباً بايونير، أود متابعة وتأكيد طلبي رقم #${orderId} (${currentProduct.nameAr} - مقاس ${selectedSize} - كمية ${orderPayload.quantity}).\nالمطلوب عند الاستلام: ${orderPayload.finalTotal} ${currency} (${orderPayload.subtotal} ${currency} سكراب + ${shippingText}).\nبرجاء التأكيد والتوصيل خلال 24 ساعة مع إمكانية المعاينة قبل الدفع.`
+        : `Hello Pioneer, following up on order #${orderId} (${currentProduct.nameEn} - Size ${selectedSize} - Qty ${orderPayload.quantity}).\nTotal on delivery: ${orderPayload.finalTotal} ${currency} (${orderPayload.subtotal} ${currency} + ${shippingText}).\nPlease confirm delivery within 24 hours.`;
+
     const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
     const confirmWaBtn = document.getElementById('confirmWhatsAppBtn');
     if (confirmWaBtn) confirmWaBtn.href = waUrl;
@@ -1246,7 +1332,10 @@ function handleOrderFailure(orderPayload, errMsg) {
 
     const fallbackWa = document.getElementById('fallbackWhatsAppBtn');
     if (fallbackWa) {
-        const waMsg = `مرحباً بايونير، أود طلب سكراب:\n• الموديل: ${currentProduct.nameEn}\n• المقاس: ${selectedSize}\n• الكمية: ${orderPayload.quantity}\n• الاسم: ${orderPayload.name}\n• الموبايل: ${orderPayload.phone}\n• المحافظة: ${orderPayload.gov}\n• العنوان: ${orderPayload.address}`;
+        const shippingDesc = orderPayload.isFreeShipping || orderPayload.shipping === 0
+            ? 'شحن مجاني'
+            : `${orderPayload.shipping} ج.م شحن`;
+        const waMsg = `مرحباً بايونير، أود طلب سكراب:\n• الموديل: ${currentProduct.nameEn}\n• المقاس: ${selectedSize}\n• الكمية: ${orderPayload.quantity}\n• الاسم: ${orderPayload.name}\n• الموبايل: ${orderPayload.phone}\n• المحافظة: ${orderPayload.gov}\n• العنوان: ${orderPayload.address}\n• الإجمالي: ${orderPayload.finalTotal} ج.م (${orderPayload.subtotal} ج.م سكراب + ${shippingDesc})\nالتأكيد والتوصيل خلال 24 ساعة مع المعاينة.`;
         fallbackWa.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
     }
 }

@@ -565,16 +565,45 @@ img {
 .product-card-footer {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: flex-end;
   margin-top: auto;
   padding-top: 0.5rem;
   border-top: 1px solid var(--hairline);
+}
+
+.product-card-price-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  text-align: start;
 }
 
 .product-card-price {
   font-weight: 700;
   font-size: 0.9375rem;
   color: var(--ink);
+}
+
+.product-card-shipping-note {
+  font-size: 0.6875rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.modal-shipping-note {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--muted);
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.delivery-guarantee-note {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.625rem;
+  margin-bottom: 0;
 }
 
 .product-card-action {

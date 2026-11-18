@@ -50,11 +50,13 @@ export default async function handler(req, res) {
         }
         else if (type === "new_order") {
             tgTitle = "🎉 أوردر جديد (شراء)";
-            const shippingText = finalTotal && finalTotal >= 1800 ? "شحن مجاني 🎁" : "+ مصاريف الشحن 🚚";
+            const shippingCost = typeof body.shipping === 'number' ? body.shipping : 0;
+            const subtotal = typeof body.subtotal === 'number' ? body.subtotal : (finalTotal ? finalTotal - shippingCost : null);
+            const breakdown = shippingCost === 0 ? "شحن مجاني 🎁" : `${subtotal} ج.م سكراب + ${shippingCost} ج.م مصاريف شحن`;
             aiMessage = `أهلاً يا دكتور ${name || ""}، مع حضرتك فريق Pioneer للملابس الطبية 👨‍⚕️\n` + 
                         `بنتواصل مع حضرتك لتأكيد أوردر السكراب لون (${color || ""}) مقاس (${resultSize || ""}).\n` + 
-                        (finalTotal ? `الإجمالي ${finalTotal} جنيه (${shippingText}).\n` : '') +
-                        `نأكد الأوردر ويتشحن لحضرتك؟`;
+                        (finalTotal ? `المطلوب عند الاستلام: ${finalTotal} ج.م (${breakdown}).\n` : '') +
+                        `التأكيد والتوصيل مع حضرتك خلال 24 ساعة مع إمكانية المعاينة قبل الدفع.`;
         } else {
             tgTitle = "استفسار من الموقع";
             aiMessage = `أهلاً يا دكتور، مع حضرتك فريق Pioneer للملابس الطبية 🩺 يسعدنا مساعدتك في أي استفسار بخصوص المقاسات أو الألوان.`;

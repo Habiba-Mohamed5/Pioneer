@@ -49,6 +49,8 @@ export default async function handler(req, res) {
             color = 'Onyx Black',
             size = 'L',
             quantity = 1,
+            subtotal,
+            shipping = 0,
             finalTotal,
             isFreeShipping = false
         } = body;
@@ -70,8 +72,12 @@ export default async function handler(req, res) {
         // 4. Generate or preserve Order ID
         const orderId = clientOrderId || `PNR-${Date.now().toString().slice(-6)}`;
         const fullPhone = phone2 ? `${cleanPhone} / ${phone2}` : cleanPhone;
-        const shippingText = isFreeShipping ? 'شحن مجاني 🎁' : '+ مصاريف الشحن';
-        const productDetailsText = `طقم سكراب: ${color} | المقاس: ${size} | الكمية: ${quantity} | الإجمالي: ${finalTotal} ج.م`;
+        const calcSubtotal = subtotal !== undefined ? subtotal : (isFreeShipping ? finalTotal : (finalTotal - (shipping || 0)));
+        const shippingBreakdown = (isFreeShipping || shipping === 0)
+            ? 'شحن مجاني 🎁'
+            : `${shipping} ج.م مصاريف شحن`;
+        const breakdownText = `${calcSubtotal} ج.م سكراب + ${shippingBreakdown}`;
+        const productDetailsText = `طقم سكراب: ${color} | المقاس: ${size} | الكمية: ${quantity} | المطلوب عند الاستلام: ${finalTotal} ج.م (${breakdownText}) | توصيل وتأكيد خلال 24 ساعة`;
 
         // 5. Concurrent non-blocking dispatches with strict 2.5s timeout
         const scriptURL = "https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec";
@@ -98,7 +104,7 @@ export default async function handler(req, res) {
 
         let telegramPromise = Promise.resolve();
         if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
-            const customerWaMsg = `أهلاً دكتور ${name}، مع حضرتك فريق Pioneer للملابس الطبية 🩺\nبخصوص طلبك رقم #${orderId} لسكراب (${color}) مقاس (${size}). بنأكد مع حضرتك موعد التسليم والشحن.`;
+            const customerWaMsg = `أهلاً دكتور ${name}، مع حضرتك فريق Pioneer للملابس الطبية 🩺\nبخصوص طلبك رقم #${orderId} لسكراب (${color}) مقاس (${size}) - كمية: ${quantity}.\nالمطلوب عند الاستلام: ${finalTotal} ج.م (${calcSubtotal} ج.م سكراب + ${shippingBreakdown}).\nيتم التوصيل والتأكيد مع حضرتك خلال 24 ساعة مع إمكانية المعاينة قبل الدفع.`;
             const customerWaUrl = `https://wa.me/20${cleanPhone}?text=${encodeURIComponent(customerWaMsg)}`;
 
             const tgMessage = `🎉 *أوردر جديد مؤكد من الموقع (PIONEER)*\n\n` +
@@ -108,7 +114,8 @@ export default async function handler(req, res) {
                               `📍 *المحافظة:* ${gov}\n` +
                               `🏠 *العنوان:* ${address}\n` +
                               `👕 *السكراب:* ${color} | مقاس: *${size}* | كمية: ${quantity}\n` +
-                              `💰 *المبلغ المطلوب عند الاستلام:* *${finalTotal} ج.م* (${shippingText})\n` +
+                              `💰 *المطلوب عند الاستلام:* *${finalTotal} ج.م* (${breakdownText})\n` +
+                              `⏱️ *موعد التأكيد والتوصيل:* خلال 24 ساعة\n` +
                               (notes ? `📝 *ملاحظات:* ${notes}\n` : '') +
                               `\n🛡️ *السياسة:* معاينة مع المندوب + استبدال 3 أيام`;
 
