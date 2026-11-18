@@ -450,6 +450,15 @@ const i18n = {
 };
 
 // --- Meta Tracking Helper (Browser Pixel + CAPI Dedup) ---
+function getCookie(name) {
+    try {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? decodeURIComponent(match[2]) : '';
+    } catch (e) {
+        return '';
+    }
+}
+
 function generateEventId() {
     return 'pioneer_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
@@ -459,24 +468,7 @@ function trackPixelEvent(eventName, params = {}, eventId = null) {
     if (typeof window.fbq === 'function') {
         window.fbq('track', eventName, params, { eventID: eid });
     }
-    forwardToCapi(eventName, params, eid);
     return eid;
-}
-
-function forwardToCapi(eventName, params, eventId) {
-    try {
-        fetch('/api/capi', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                eventName,
-                eventId,
-                params,
-                eventSourceUrl: window.location.href,
-                phone: params.phone || null
-            })
-        }).catch(() => {});
-    } catch (e) {}
 }
 
 // --- Pricing Calculations (Override: 1 set = basePrice, 2 sets = twoPiecesPrice w/ Free Shipping, 3+ sets = qty * 850 w/ Free Shipping) ---
@@ -807,22 +799,33 @@ function updateModalUI() {
 
 function updateSizeButtons() {
     const p = currentProduct;
-    // CMS inventory override if present
-    let availableSizes = p.availableSizes;
-    if (cmsData.inventory && cmsData.inventory[p.id]) {
-        availableSizes = cmsData.inventory[p.id];
-    }
+    const cmsInv = cmsData.inventory && cmsData.inventory[p.id] ? cmsData.inventory[p.id] : null;
 
     const sizeBtns = document.querySelectorAll('.size-pill');
     sizeBtns.forEach(btn => {
         const s = btn.getAttribute('data-size');
-        const isAvailable = availableSizes.includes(s);
+        let isAvailable = false;
+
+        if (cmsInv) {
+            if (typeof cmsInv[s] === 'number') {
+                isAvailable = cmsInv[s] > 0;
+            } else if (Array.isArray(cmsInv)) {
+                isAvailable = cmsInv.includes(s);
+            } else if (typeof cmsInv[s] === 'string') {
+                isAvailable = parseInt(cmsInv[s]) > 0;
+            } else {
+                isAvailable = p.availableSizes.includes(s);
+            }
+        } else {
+            // Offline fallback to hardcoded catalog
+            isAvailable = p.availableSizes.includes(s);
+        }
 
         btn.disabled = !isAvailable;
         btn.classList.remove('active');
         btn.title = isAvailable
             ? (currentLang === 'ar' ? `مقاس ${s}` : `Size ${s}`)
-            : (currentLang === 'ar' ? `مقاس ${s} - غير متوفر حالياً` : `Size ${s} - Sold Out`);
+            : (currentLang === 'ar' ? `مقاس ${s} - غير متوفر حالياً (Sold Out)` : `Size ${s} - Sold Out`);
 
         if (isAvailable && selectedSize === s) {
             btn.classList.add('active');
@@ -964,7 +967,7 @@ document.getElementById('btnCalcSize')?.addEventListener('click', () => {
         const phone = document.getElementById('calcPhone')?.value.trim();
         const cleanDigits = phone.replace(/\D/g, '');
         captureLead({
-            source: 'size_guide',
+            source: 'حاسبة المقاس',
             phone: cleanDigits,
             name: currentLang === 'ar' ? 'استشارة مقاس' : 'Size Consultation',
             color: currentProduct.nameEn,
@@ -1009,7 +1012,7 @@ document.getElementById('btnSendCalcPhone')?.addEventListener('click', () => {
     const recSize = document.getElementById('recommendedSizeTxt')?.innerText || 'L';
 
     captureLead({
-        source: 'size_guide',
+        source: 'حاسبة المقاس',
         phone: cleanDigits,
         name: currentLang === 'ar' ? 'استشارة مقاس' : 'Size Consultation',
         color: currentProduct.nameEn,
@@ -1257,75 +1260,68 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     const shippingDesc = pricing.isFreeShipping ? 'شحن مجاني 🎁' : `${shippingCost} ج.م مصاريف شحن`;
     const productDetailsText = `طقم سكراب: ${currentProduct.nameEn} | المقاس: ${selectedSize} | الكمية: ${currentQuantity} | المطلوب: ${finalTotal} ج.م (${pricing.total} ج.م سكراب + ${shippingDesc}) | تأكيد وتوصيل خلال 24 ساعة`;
 
+    const purchaseEventId = generateEventId();
+    const websiteHoneypot = document.getElementById('website')?.value || document.getElementById('honeypot')?.value || '';
+
+    // Direct Google Apps Script Order Payload (Prices/totals computed by the script)
     const orderPayload = {
-        orderId: clientOrderId,
-        name,
+        kind: 'order',
+        name: name,
         phone: cleanPhone,
-        phone2,
-        gov,
-        address,
-        notes,
-        product: currentProduct.nameEn,
-        color: currentProduct.nameEn,
-        size: selectedSize,
-        quantity: currentQuantity,
-        subtotal: pricing.total,
-        shipping: shippingCost,
-        finalTotal,
-        isFreeShipping: pricing.isFreeShipping
+        gov: gov,
+        address: address,
+        color: currentProduct.id,
+        size: selectedSize || 'L',
+        qty: currentQuantity,
+        eventId: purchaseEventId,
+        url: window.location.href,
+        ua: navigator.userAgent,
+        fbp: getCookie('_fbp'),
+        fbc: getCookie('_fbc'),
+        website: websiteHoneypot
     };
+    if (phone2) orderPayload.phone2 = phone2;
+    if (notes) orderPayload.notes = notes;
 
-    // 1. Direct browser-to-Google-Sheet write (mode: 'no-cors' - 100% reliable, zero delay)
-    try {
-        fetch(scriptURL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                timestamp: new Date().toISOString(),
-                orderId: clientOrderId,
-                name: `د. ${name}`,
-                phone: fullPhone,
-                source: 'order',
-                color: currentProduct.nameEn,
-                size: selectedSize || 'L',
-                quantity: currentQuantity,
-                governorate: gov,
-                address: address + (notes ? ` (ملاحظات: ${notes})` : ''),
-                status: 'converted', // Buyers are converted so they are never chased!
-                followed_up_at: '',
-                notes: notes || '',
-                productDetails: productDetailsText
-            })
-        }).catch(() => {});
-    } catch (e) {}
+    let confirmedOrderId = `PW-${Date.now().toString().slice(-6)}`;
+    let finalTotalVal = finalTotal;
+    let shippingVal = shippingCost;
+    let isOk = false;
 
-    // 2. Dispatch to /api/order for Telegram notification & server tracking with 2.5s strict timeout
-    let confirmedOrderId = clientOrderId;
+    // Post directly to Google Apps Script web app URL (cors mode, text/plain)
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2500);
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-        const res = await fetch('/api/order', {
+        const res = await fetch(scriptURL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(orderPayload),
             signal: controller.signal
         });
         clearTimeout(timeoutId);
 
         if (res.ok) {
-            const data = await res.json().catch(() => ({}));
-            if (data && data.orderId) {
-                confirmedOrderId = data.orderId;
+            const data = await res.json().catch(() => null);
+            if (data && data.ok) {
+                isOk = true;
+                if (data.orderId) confirmedOrderId = data.orderId;
+                if (typeof data.total === 'number') finalTotalVal = data.total;
+                if (typeof data.shipping === 'number') shippingVal = data.shipping;
             }
         }
     } catch (err) {
-        console.warn('API order dispatch took >2.5s or bypassed via client fallback:', err.message);
+        console.warn('Apps Script direct POST notice:', err);
     }
 
-    // 3. Immediately transition to Order Confirmation screen!
-    handleOrderSuccess(confirmedOrderId, orderPayload);
+    // Immediately transition to Order Confirmation screen!
+    handleOrderSuccess(confirmedOrderId, {
+        ...orderPayload,
+        finalTotal: finalTotalVal,
+        shipping: shippingVal,
+        subtotal: finalTotalVal - shippingVal,
+        isFreeShipping: shippingVal === 0
+    }, purchaseEventId, isOk);
 
     if (submitBtn) submitBtn.disabled = false;
     if (submitBtnText) {
@@ -1333,7 +1329,7 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     }
 });
 
-function handleOrderSuccess(orderId, orderPayload) {
+function handleOrderSuccess(orderId, orderPayload, purchaseEventId, isOk = true) {
     isOrderCompleted = true;
 
     // Mark phone as converted to exclude from abandoned lead chases
@@ -1343,17 +1339,17 @@ function handleOrderSuccess(orderId, orderPayload) {
         try { sessionStorage.setItem('pioneer_converted_' + cleanPhone, 'true'); } catch(e) {}
     }
 
-    // Fire Purchase event ONLY after success!
-    const purchaseEventId = generateEventId();
-    trackPixelEvent('Purchase', {
-        content_ids: [currentProduct.id],
-        content_name: currentProduct.nameEn,
-        content_type: 'product',
-        value: orderPayload.finalTotal,
-        currency: 'EGP',
-        num_items: orderPayload.quantity,
-        phone: orderPayload.phone
-    }, purchaseEventId);
+    // Fire Purchase event ONLY after success using the same eventId!
+    if (isOk !== false && typeof window.fbq === 'function') {
+        window.fbq('track', 'Purchase', {
+            content_ids: [currentProduct.id],
+            content_name: currentProduct.nameEn,
+            content_type: 'product',
+            value: orderPayload.finalTotal,
+            currency: 'EGP',
+            num_items: orderPayload.qty || 1
+        }, { eventID: purchaseEventId });
+    }
 
     // Show on-page confirmation view
     const formView = document.getElementById('checkoutFormContainer');
@@ -1425,14 +1421,14 @@ const convertedPhones = new Set();
 function captureLead(leadData) {
     if (!leadData || !leadData.phone) return;
     const cleanDigits = String(leadData.phone).replace(/\D/g, '');
-    if (cleanDigits.length < 10) return;
+    if (!/^01[0125][0-9]{8}$/.test(cleanDigits)) return;
 
     // Converted order check: buyers are converted so they are never chased!
     if (convertedPhones.has(cleanDigits) || sessionStorage.getItem('pioneer_converted_' + cleanDigits) === 'true') {
         return;
     }
 
-    const source = leadData.source || 'lead';
+    const source = leadData.source || 'استفسار موقع';
     const dedupKey = cleanDigits + '_' + source;
     if (capturedLeads.has(dedupKey) || sessionStorage.getItem('pioneer_lead_' + dedupKey) === 'true') {
         return;
@@ -1442,59 +1438,47 @@ function captureLead(leadData) {
 
     const leadEventId = generateEventId();
 
-    // 1. Meta Pixel & Conversions API Lead Event
-    trackPixelEvent('Lead', {
-        content_name: leadData.color || currentProduct.nameEn,
-        content_category: 'Medical Scrub',
-        value: 0,
-        currency: 'EGP',
+    // 1. Meta Pixel Lead Event
+    if (typeof window.fbq === 'function') {
+        window.fbq('track', 'Lead', {
+            content_name: leadData.color || currentProduct.nameEn,
+            content_category: 'Medical Scrub',
+            value: 0,
+            currency: 'EGP',
+            lead_source: source
+        }, { eventID: leadEventId });
+    }
+
+    // 2. Direct POST to Google Apps Script (Backend Override: No serverless functions)
+    const payload = {
+        kind: 'lead',
+        source: source,
+        name: leadData.name || (currentLang === 'ar' ? 'طبيب مهتم' : 'Interested Physician'),
         phone: cleanDigits,
-        lead_source: source
-    }, leadEventId);
+        details: leadData.details || leadData.notes || '',
+        color: leadData.color || currentProduct.nameEn,
+        size: leadData.size || selectedSize || '',
+        eventId: leadEventId,
+        url: window.location.href,
+        ua: navigator.userAgent,
+        fbp: getCookie('_fbp'),
+        fbc: getCookie('_fbc')
+    };
 
-    // 2. Direct browser-to-Google-Sheet write (mode: 'no-cors' - failsafe & instant)
-    try {
-        fetch(scriptURL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                timestamp: new Date().toISOString(),
-                phone: cleanDigits,
-                name: leadData.name || (currentLang === 'ar' ? 'طبيب مهتم' : 'Interested Physician'),
-                source: source,
-                color: leadData.color || currentProduct.nameEn,
-                size: leadData.size || selectedSize || '-',
-                quantity: leadData.quantity || currentQuantity,
-                governorate: leadData.governorate || '-',
-                address: leadData.address || '-',
-                status: 'new',
-                followed_up_at: '',
-                notes: leadData.notes || '',
-                productDetails: leadData.details || `سكراب: ${leadData.color || currentProduct.nameEn} (مقاس ${leadData.size || '-'})`
-            })
-        }).catch(() => {});
-    } catch (e) {}
-
-    // 3. Alert Telegram via /api/notify (Priority: HOT for checkout_abandon, WARM for size_guide / exit_offer)
-    try {
-        fetch('/api/notify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: source,
-                phone: cleanDigits,
-                name: leadData.name || '',
-                color: leadData.color || currentProduct.nameEn,
-                resultSize: leadData.size || selectedSize || '',
-                quantity: leadData.quantity || currentQuantity,
-                governorate: leadData.governorate || '',
-                finalTotal: leadData.finalTotal || null,
-                details: leadData.details || leadData.notes || `مهتم بموديل ${leadData.color || currentProduct.nameEn}`
-            }),
-            signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(2500) : undefined
-        }).catch(() => {});
-    } catch (e) {}
+    if (leadData.useBeacon && typeof navigator !== 'undefined' && navigator.sendBeacon) {
+        try {
+            const blob = new Blob([JSON.stringify(payload)], { type: 'text/plain;charset=utf-8' });
+            navigator.sendBeacon(scriptURL, blob);
+        } catch(e) {}
+    } else {
+        try {
+            fetch(scriptURL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            }).catch(() => {});
+        } catch (e) {}
+    }
 }
 
 function captureAbandonedCheckoutLead(useBeacon = false) {
@@ -1509,49 +1493,22 @@ function captureAbandonedCheckoutLead(useBeacon = false) {
         return;
     }
 
-    const name = document.getElementById('custName')?.value.trim() || 'دكتور (سلة متروكة)';
-    const gov = document.getElementById('custGov')?.value || '-';
-    const address = document.getElementById('custAddress')?.value.trim() || '-';
+    const name = document.getElementById('custName')?.value.trim() || 'طبيب (سلة متروكة)';
+    const gov = document.getElementById('custGov')?.value || '';
+    const address = document.getElementById('custAddress')?.value.trim() || '';
     const notes = document.getElementById('custNotes')?.value.trim() || '';
-    const pricing = calculatePricing(currentQuantity);
-    let shipping = 0;
-    if (!pricing.isFreeShipping && cmsData.shippingRates && cmsData.shippingRates[gov]) {
-        shipping = cmsData.shippingRates[gov];
-    }
-    const finalTotal = pricing.total + shipping;
 
     const leadPayload = {
-        source: 'checkout_abandon',
-        name: `${name} (سلة متروكة)`,
+        source: 'ترك الفورم',
+        name: name,
         phone: cleanDigits,
         color: currentProduct.nameEn,
         size: selectedSize || 'غير محدد',
         quantity: currentQuantity,
-        governorate: gov,
-        address: address,
-        notes: notes ? `ملاحظات: ${notes}` : '',
-        subtotal: pricing.total,
-        shipping: shipping,
-        finalTotal: finalTotal,
-        details: `طقم سكراب: ${currentProduct.nameEn} | المقاس: ${selectedSize || 'غير محدد'} | الكمية: ${currentQuantity} | الإجمالي: ${finalTotal} ج.م`
+        notes: notes,
+        details: `سلة متروكة | محافظة: ${gov || '-'} | عنوان: ${address || '-'} | مقاس: ${selectedSize || 'غير محدد'} | كمية: ${currentQuantity}`,
+        useBeacon: useBeacon
     };
-
-    if (useBeacon && typeof navigator !== 'undefined' && navigator.sendBeacon) {
-        try {
-            const blob = new Blob([JSON.stringify({
-                type: 'checkout_abandon',
-                phone: cleanDigits,
-                name: name,
-                color: currentProduct.nameEn,
-                resultSize: selectedSize || '-',
-                quantity: currentQuantity,
-                governorate: gov,
-                finalTotal: finalTotal,
-                details: leadPayload.details
-            })], { type: 'application/json' });
-            navigator.sendBeacon('/api/notify', blob);
-        } catch(e) {}
-    }
 
     captureLead(leadPayload);
 }
@@ -1676,7 +1633,7 @@ document.getElementById('exitOfferForm')?.addEventListener('submit', (e) => {
     if (errorEl) errorEl.classList.add('hidden');
 
     captureLead({
-        source: 'exit_offer',
+        source: 'عرض الخروج',
         phone: cleanDigits,
         name: currentLang === 'ar' ? 'عرض الخروج (PIONEER-VIP)' : 'Exit Offer (PIONEER-VIP)',
         color: currentProduct.nameEn,
