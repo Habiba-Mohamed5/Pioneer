@@ -203,6 +203,20 @@ function handleOrderSubmission(ss, data) {
   // Generate unique order ID: PW-YYMMDD-XXX
   const orderId = generateOrderId(ss);
 
+  // Prefilled WhatsApp Message & One-Tap Direct Link for WhatsApp Business
+  const shippingDesc = isFreeShipping ? 'شحن سريع مجاني 🎁' : `${shippingCost} ج.م مصاريف شحن`;
+  const waCustomerMessage = 
+    `أهلاً يا دكتور ${name}، مع حضرتك فريق Pioneer للملابس الطبية 👨‍⚕️🩺\n` +
+    `تم تسجيل طلبك بنجاح برقم: #${orderId}\n` +
+    `• الموديل: ${colorName} - مقاس (${size}) - كمية (${qty})\n` +
+    `• المطلوب عند الاستلام: ${finalTotal} ج.م (${subtotal} ج.م سكراب + ${shippingDesc})\n` +
+    `• العنوان: ${gov} - ${address}\n` +
+    `التأكيد والتوصيل خلال 24 ساعة مع إمكانية المعاينة قبل الدفع.\n` +
+    `(للإلغاء أرسل قف)`;
+
+  const waLink = `https://wa.me/2${phone}?text=${encodeURIComponent(waCustomerMessage)}`;
+  const waHyperlinkFormula = `=HYPERLINK("${waLink}", "مراسلة واتساب 🟢")`;
+
   // Write to "الطلبات" sheet
   const ordersSheet = getOrCreateSheet(ss, 'الطلبات');
   const headers = getSheetHeaders(ordersSheet);
@@ -220,8 +234,10 @@ function handleOrderSubmission(ss, data) {
     'رقم بديل': data.phone2 ? "'" + data.phone2 : '',
     'المحافظة': gov,
     'العنوان': address,
-    'الموديل': 'Pioneer Scrub Haute Couture',
     'المنتج والتفاصيل': productDetails,
+    'إرسال واتساب': waHyperlinkFormula,
+    'واتساب': waHyperlinkFormula,
+    'الموديل': 'Pioneer Scrub Haute Couture',
     'اللون': colorName,
     'المقاس': size,
     'الكمية': qty,
@@ -249,17 +265,6 @@ function handleOrderSubmission(ss, data) {
   updateLeadStatusToConverted(ss, phone, orderId);
 
   // Send Telegram Notification
-  const shippingDesc = isFreeShipping ? 'شحن سريع مجاني 🎁' : `${shippingCost} ج.م مصاريف شحن`;
-  const waCustomerMessage = 
-    `أهلاً يا دكتور ${name}، مع حضرتك فريق Pioneer للملابس الطبية 👨‍⚕️🩺\n` +
-    `تم تسجيل طلبك بنجاح برقم: #${orderId}\n` +
-    `• الموديل: ${colorName} - مقاس (${size}) - كمية (${qty})\n` +
-    `• المطلوب عند الاستلام: ${finalTotal} ج.م (${subtotal} ج.م سكراب + ${shippingDesc})\n` +
-    `• العنوان: ${gov} - ${address}\n` +
-    `التأكيد والتوصيل خلال 24 ساعة مع إمكانية المعاينة قبل الدفع.\n` +
-    `(للإلغاء أرسل قف)`;
-
-  const waLink = `https://wa.me/2${phone}?text=${encodeURIComponent(waCustomerMessage)}`;
 
   const tgMessage = 
     `🔴 *[ORDER] طلب جديد مؤكد*\n\n` +
@@ -339,30 +344,7 @@ function handleLeadSubmission(ss, data) {
     }
   }
 
-  const rowData = {
-    'التاريخ': Utilities.formatDate(timestamp, 'Africa/Cairo', 'yyyy-MM-dd HH:mm:ss'),
-    'الموبايل': "'" + phone,
-    'الاسم': name,
-    'المصدر': source,
-    'اللون': color,
-    'المقاس': size,
-    'التفاصيل': details,
-    'الحالة': 'جديد',
-    'آخر تواصل': '',
-    'ملاحظات': data.notes || '',
-    'Event ID': data.eventId || ''
-  };
-
-  if (existingRow > 1) {
-    // Update existing row
-    const rowValues = mapObjectToRow(rowData, headers);
-    leadsSheet.getRange(existingRow, 1, 1, rowValues.length).setValues([rowValues]);
-  } else {
-    // Append new row
-    leadsSheet.appendRow(mapObjectToRow(rowData, headers));
-  }
-
-  // Send Telegram Notification
+  // Prepare WhatsApp Message & One-Tap Direct Link for WhatsApp Business
   let priorityTag = '💬 [LEAD]';
   let tgTitle = 'ليد جديد من الموقع';
   let waMsg = '';
@@ -396,6 +378,34 @@ function handleLeadSubmission(ss, data) {
   }
 
   const waLink = `https://wa.me/2${phone}?text=${encodeURIComponent(waMsg)}`;
+  const waHyperlinkFormula = `=HYPERLINK("${waLink}", "مراسلة العميل 💬")`;
+
+  const rowData = {
+    'التاريخ': Utilities.formatDate(timestamp, 'Africa/Cairo', 'yyyy-MM-dd HH:mm:ss'),
+    'الموبايل': "'" + phone,
+    'الاسم': name,
+    'المصدر': source,
+    'اللون': color,
+    'المقاس': size,
+    'التفاصيل': details,
+    'إرسال واتساب': waHyperlinkFormula,
+    'واتساب': waHyperlinkFormula,
+    'الحالة': 'جديد',
+    'آخر تواصل': '',
+    'ملاحظات': data.notes || '',
+    'Event ID': data.eventId || ''
+  };
+
+  if (existingRow > 1) {
+    // Update existing row
+    const rowValues = mapObjectToRow(rowData, headers);
+    leadsSheet.getRange(existingRow, 1, 1, rowValues.length).setValues([rowValues]);
+  } else {
+    // Append new row
+    leadsSheet.appendRow(mapObjectToRow(rowData, headers));
+  }
+
+  // Send Telegram Notification
   const tgText = 
     `*${priorityTag} ${tgTitle}*\n\n` +
     `👤 *الاسم:* ${name}\n` +
@@ -705,17 +715,17 @@ function setupSheets() {
   // 1. Orders Sheet
   const ordersSheet = getOrCreateSheet(ss, 'الطلبات');
   const orderHeaders = [
-    'رقم الطلب', 'التاريخ', 'الاسم', 'الموبايل', 'رقم بديل', 'المحافظة', 'العنوان',
-    'الموديل', 'اللون', 'المقاس', 'الكمية', 'إجمالي السكراب', 'مصاريف الشحن',
-    'الإجمالي', 'طريقة الدفع', 'الحالة', 'ملاحظات', 'كود الخصم', 'Event ID'
+    'كود الطلب', 'التاريخ والوقت', 'الاسم', 'رقم التليفون', 'المحافظة', 'العنوان',
+    'المنتج والتفاصيل', 'إرسال واتساب', 'الموديل', 'اللون', 'المقاس', 'الكمية', 'سعر البيع الأساسي',
+    'كلفة الشحن', 'السعر الإجمالي', 'طريقة الدفع', 'حالة الأوردر', 'ملاحظات', 'رقم بديل', 'Event ID'
   ];
   setupSheetHeaders(ordersSheet, orderHeaders, '#1B263B');
 
   // 2. Leads Sheet
   const leadsSheet = getOrCreateSheet(ss, 'العملاء المحتملين');
   const leadHeaders = [
-    'التاريخ', 'الموبايل', 'الاسم', 'المصدر', 'اللون', 'المقاس',
-    'التفاصيل', 'الحالة', 'آخر تواصل', 'ملاحظات', 'Event ID'
+    'التاريخ والوقت', 'رقم التليفون', 'الاسم', 'المصدر', 'اللون', 'المقاس',
+    'التفاصيل', 'إرسال واتساب', 'حالة المتابعة', 'آخر تواصل', 'ملاحظات', 'Event ID'
   ];
   setupSheetHeaders(leadsSheet, leadHeaders, '#274C77');
 
