@@ -1,36 +1,27 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PIONEER | Luxury Medical Wear</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIONEER | ملابس طبية بريميم | Premium Medical Wear</title>
+    <meta name="description" content="سكراب طبي مصمم بنسيج 4-way stretch لأعلى معايير الراحة في نبطشيات المستشفى. معاينة عند الاستلام واستبدال خلال 3 أيام.">
+    <meta name="theme-color" content="#FAF8F5">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="PIONEER Medical Wear | ملابس طبية بريميم">
+    <meta property="og:description" content="ملابس طبية تتحمل ورديتك كلها. خامة فائقة النعومة ومعاينة عند الاستلام.">
+    <meta property="og:image" content="images/hero_800.jpg">
+    <meta property="og:type" content="website">
+
+    <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="logo.jpg">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        gold: { 
-                            300: '#dfbe79', 
-                            400: '#c59b4c', 
-                            500: '#b88d3f', 
-                            600: '#9e7830',
-                            700: '#7a5a1f'
-                        }
-                    },
-                    fontFamily: {
-                        'montserrat': ['Montserrat', 'sans-serif'],
-                        'cairo': ['Cairo', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+
+    <!-- Fonts: Preconnect & Load only required weights with font-display: swap -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cairo:wght@400;500;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Pure CSS Variables & Styles (No runtime compiler) -->
     <link rel="stylesheet" href="styles.css">
 
     <!-- Meta Pixel Code -->
@@ -51,526 +42,632 @@
     /></noscript>
     <!-- End Meta Pixel Code -->
 </head>
-<body class="bg-[#fafafa] text-slate-900 font-montserrat antialiased selection:bg-slate-900 selection:text-white pb-16 pt-[33px]">
+<body>
 
-    <!-- CMS Dynamic Announcement Bar -->
-    <div id="cmsAnnouncement" class="hidden fixed top-0 left-0 w-full bg-slate-950 text-gold-400 text-center py-2 text-xs font-semibold z-[60] border-b border-slate-800">
-        <!-- Injected via CMS if active -->
+    <!-- 1. Slim Announcement Bar -->
+    <div id="cmsAnnouncement" class="announcement-bar" role="region" aria-label="Announcement">
+        <span id="announcementText" data-i18n="announcementDefault">توصيل مجاني عند طلب طقمين أو أكثر • الدفع عند الاستلام</span>
     </div>
 
-    <!-- Quiet Luxury Top Bar -->
-    <div class="fixed top-0 left-0 w-full bg-slate-950 text-slate-200 text-center py-2 text-[11px] font-medium z-50 tracking-widest uppercase flex justify-center items-center gap-3 px-4">
-        <span>COMPLIMENTARY EXPRESS DELIVERY ON 2+ SETS</span>
-        <span class="text-slate-600">•</span>
-        <span>CASH ON DELIVERY & DOORSTEP INSPECTION</span>
-    </div>
-
-    <!-- Minimalist Luxury Header (Orova Inspired) -->
-    <header class="fixed top-[33px] w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 z-40 transition-all duration-300">
-        <div class="container mx-auto px-4 sm:px-8 py-3.5 flex justify-between items-center">
-            <a href="#" class="flex items-center gap-3 group">
-                <div class="w-10 h-10 rounded-full overflow-hidden border border-slate-200 shadow-sm bg-black flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
-                    <img src="logo.jpg" alt="PIONEER Medical Wear" class="w-full h-full object-cover">
-                </div>
-                <div class="text-left">
-                    <div class="font-black tracking-[0.18em] text-base sm:text-lg text-slate-900 leading-none">PIONEER</div>
-                    <div class="text-[9px] font-bold text-gold-600 tracking-[0.25em] uppercase leading-tight mt-0.5">Medical Wear</div>
+    <!-- 2. Minimalist Quiet Luxury Header -->
+    <header class="site-header" role="banner">
+        <div class="container header-inner">
+            <a href="#" class="brand" aria-label="Pioneer Medical Wear">
+                <img src="images/logo.webp" alt="PIONEER" class="brand-logo" width="34" height="34" onerror="this.src='logo.jpg'">
+                <div class="brand-text">
+                    <span class="brand-name">PIONEER</span>
+                    <span class="brand-tag" data-i18n="brandTag">Medical Wear</span>
                 </div>
             </a>
-            <div class="flex items-center gap-6">
-                <nav class="hidden md:flex items-center gap-8 text-xs font-semibold tracking-widest text-slate-600 uppercase">
-                    <a href="#products" class="hover:text-slate-950 transition">Collection</a>
-                    <button id="openSizeGuideNav" class="hover:text-slate-950 transition cursor-pointer">Size Chart</button>
-                    <a href="#fabric" class="hover:text-slate-950 transition">Fabric & Care</a>
-                </nav>
-                <a href="https://wa.me/201069337788" target="_blank" class="border border-slate-300 hover:border-slate-900 text-slate-900 text-xs font-bold px-4 py-1.5 rounded-full transition flex items-center gap-2 group shadow-sm">
-                    <i class="fa-brands fa-whatsapp text-emerald-600 text-sm group-hover:scale-110 transition-transform"></i>
-                    <span>VIP CONCIERGE</span>
+
+            <nav class="header-nav" aria-label="Main Navigation">
+                <a href="#collection" data-i18n="navCollection">المجموعة</a>
+                <a href="#why-pioneer" data-i18n="navWhy">لماذا بايونير</a>
+                <button type="button" id="openSizeGuideNav" data-i18n="navSize">دليل المقاسات</button>
+                <a href="#faq" data-i18n="navFaq">الأسئلة الشائعة</a>
+            </nav>
+
+            <div class="header-actions">
+                <button type="button" id="langToggleBtn" class="lang-toggle" aria-label="Switch Language">
+                    <span id="langLabel">English</span>
+                </button>
+                <a href="https://wa.me/201069337788" target="_blank" rel="noopener noreferrer" class="whatsapp-link-btn" aria-label="WhatsApp Concierge">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm0 18.15c-1.52 0-3.01-.41-4.31-1.18l-.31-.18-3.2.84.85-3.12-.2-.32a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c.01 4.54-3.69 8.23-8.25 8.23zm4.52-6.17c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.84-.86 2.05s.88 2.38 1 2.55c.12.17 1.73 2.64 4.2 3.7.59.25 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.29z"/></svg>
+                    <span data-i18n="conciergeLabel">خدمة العملاء</span>
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- Full-Bleed Editorial Hero (Orova Style) -->
-    <section class="mt-[65px] relative w-full overflow-hidden bg-slate-950 text-white min-h-[75vh] sm:min-h-[85vh] flex items-end justify-center pb-12 sm:pb-16">
-        <div class="absolute inset-0">
-            <img src="banner.png" alt="PIONEER Medical Wear" class="w-full h-full object-cover object-center sm:object-top filter brightness-95">
-            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/35 to-transparent"></div>
+    <!-- 3. Hero Section (One-line promise + One CTA) -->
+    <section class="hero-section" aria-labelledby="heroTitle">
+        <div class="hero-media">
+            <picture>
+                <source type="image/webp" srcset="images/hero_800.webp 800w, images/hero_1600.webp 1600w" sizes="100vw">
+                <source type="image/jpeg" srcset="images/hero_800.jpg 800w, images/hero_1600.jpg 1600w" sizes="100vw">
+                <img src="images/hero_800.jpg" alt="PIONEER Medical Wear Collection" class="hero-image" width="800" height="450" fetchpriority="high" decoding="async">
+            </picture>
+            <!-- [CONFIRM: need a 1600px hero photo for crisp full-width desktop view] -->
+            <div class="hero-scrim"></div>
         </div>
-        
-        <div class="container mx-auto px-4 relative z-10 text-center max-w-xl">
-            <div class="text-[11px] font-bold tracking-[0.3em] text-gold-400 uppercase mb-3">
-                CORE COLLECTION 2026
-            </div>
-            <h1 class="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-tight mb-6 uppercase">
-                ENGINEERED FOR EXCELLENCE
-            </h1>
+
+        <div class="container hero-content">
+            <div class="eyebrow" style="color: #DFC08A;" data-i18n="heroEyebrow">المجموعة الأساسية 2026</div>
+            <h1 id="heroTitle" class="hero-title" data-i18n="heroTitle">ملابس طبية بتتحمل ورديتك كلها</h1>
+            <p class="hero-subtitle" data-i18n="heroSubtitle">نسيج تقني مرن بـ 4 اتجاهات وقصة مريحة تليق بيومك الطبي الطويل</p>
             <div>
-                <a href="#products" class="ghost-btn font-black py-3 px-8 rounded-full text-xs uppercase tracking-widest inline-flex items-center gap-2 shadow-lg">
-                    <span>SHOP COLLECTION</span>
-                    <i class="fa-solid fa-arrow-down text-[10px]"></i>
-                </a>
+                <!-- [CONFIRM: gender-neutral wording preferred? use "اكتشف المجموعة" if unisex] -->
+                <a href="#collection" class="btn btn-hero" data-i18n="heroCta">اكتشف المجموعة</a>
             </div>
         </div>
     </section>
 
-    <!-- Clean Technical Specifications Strip -->
-    <section id="fabric" class="py-12 bg-white border-b border-slate-200/80">
-        <div class="container mx-auto px-4 sm:px-8">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div class="p-6 bg-slate-50/70 rounded-2xl border border-slate-200/80 hover:border-slate-300 transition-all">
-                    <div class="w-10 h-10 mx-auto rounded-full bg-white shadow-sm flex items-center justify-center text-slate-800 text-base mb-3 border border-slate-200">
-                        <i class="fa-solid fa-expand"></i>
-                    </div>
-                    <h4 class="font-bold text-xs sm:text-sm text-slate-900 tracking-wider">4-WAY FLEX STRETCH</h4>
-                    <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Unrestricted mobility engineered for active clinical shifts</p>
-                </div>
-                <div class="p-6 bg-slate-50/70 rounded-2xl border border-slate-200/80 hover:border-slate-300 transition-all">
-                    <div class="w-10 h-10 mx-auto rounded-full bg-white shadow-sm flex items-center justify-center text-slate-800 text-base mb-3 border border-slate-200">
-                        <i class="fa-solid fa-shield-virus"></i>
-                    </div>
-                    <h4 class="font-bold text-xs sm:text-sm text-slate-900 tracking-wider">ANTIMICROBIAL & FLUID</h4>
-                    <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Nano-engineered barrier repellent to fluids and stains</p>
-                </div>
-                <div class="p-6 bg-slate-50/70 rounded-2xl border border-slate-200/80 hover:border-slate-300 transition-all">
-                    <div class="w-10 h-10 mx-auto rounded-full bg-white shadow-sm flex items-center justify-center text-slate-800 text-base mb-3 border border-slate-200">
-                        <i class="fa-solid fa-wind"></i>
-                    </div>
-                    <h4 class="font-bold text-xs sm:text-sm text-slate-900 tracking-wider">WRINKLE-RESISTANT</h4>
-                    <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Maintains a crisp, tailored executive drape all day</p>
-                </div>
-                <div class="p-6 bg-slate-50/70 rounded-2xl border border-slate-200/80 hover:border-slate-300 transition-all">
-                    <div class="w-10 h-10 mx-auto rounded-full bg-white shadow-sm flex items-center justify-center text-slate-800 text-base mb-3 border border-slate-200">
-                        <i class="fa-solid fa-box-open"></i>
-                    </div>
-                    <h4 class="font-bold text-xs sm:text-sm text-slate-900 tracking-wider">DOORSTEP INSPECTION</h4>
-                    <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Inspect with the courier before paying • 3-day exchange</p>
-                </div>
+    <!-- Trust Strip -->
+    <div class="trust-strip" role="complementary" aria-label="Customer Guarantees">
+        <div class="trust-item">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" style="color: var(--accent);"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+            <span data-i18n="trustInspection">معاينة عند الاستلام مع المندوب</span>
+        </div>
+        <span class="trust-dot"></span>
+        <div class="trust-item">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" style="color: var(--accent);"><path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"/></svg>
+            <span data-i18n="trustExchange">استبدال المقاس خلال 3 أيام</span>
+        </div>
+        <span class="trust-dot"></span>
+        <div class="trust-item">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" style="color: var(--accent);"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+            <span data-i18n="trustCod">الدفع عند الاستلام</span>
+        </div>
+    </div>
+
+    <!-- 4. Collection Grid (6 Colors) -->
+    <section id="collection" class="section-padding" aria-labelledby="collectionTitle">
+        <div class="container">
+            <div class="collection-header">
+                <div class="eyebrow" data-i18n="collectionEyebrow">كولكشن 2026</div>
+                <h2 id="collectionTitle" class="collection-title" data-i18n="collectionTitle">طقم سكراب بايونير الأساسي</h2>
+                <p data-i18n="collectionDesc">متاح بـ 6 ألوان كلاسيكية بقصة طبية موحدة وأداء استثنائي</p>
+            </div>
+
+            <div id="productGrid" class="collection-grid" role="list">
+                <!-- Injected immediately via app.js -->
             </div>
         </div>
     </section>
 
-    <!-- Products Collection Section (Orova Catalog Grid) -->
-    <section id="products" class="py-16 md:py-24 container mx-auto px-4 sm:px-8">
-        <div class="text-center mb-12">
-            <div class="text-[11px] font-bold tracking-[0.25em] text-gold-600 uppercase mb-1.5">SIGNATURE SERIES</div>
-            <h2 class="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">CORE SCRUB SETS</h2>
-            <div class="w-10 h-0.5 bg-slate-900 mx-auto mt-3 rounded"></div>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8" id="productGrid"></div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section class="py-16 bg-white text-slate-900 overflow-hidden border-t border-b border-slate-200/80">
-        <div class="container mx-auto px-4 sm:px-8">
-            <div class="text-center mb-10">
-                <div class="text-[11px] font-bold tracking-[0.25em] text-gold-600 uppercase mb-1">PHYSICIAN ENDORSEMENTS</div>
-                <h2 class="text-xl sm:text-2xl font-black text-slate-900">Verified Reviews from Egypt's Leading Surgeons 🩺</h2>
-                <div class="w-10 h-0.5 bg-slate-900 mx-auto mt-3 rounded"></div>
+    <!-- 5. "Why Pioneer" (3 Short Points) -->
+    <section id="why-pioneer" class="section-padding features-section" aria-labelledby="whyTitle">
+        <div class="container">
+            <div class="collection-header">
+                <div class="eyebrow" data-i18n="whyEyebrow">المعايير التقنية</div>
+                <h2 id="whyTitle" class="collection-title" data-i18n="whyTitle">لماذا يختار الأطباء بايونير؟</h2>
             </div>
-            <div class="flex gap-4 overflow-x-auto pb-4 snap-x custom-scrollbar">
-                <div class="bg-slate-50/70 p-6 rounded-2xl min-w-[280px] md:min-w-[340px] snap-center border border-slate-200/80 shadow-sm">
-                    <div class="flex text-amber-500 text-xs mb-3 gap-1">
-                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon-box" aria-hidden="true">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                     </div>
-                    <p class="text-slate-700 text-xs sm:text-sm font-normal mb-4 leading-relaxed">"The fabric quality and 4-way stretch rival international luxury brands like FIGS. Unmatched comfort during 24-hour surgical shifts."</p>
-                    <div class="border-t border-slate-200 pt-3 flex items-center justify-between">
-                        <div>
-                            <div class="font-bold text-sm text-slate-900">Dr. Ahmed Hassan</div>
-                            <div class="text-[11px] text-slate-500 font-medium">General Surgery Specialist • Kasr Al-Ainy</div>
-                        </div>
-                        <i class="fa-solid fa-circle-check text-emerald-600 text-sm" title="Verified Physician"></i>
-                    </div>
+                    <h3 class="feature-title" data-i18n="feature1Title">مرونة في 4 اتجاهات</h3>
+                    <p class="feature-desc" data-i18n="feature1Desc">نسيج تقني مرن يمنحك حرية حركة تامة في العيادة وغرفة العمليات دون أي شعور بالتقيد.</p>
                 </div>
 
-                <div class="bg-slate-50/70 p-6 rounded-2xl min-w-[280px] md:min-w-[340px] snap-center border border-slate-200/80 shadow-sm">
-                    <div class="flex text-amber-500 text-xs mb-3 gap-1">
-                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                <div class="feature-item">
+                    <div class="feature-icon-box" aria-hidden="true">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
                     </div>
-                    <p class="text-slate-700 text-xs sm:text-sm font-normal mb-4 leading-relaxed">"Exceptional delivery experience. I unboxed and inspected the finishing with the courier before paying. Tailor-perfect fit; ordered Royal Navy and returning for Onyx Black."</p>
-                    <div class="border-t border-slate-200 pt-3 flex items-center justify-between">
-                        <div>
-                            <div class="font-bold text-sm text-slate-900">Dr. Mai Tarek</div>
-                            <div class="text-[11px] text-slate-500 font-medium">Demerdash Hospital • Cairo</div>
-                        </div>
-                        <i class="fa-solid fa-circle-check text-emerald-600 text-sm" title="Verified Physician"></i>
-                    </div>
+                    <h3 class="feature-title" data-i18n="feature2Title">معاينة قبل الدفع</h3>
+                    <p class="feature-desc" data-i18n="feature2Desc">افتح الشحنة وعاين جودة القماش والتقفيل والمقاس بنفسك في وجود مندوب الشحن قبل سداد أي مبلغ.</p>
                 </div>
 
-                <div class="bg-slate-50/70 p-6 rounded-2xl min-w-[280px] md:min-w-[340px] snap-center border border-slate-200/80 shadow-sm">
-                    <div class="flex text-amber-500 text-xs mb-3 gap-1">
-                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                <div class="feature-item">
+                    <div class="feature-icon-box" aria-hidden="true">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"/></svg>
                     </div>
-                    <p class="text-slate-700 text-xs sm:text-sm font-normal mb-4 leading-relaxed">"Both Onyx Black and Royal Navy retain their deep saturation after dozens of hospital laundering cycles. Zero wrinkles, zero pilling, and commanding executive presence."</p>
-                    <div class="border-t border-slate-200 pt-3 flex items-center justify-between">
-                        <div>
-                            <div class="font-bold text-sm text-slate-900">Dr. Moustafa Kamal</div>
-                            <div class="text-[11px] text-slate-500 font-medium">Oral & Maxillofacial Surgeon • Alexandria</div>
-                        </div>
-                        <i class="fa-solid fa-circle-check text-emerald-600 text-sm" title="Verified Physician"></i>
-                    </div>
+                    <h3 class="feature-title" data-i18n="feature3Title">استبدال سهل خلال 3 أيام</h3>
+                    <p class="feature-desc" data-i18n="feature3Desc">لو المقاس محتاج تعديل، بنرتب استبدال للمقاس أو اللون خلال 3 أيام من تاريخ الاستلام مباشرة.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Luxury Orova-Inspired Product Modal (Smooth Scrolling on Mobile, 2-Column Desktop) -->
-    <div id="productModal" class="fixed inset-0 bg-slate-950/70 z-50 hidden flex items-end sm:items-center justify-center opacity-0 transition-opacity duration-300 backdrop-blur-sm p-0 sm:p-4">
-        <div class="bg-white text-slate-900 w-full sm:max-w-4xl sm:rounded-2xl rounded-t-3xl overflow-y-auto md:overflow-hidden transform translate-y-full sm:translate-y-0 transition-transform duration-300 flex flex-col md:flex-row max-h-[92vh] md:h-[620px] shadow-2xl border border-slate-200 relative custom-scrollbar">
-            
-            <!-- Close Button (Sticky so always visible on scroll) -->
-            <button id="closeModal" class="sticky sm:absolute top-3 right-3 sm:top-4 sm:right-4 bg-white/90 hover:bg-white text-slate-800 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur shadow-md transition z-40 border border-slate-200 cursor-pointer mr-3 mt-3 sm:mr-0 sm:mt-0 self-end">
-                <i class="fa-solid fa-xmark text-sm"></i>
+    <!-- 6. Real Reviews Section (Driven by reviews.json; Hidden if unverified) -->
+    <!-- [CONFIRM: real reviews + permission required before making this section visible in production] -->
+    <section id="reviewsSection" class="section-padding reviews-section hidden" aria-labelledby="reviewsTitle">
+        <div class="container">
+            <div class="collection-header">
+                <div class="eyebrow" data-i18n="reviewsEyebrow">آراء الأطباء</div>
+                <h2 id="reviewsTitle" class="collection-title" data-i18n="reviewsTitle">تجارب من الميدان الطبي</h2>
+            </div>
+            <div id="reviewsGrid" class="reviews-grid">
+                <!-- Injected via app.js if verified -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. FAQ Section (5 Questions) -->
+    <section id="faq" class="section-padding faq-section" aria-labelledby="faqTitle">
+        <div class="container">
+            <div class="collection-header">
+                <div class="eyebrow" data-i18n="faqEyebrow">إجابات واضحة</div>
+                <h2 id="faqTitle" class="collection-title" data-i18n="faqTitle">الأسئلة الشائعة</h2>
+            </div>
+
+            <div class="faq-list" id="faqAccordion">
+                <div class="faq-item">
+                    <button class="faq-trigger" type="button" aria-expanded="false">
+                        <span data-i18n="faq1Q">هل يمكنني معاينة السكراب والتأكد من المقاس قبل الدفع؟</span>
+                        <svg class="faq-icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    </button>
+                    <div class="faq-content">
+                        <p data-i18n="faq1A">نعم بالتأكيد. لديك كامل الحق في فتح الشحنة ومعاينة السكراب والتأكد من ملمس الخامة والمقاس والمظهر مع المندوب قبل دفع قيمة الطلب.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-trigger" type="button" aria-expanded="false">
+                        <span data-i18n="faq2Q">ما هي سياسة استبدال المقاس إذا لم يكن مناسباً؟</span>
+                        <svg class="faq-icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    </button>
+                    <div class="faq-content">
+                        <p data-i18n="faq2A">نوفر استبدالاً للمقاس أو اللون خلال 3 أيام من الاستلام، بشرط الحفاظ على السكراب بحالته الأصلية غير ملبوس وغير مغسول وبالبطاقة الخاصة به.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-trigger" type="button" aria-expanded="false">
+                        <span data-i18n="faq3Q">كم تستغرق مدة الشحن لمحافظتي؟</span>
+                        <svg class="faq-icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    </button>
+                    <div class="faq-content">
+                        <p data-i18n="faq3A">القاهرة والجيزة والإسكندرية: خلال 24 إلى 48 ساعة عمل. باقي المحافظات: من 2 إلى 4 أيام عمل بحد أقصى.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-trigger" type="button" aria-expanded="false">
+                        <span data-i18n="faq4Q">ما هي تفاصيل تركيبة القماش؟</span>
+                        <svg class="faq-icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    </button>
+                    <div class="faq-content">
+                        <p data-i18n="faq4A">نسيج ثلاثي التركيب: بوليستر تقني مع رايون مع سباندكس مرن. يوفر متانة عالية ومقاومة للتجعد وملمساً ناعماً على البشرة.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-trigger" type="button" aria-expanded="false">
+                        <span data-i18n="faq5Q">كيف أحصل على توصيل مجاني؟</span>
+                        <svg class="faq-icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    </button>
+                    <div class="faq-content">
+                        <p data-i18n="faq5A">عند طلب طقمين أو أكثر، يتم تطبيق الشحن السريع مجاناً وبشكل تلقائي لجميع المحافظات.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. Footer with Policy Links, Contact, Address -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="brand-name" style="margin-bottom: 0.5rem;">PIONEER</div>
+                    <p style="font-size: 0.8125rem; margin-bottom: 1rem;" data-i18n="footerAbout">ملابس طبية مصرية بريميم، مصممة لمعايير الأداء والراحة في المستشفيات والعيادات.</p>
+                    <p style="font-size: 0.75rem; color: var(--muted-light);">
+                        <span data-i18n="footerAddressLabel">المقر:</span>
+                        <!-- [CONFIRM: business address] -->
+                        <span data-i18n="footerAddress">القاهرة، جمهورية مصر العربية</span> [CONFIRM]
+                    </p>
+                </div>
+
+                <div>
+                    <div class="footer-col-title" data-i18n="footerColCollection">المجموعة</div>
+                    <ul class="footer-links">
+                        <li><a href="#collection" data-i18n="footerCoreSets">أطقم السكراب الأساسية</a></li>
+                        <li><a href="javascript:void(0)" onclick="openSizeGuideModalDirect()" data-i18n="footerSizeChart">جدول المقاسات</a></li>
+                        <li><a href="javascript:void(0)" onclick="openSizeGuideModalDirect(true)" data-i18n="footerFitCalc">حاسبة المقاس</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <div class="footer-col-title" data-i18n="footerColPolicies">السياسات والشروط</div>
+                    <ul class="footer-links">
+                        <li><a href="javascript:void(0)" onclick="openInfoModal('shipping')" data-i18n="footerShippingPolicy">الشحن والمعاينة والاستبدال</a></li>
+                        <li><a href="javascript:void(0)" onclick="openInfoModal('privacy')" data-i18n="footerPrivacyPolicy">سياسة الخصوصية</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <div class="footer-col-title" data-i18n="footerColContact">تواصل معنا</div>
+                    <ul class="footer-links">
+                        <li><a href="https://wa.me/201069337788" target="_blank" rel="noopener noreferrer">واتساب: 01069337788</a></li>
+                        <!-- [CONFIRM: working hours] -->
+                        <li><span style="color: var(--muted);" data-i18n="footerHours">ساعات العمل: 10 ص - 10 م يومياً</span> [CONFIRM]</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div>© 2026 PIONEER Medical Wear. جميع الحقوق محفوظة.</div>
+                <div style="font-size: 0.6875rem;" data-i18n="footerTagline">الدفع عند الاستلام • المعاينة مع المندوب • استبدال خلال 3 أيام</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- PRODUCT MODAL -->
+    <div id="productModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-panel">
+            <button type="button" id="closeModal" class="modal-close-btn" aria-label="Close Modal">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
             </button>
 
-            <!-- LEFT COLUMN: Product Gallery (Editorial Photo + Thumbnails) -->
-            <div class="w-full md:w-1/2 bg-slate-100 flex flex-col flex-shrink-0 relative">
-                <div class="relative w-full h-72 sm:h-80 md:h-[500px] bg-slate-100 overflow-hidden">
-                    <img id="modalMainImg" src="" alt="PIONEER Medical Scrub" class="w-full h-full object-cover transition duration-300">
+            <div class="product-modal-grid">
+                <!-- Gallery Column -->
+                <div class="modal-gallery">
+                    <div class="modal-main-img-wrap">
+                        <picture id="modalMainPicture">
+                            <source id="modalMainWebp" type="image/webp" srcset="">
+                            <img id="modalMainImg" src="" alt="PIONEER Medical Scrub" class="modal-main-img" width="600" height="800" decoding="async">
+                        </picture>
+                    </div>
+                    <div class="modal-thumbnails" id="modalThumbnails">
+                        <!-- Dynamic Thumbnails -->
+                    </div>
                 </div>
-                <!-- Thumbnail Strip -->
-                <div class="flex gap-2 p-3 bg-white border-t border-slate-200 justify-center" id="modalThumbnails">
-                    <!-- Injected dynamically via app.js -->
-                </div>
-            </div>
 
-            <!-- RIGHT COLUMN: Orova-Style Product Details & Actions -->
-            <div class="w-full md:w-1/2 p-6 sm:p-8 md:overflow-y-auto flex flex-col justify-between custom-scrollbar bg-white text-left">
-                <div>
-                    <!-- Category & Title -->
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <div class="text-[10px] font-bold text-gold-600 uppercase tracking-widest">PIONEER CORE SERIES</div>
-                            <h3 id="modalTitle" class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-0.5">Onyx Black Set</h3>
-                            <p class="text-xs text-slate-500 font-medium mt-0.5">Tailored athletic silhouette • Unisex medical cut</p>
-                        </div>
-                        <div class="text-right flex flex-col items-end">
-                            <div class="text-slate-900 font-black text-2xl font-montserrat" id="modalPrice">900 EGP</div>
-                            <div class="text-slate-400 line-through text-xs font-semibold font-mono" id="modalFakePrice">1300 EGP</div>
+                <!-- Product Details Column -->
+                <div class="modal-details">
+                    <div>
+                        <div class="eyebrow" data-i18n="modalEyebrow">طقم سكراب بايونير الأساسي</div>
+                        <div class="modal-header-row">
+                            <div>
+                                <h3 id="modalTitle" class="serif-title" style="font-size: 1.5rem;">طقم سكراب</h3>
+                                <p style="font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem;" data-i18n="modalCut">قصة طبية مريحة • تصميم مناسب للجميع</p>
+                            </div>
+                            <div class="modal-price">
+                                <span id="modalPrice">900</span> <span style="font-size: 0.8125rem; font-weight: 500;" data-i18n="currency">ج.م</span>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Color Selector -->
-                    <div class="my-4 pt-2 border-t border-slate-100">
-                        <div class="flex justify-between items-center mb-2.5 text-xs font-bold uppercase text-slate-700">
-                            <span>Color: <span id="selectedColorName" class="font-extrabold text-slate-900"></span></span>
+                    <div>
+                        <div class="form-label">
+                            <span data-i18n="labelColor">اللون:</span>
+                            <span id="selectedColorName" style="color: var(--ink); font-weight: 700; margin-inline-start: 0.25rem;"></span>
                         </div>
-                        <div class="flex gap-2.5 flex-wrap" id="colorSelector"></div>
+                        <div class="color-pills" id="colorSelector">
+                            <!-- Injected via app.js -->
+                        </div>
                     </div>
 
-                    <!-- Size Selector with Diagonal Out-Of-Stock Slash -->
-                    <div class="mb-5">
-                        <div class="flex justify-between items-center mb-2.5">
-                            <span class="text-xs font-bold uppercase text-slate-700">Size: <span id="selectedSizeLabel" class="font-extrabold text-slate-900"></span></span>
-                            <button id="openSizeGuideBtn" class="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition underline cursor-pointer">
-                                <i class="fa-solid fa-ruler-horizontal text-gold-600 text-xs"></i>
-                                <span>Size Chart</span>
+                    <!-- Size Selector -->
+                    <div>
+                        <div class="size-selector-row">
+                            <div>
+                                <span class="form-label" style="display: inline;" data-i18n="labelSize">المقاس:</span>
+                                <span id="selectedSizeLabel" style="font-weight: 700; margin-inline-start: 0.25rem;"></span>
+                            </div>
+                            <button type="button" class="size-guide-link" id="inlineSizeGuideLink">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H3V8h2v4h2V8h2v4h2V8h2v4h2V8h2v4h2V8h3v8z"/></svg>
+                                <span data-i18n="btnSizeChart">دليل المقاسات</span>
                             </button>
                         </div>
-                        <div class="flex gap-2 flex-wrap" id="sizeSelector">
-                            <button class="size-btn" data-size="S">S</button>
-                            <button class="size-btn" data-size="M">M</button>
-                            <button class="size-btn" data-size="L">L</button>
-                            <button class="size-btn" data-size="XL">XL</button>
-                            <button class="size-btn" data-size="XXL">XXL</button>
-                            <button class="size-btn" data-size="3XL">3XL</button>
+                        <div class="size-pills" id="sizeSelector">
+                            <button class="size-pill" data-size="S">S</button>
+                            <button class="size-pill" data-size="M">M</button>
+                            <button class="size-pill" data-size="L">L</button>
+                            <button class="size-pill" data-size="XL">XL</button>
+                            <button class="size-pill" data-size="XXL">XXL</button>
+                            <button class="size-pill" data-size="3XL">3XL</button>
                         </div>
                     </div>
 
-                    <!-- Quantity & Action Button -->
-                    <div class="mb-5">
-                        <div class="flex items-center gap-3">
-                            <div class="flex items-center bg-slate-50 rounded-xl border border-slate-200">
-                                <button id="qtyMinus" class="w-10 h-11 flex items-center justify-center text-slate-600 hover:text-slate-900 font-bold transition cursor-pointer">-</button>
-                                <input type="number" id="qtyInput" value="1" min="1" class="w-10 h-11 text-center font-black text-sm bg-transparent border-none text-slate-900 focus:ring-0 outline-none" readonly>
-                                <button id="qtyPlus" class="w-10 h-11 flex items-center justify-center text-slate-600 hover:text-slate-900 font-bold transition cursor-pointer">+</button>
+                    <!-- Quantity & Add to Cart/Buy -->
+                    <div>
+                        <div class="action-row">
+                            <div class="qty-stepper">
+                                <button type="button" id="qtyMinus" class="qty-btn" aria-label="Decrease quantity">-</button>
+                                <input type="number" id="qtyInput" value="1" min="1" max="10" class="qty-input" readonly aria-label="Quantity">
+                                <button type="button" id="qtyPlus" class="qty-btn" aria-label="Increase quantity">+</button>
                             </div>
-                            
-                            <button id="buyBtn" class="flex-grow bg-slate-950 hover:bg-black text-white font-black py-3.5 px-6 rounded-xl shadow-lg transition-transform transform active:scale-95 flex justify-center items-center gap-2 cursor-pointer text-sm">
-                                <span>ORDER VIA WHATSAPP</span>
-                                <span id="totalPriceBtn" class="text-xs font-mono text-gold-400 font-bold">(900 EGP)</span>
+                            <button type="button" id="buyBtn" class="btn btn-primary" style="flex-grow: 1;">
+                                <span data-i18n="btnBuy">اطلب الآن والدفع عند الاستلام</span>
+                                <span id="totalPriceBtn" style="font-size: 0.75rem; opacity: 0.85; margin-inline-start: 0.375rem;"></span>
                             </button>
                         </div>
-                        
-                        <!-- Free Shipping Privilege Box -->
-                        <div id="pricingMessage" class="mt-2.5 text-center text-xs text-slate-600 font-medium py-1.5 px-3 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-truck-fast text-gold-600"></i>
-                            <span>Add 1 more set to unlock complimentary express delivery</span>
-                        </div>
-                        
-                        <div class="text-center text-[11px] text-slate-500 mt-2 font-medium">
-                            <i class="fa-solid fa-shield-halved text-emerald-600"></i> Cash on Delivery • Doorstep Inspection with Courier • 3-Day Exchange
+
+                        <!-- Free Shipping Privilege Note -->
+                        <div id="pricingMessage" class="shipping-privilege-note" style="margin-top: 0.625rem;">
+                            <!-- Injected dynamically -->
                         </div>
                     </div>
 
-                    <!-- Bullet Points (Orova Style) -->
-                    <div class="mb-5 py-3 border-t border-b border-slate-100 text-xs text-slate-600 space-y-1.5 leading-relaxed">
-                        <div class="flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 flex-shrink-0"></span>
-                            <span>Ultra-soft 4-way technical stretch fabric for active clinical mobility</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 flex-shrink-0"></span>
-                            <span>Advanced nano-barrier repellent to fluids and clinical stains</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 flex-shrink-0"></span>
-                            <span>Tailored classic V-neck top + multi-pocket functional cargo pants</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 flex-shrink-0"></span>
-                            <span>Doorstep unboxing & inspection guaranteed with the delivery courier</span>
-                        </div>
-                    </div>
+                    <!-- Inline Accordions (No second modal on top of modal!) -->
+                    <div class="modal-accordions">
+                        <!-- 1. Size Guide Accordion -->
+                        <div class="modal-acc-item" id="accSizeGuide">
+                            <button type="button" class="modal-acc-trigger" onclick="toggleModalAccordion('accSizeGuide')">
+                                <span data-i18n="accSizeTitle">دليل المقاسات وحاسبة القياس الدقيقة</span>
+                                <svg class="modal-acc-icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                            </button>
+                            <div class="modal-acc-content">
+                                <table class="measurement-table">
+                                    <thead>
+                                        <tr>
+                                            <th data-i18n="thSize">المقاس</th>
+                                            <th data-i18n="thChest">محيط الصدر / العرض</th>
+                                            <th data-i18n="thLength">الطول</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>S</td><td>59 سم</td><td>68 سم</td></tr>
+                                        <tr><td>M</td><td>62 سم</td><td>70 سم</td></tr>
+                                        <tr><td>L</td><td>65 سم</td><td>72 سم</td></tr>
+                                        <tr><td>XL</td><td>67 سم</td><td>74 سم</td></tr>
+                                        <tr><td>XXL</td><td>70 سم</td><td>76 سم</td></tr>
+                                        <tr><td>3XL</td><td>73 سم</td><td>78 سم</td></tr>
+                                    </tbody>
+                                </table>
 
-                    <!-- Clean Accordions (Orova Signature - 100% English) -->
-                    <div class="space-y-1" id="productAccordions">
-                        <div class="accordion-item">
-                            <div class="accordion-header" onclick="toggleAccordion(this)">
-                                <span>Fabric & Technical Specifications</span>
-                                <i class="fa-solid fa-plus accordion-icon"></i>
+                                <!-- Smart Fit Calculator (No phone required!) -->
+                                <div class="calc-box">
+                                    <div style="font-weight: 600; font-size: 0.75rem; margin-bottom: 0.375rem;" data-i18n="calcHeading">حاسبة المقاس التلقائية:</div>
+                                    <div class="calc-grid">
+                                        <div>
+                                            <label class="form-label" style="font-size: 0.6875rem;" data-i18n="labelWeight">الوزن (كجم)</label>
+                                            <input type="number" id="calcWeight" placeholder="مثال: 75" class="input-field">
+                                        </div>
+                                        <div>
+                                            <label class="form-label" style="font-size: 0.6875rem;" data-i18n="labelHeight">الطول (سم)</label>
+                                            <input type="number" id="calcHeight" placeholder="مثال: 175" class="input-field">
+                                        </div>
+                                    </div>
+                                    <button type="button" id="btnCalcSize" class="btn btn-outline btn-full" style="margin-top: 0.5rem; padding: 0.5rem;" data-i18n="btnCalculate">احسب مقاسي المناسب</button>
+
+                                    <div id="calcResult" class="calc-result-box hidden">
+                                        <div style="font-size: 0.75rem; color: var(--muted);" data-i18n="calcRecLabel">المقاس المقترح لك:</div>
+                                        <div id="recommendedSizeTxt" class="calc-result-size">L</div>
+                                        <!-- [CONFIRM: Between two sizes? Choose the larger for a relaxed fit only if true] -->
+                                        <div style="font-size: 0.6875rem; color: var(--muted); margin-bottom: 0.5rem;" data-i18n="calcRelaxedNote">بين مقاسين؟ اختر المقاس الأكبر لقصة مريحة. [CONFIRM]</div>
+                                        <button type="button" id="useRecommendedSize" class="btn btn-accent" style="padding: 0.375rem 0.875rem; font-size: 0.75rem;" data-i18n="btnSelectRec">اختيار هذا المقاس ومتابعة الطلب</button>
+                                        
+                                        <!-- Optional Phone to receive advice -->
+                                        <div style="margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px dashed var(--hairline);">
+                                            <span style="font-size: 0.6875rem; color: var(--muted);" data-i18n="calcPhoneOptional">تحب نبعتلك المقاس وتفاصيل التأكيد على الواتساب؟ (اختياري)</span>
+                                            <div style="display: flex; gap: 0.375rem; margin-top: 0.375rem;">
+                                                <input type="tel" id="calcPhone" placeholder="010XXXXXXXX" class="input-field" style="font-size: 0.75rem; padding: 0.375rem 0.5rem;">
+                                                <button type="button" id="btnSendCalcPhone" class="btn btn-outline" style="font-size: 0.6875rem; padding: 0.375rem 0.625rem; white-space: nowrap;" data-i18n="btnSendWhatsApp">إرسال</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="accordion-content text-xs text-slate-600 leading-relaxed">
-                                Proprietary tri-blend composition: 72% Technical Polyester, 21% Silky Rayon, 7% High-Stretch Spandex. Infused with nano-repellent shielding against fluid spills, stains, and clinical odors. Breathable, moisture-wicking, and featherlight for peak performance during 24-hour shifts.
+                        </div>
+
+                        <!-- 2. Fabric & Specifications -->
+                        <!-- [CONFIRM: Fabric specs 72/21/7 blend and fluid-resistant finish] -->
+                        <div class="modal-acc-item" id="accFabric">
+                            <button type="button" class="modal-acc-trigger" onclick="toggleModalAccordion('accFabric')">
+                                <span data-i18n="accFabricTitle">الخامة والمواصفات الفنية [CONFIRM]</span>
+                                <svg class="modal-acc-icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                            </button>
+                            <div class="modal-acc-content" id="fabricContent">
+                                <p data-i18n="fabricContentText">تركيبة نسيج ثلاثية: 72% بوليستر تقني، 21% رايون ناعم، 7% سباندكس فائق المرونة. مزود بلمسة نهائية مقاومة للبلل والسوائل العارضة، خفيف الوزن وجيد التهوية لنبطشيات العمل الطويلة.</p>
                             </div>
                         </div>
 
-                        <div class="accordion-item">
-                            <div class="accordion-header" onclick="toggleAccordion(this)">
-                                <span>Care & Laundering Instructions</span>
-                                <i class="fa-solid fa-plus accordion-icon"></i>
-                            </div>
-                            <div class="accordion-content text-xs text-slate-600 leading-relaxed">
-                                • Machine wash cold inside out with like colors.<br>
-                                • Do not bleach or use harsh fabric softeners.<br>
-                                • Tumble dry on low heat or hang dry.<br>
-                                • Cool iron if needed; do not iron directly on embroidered crest.
-                            </div>
-                        </div>
-
-                        <div class="accordion-item">
-                            <div class="accordion-header" onclick="toggleAccordion(this)">
-                                <span>Doorstep Inspection, Return & 3-Day Exchange Policy</span>
-                                <i class="fa-solid fa-plus accordion-icon"></i>
-                            </div>
-                            <div class="accordion-content text-xs text-slate-600 leading-relaxed">
-                                • <b>Doorstep Inspection:</b> You have the full right to unbox and thoroughly inspect your scrub set in the presence of the delivery courier before paying.<br>
-                                • <b>Immediate Return:</b> If the quality, fit, or color does not exceed your expectations, you may hand the parcel back to the courier immediately with zero hassle.<br>
-                                • <b>3-Day Size & Color Exchange:</b> Need a different size or fit? Our VIP Concierge provides a seamless replacement within 3 days of delivery.
+                        <!-- 3. Care & Laundering -->
+                        <div class="modal-acc-item" id="accCare">
+                            <button type="button" class="modal-acc-trigger" onclick="toggleModalAccordion('accCare')">
+                                <span data-i18n="accCareTitle">تعليمات الغسيل والعناية</span>
+                                <svg class="modal-acc-icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                            </button>
+                            <div class="modal-acc-content">
+                                <ul style="padding-inline-start: 1rem; display: flex; flex-direction: column; gap: 0.25rem;">
+                                    <li data-i18n="care1">يغسل بالماء البارد مع ألوان مماثلة.</li>
+                                    <li data-i18n="care2">تجنب المبيضات القوية أو الكلور.</li>
+                                    <li data-i18n="care3">تجفيف منخفض الحرارة أو تعليق حر.</li>
+                                    <li data-i18n="care4">كي خفيف عند الحاجة.</li>
+                                </ul>
                             </div>
                         </div>
-                    </div>
 
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Size Chart Modal (Orova Screenshot 3 Match + Calculator) -->
-    <div id="sizeModal" class="fixed inset-0 bg-slate-950/70 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm opacity-0 transition-opacity duration-300">
-        <div class="bg-white text-slate-900 w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl relative transform scale-95 transition-transform duration-300 border border-slate-200">
-            <!-- Header -->
-            <div class="p-5 border-b border-slate-100 flex justify-between items-center">
-                <div>
-                    <div class="text-[10px] font-bold text-gold-600 uppercase tracking-widest">PRECISION FIT</div>
-                    <h3 class="font-black text-xl text-slate-900 tracking-tight">SIZE CHART (CENTIMETERS)</h3>
-                </div>
-                <button id="closeSizeModal" class="text-slate-400 hover:text-slate-800 transition p-2 cursor-pointer">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <!-- Tabs -->
-            <div class="p-6">
-                <div class="flex bg-slate-100 rounded-lg p-1 mb-5 border border-slate-200">
-                    <button id="tabChart" class="flex-1 py-2 text-xs font-bold bg-white shadow-sm rounded-md text-slate-900 transition cursor-pointer">Measurement Table (CM)</button>
-                    <button id="tabCalc" class="flex-1 py-2 text-xs font-bold text-slate-500 transition cursor-pointer">Smart Fit Calculator</button>
-                </div>
-                
-                <!-- Table View (Orova Style) -->
-                <div id="contentChart">
-                    <div class="border border-slate-200 rounded-xl overflow-hidden">
-                        <table class="w-full text-center text-xs">
-                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
-                                <tr>
-                                    <th class="py-3 px-4">SIZE</th>
-                                    <th class="py-3 px-4">LENGTH (CM)</th>
-                                    <th class="py-3 px-4">CHEST / WIDTH (CM)</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 font-medium text-slate-800">
-                                <tr class="hover:bg-slate-50/50 transition">
-                                    <td class="py-3.5 px-4 font-bold text-slate-900">SMALL (S)</td>
-                                    <td class="py-3.5 px-4 font-mono">68 CM</td>
-                                    <td class="py-3.5 px-4 font-mono">59 CM</td>
-                                </tr>
-                                <tr class="hover:bg-slate-50/50 transition">
-                                    <td class="py-3.5 px-4 font-bold text-slate-900">MEDIUM (M)</td>
-                                    <td class="py-3.5 px-4 font-mono">70 CM</td>
-                                    <td class="py-3.5 px-4 font-mono">62 CM</td>
-                                </tr>
-                                <tr class="hover:bg-slate-50/50 transition">
-                                    <td class="py-3.5 px-4 font-bold text-slate-900">LARGE (L)</td>
-                                    <td class="py-3.5 px-4 font-mono">72 CM</td>
-                                    <td class="py-3.5 px-4 font-mono">65 CM</td>
-                                </tr>
-                                <tr class="hover:bg-slate-50/50 transition">
-                                    <td class="py-3.5 px-4 font-bold text-slate-900">X LARGE (XL)</td>
-                                    <td class="py-3.5 px-4 font-mono">74 CM</td>
-                                    <td class="py-3.5 px-4 font-mono">67 CM</td>
-                                </tr>
-                                <tr class="hover:bg-slate-50/50 transition">
-                                    <td class="py-3.5 px-4 font-bold text-slate-900">2X LARGE (XXL)</td>
-                                    <td class="py-3.5 px-4 font-mono">76 CM</td>
-                                    <td class="py-3.5 px-4 font-mono">70 CM</td>
-                                </tr>
-                                <tr class="hover:bg-slate-50/50 transition">
-                                    <td class="py-3.5 px-4 font-bold text-slate-900">3X LARGE (3XL)</td>
-                                    <td class="py-3.5 px-4 font-mono">78 CM</td>
-                                    <td class="py-3.5 px-4 font-mono">73 CM</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <p class="text-[11px] text-slate-500 mt-3 text-center">4-way stretch fabric engineered for effortless drape and comfort across all builds.</p>
-                </div>
-
-                <!-- Smart Calculator View -->
-                <div id="contentCalc" class="hidden space-y-4">
-                    <p class="text-xs text-slate-500 text-center">Enter your weight and height to get your tailor-perfect size recommendation.</p>
-                    <div class="flex gap-3">
-                        <div class="flex-1">
-                            <label class="block text-xs font-bold mb-1 text-slate-700">Weight (KG)</label>
-                            <input type="number" id="calcWeight" placeholder="e.g. 75" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 bg-white text-slate-900 font-bold focus:border-slate-900 outline-none text-center text-sm shadow-sm">
+                        <!-- 4. Inspection & Returns -->
+                        <div class="modal-acc-item" id="accInspection">
+                            <button type="button" class="modal-acc-trigger" onclick="toggleModalAccordion('accInspection')">
+                                <span data-i18n="accInspectionTitle">سياسة المعاينة والاستبدال</span>
+                                <svg class="modal-acc-icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                            </button>
+                            <div class="modal-acc-content">
+                                <p data-i18n="inspectionContent"><strong>المعاينة:</strong> يمكنك فحص السكراب والتأكد من تقفيله ومقاسه مع المندوب قبل دفع أي نقود.<br><strong>الاستبدال:</strong> استبدال المقاس متاح خلال 3 أيام من الاستلام عبر التواصل مع خدمة العملاء.</p>
+                            </div>
                         </div>
-                        <div class="flex-1">
-                            <label class="block text-xs font-bold mb-1 text-slate-700">Height (CM)</label>
-                            <input type="number" id="calcHeight" placeholder="e.g. 175" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 bg-white text-slate-900 font-bold focus:border-slate-900 outline-none text-center text-sm shadow-sm">
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        <label class="block text-xs font-bold mb-1 text-slate-700">WhatsApp Number (For Consultation)</label>
-                        <input type="tel" id="calcPhone" placeholder="010XXXXXXXX" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 bg-white text-slate-900 font-mono focus:border-slate-900 outline-none text-center text-sm shadow-sm">
-                    </div>
-                    <button id="btnCalcSize" class="w-full bg-slate-900 hover:bg-black text-white font-black py-3 rounded-xl shadow-lg mt-4 text-xs uppercase tracking-wider transition cursor-pointer">CALCULATE OPTIMAL SIZE</button>
-                    
-                    <div id="calcResult" class="hidden text-center mt-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                        <div class="text-xs text-slate-600 font-bold uppercase tracking-wider">Recommended Size:</div>
-                        <div class="text-3xl font-black text-slate-900 my-1 font-montserrat" id="recommendedSizeTxt">M</div>
-                        <p class="text-[10px] text-slate-500 mt-1">Our VIP team will confirm your fit before dispatching.</p>
-                        <button id="useRecommendedSize" class="text-xs font-bold bg-slate-900 text-white px-6 py-2.5 rounded-xl mt-3 w-full hover:bg-black transition shadow-sm cursor-pointer uppercase tracking-wider">Select This Size & Continue</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Clean Express Checkout Modal -->
-    <div id="checkoutModal" class="fixed inset-0 bg-slate-950/70 z-[65] hidden flex items-center justify-center opacity-0 transition-opacity duration-300 p-4 backdrop-blur-sm">
-        <div class="bg-white text-slate-900 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[92vh] border border-slate-200">
-            <div class="bg-slate-950 text-white p-5 text-center relative flex-shrink-0">
-                <button id="closeCheckout" class="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-                <div class="text-[10px] font-bold text-gold-400 uppercase tracking-widest">VIP EXPRESS CHECKOUT</div>
-                <h3 class="text-lg font-black text-white tracking-wide mt-1">Confirm Your Medical Scrub</h3>
-                <p class="text-[11px] text-slate-400 mt-0.5">Cash on Delivery • Doorstep Inspection with Courier • 3-Day Exchange</p>
-            </div>
-            
-            <form id="checkoutForm" class="p-6 overflow-y-auto flex-grow space-y-4">
-                <div>
-                    <label class="block text-xs font-bold mb-1 text-slate-700">Full Name / الاسم ثلاثي</label>
-                    <input type="text" id="custName" placeholder="Dr. Full Name" required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm bg-white text-slate-900 focus:border-slate-900 outline-none shadow-sm font-medium">
-                </div>
+    <!-- CHECKOUT MODAL (Phase 3 Clean Closure) -->
+    <div id="checkoutModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+        <div class="modal-panel checkout-modal-panel">
+            <button type="button" id="closeCheckout" class="modal-close-btn" aria-label="Close Checkout">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
 
-                <div>
-                    <label class="block text-xs font-bold mb-1 text-slate-700">WhatsApp Number / رقم الواتساب للتأكيد</label>
-                    <input type="tel" id="custPhone" placeholder="010XXXXXXXX" required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm bg-white text-slate-900 font-mono focus:border-slate-900 outline-none shadow-sm">
-                </div>
+            <!-- Form View -->
+            <div id="checkoutFormContainer">
+                <div class="eyebrow" data-i18n="checkoutEyebrow">إتمام الطلب</div>
+                <h3 id="checkoutTitle" class="serif-title checkout-title" data-i18n="checkoutHeading">بيانات الشحن والتوصيل</h3>
+                <p class="checkout-subtitle" data-i18n="checkoutSub">الدفع عند الاستلام بعد معاينة السكراب والتأكد من المقاس</p>
 
-                <div>
-                    <label class="block text-xs font-bold mb-1 text-slate-700">Alternative Phone / رقم هاتف بديل (Optional)</label>
-                    <input type="tel" id="custPhone2" placeholder="01XXXXXXXXX" class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm bg-white text-slate-900 font-mono focus:border-slate-900 outline-none shadow-sm">
-                </div>
+                <form id="orderForm" novalidate>
+                    <!-- Honeypot anti-spam field -->
+                    <div style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;" aria-hidden="true">
+                        <label for="honeypot">Leave blank</label>
+                        <input type="text" id="honeypot" name="company_title" tabindex="-1" autocomplete="off">
+                    </div>
 
-                <div>
-                    <label class="block text-xs font-bold mb-1 text-slate-700">Governorate / المحافظة</label>
-                    <select id="custGov" required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm bg-white text-slate-900 font-bold focus:border-slate-900 outline-none shadow-sm">
-                        <option value="">Select Governorate / اختر المحافظة...</option>
-                        <option value="Cairo / القاهرة">Cairo / القاهرة</option>
-                        <option value="Giza / الجيزة">Giza / الجيزة</option>
-                        <option value="Alexandria / الإسكندرية">Alexandria / الإسكندرية</option>
-                        <option value="Dakahlia / الدقهلية (المنصورة)">Dakahlia / الدقهلية (المنصورة)</option>
-                        <option value="Gharbia / الغربية (طنطا)">Gharbia / الغربية (طنطا)</option>
-                        <option value="Sharqia / الشرقية (الزقازيق)">Sharqia / الشرقية (الزقازيق)</option>
-                        <option value="Qalyubia / القليوبية (بنها)">Qalyubia / القليوبية (بنها)</option>
-                        <option value="Monufia / المنوفية (شبين الكوم)">Monufia / المنوفية (شبين الكوم)</option>
-                        <option value="Beheira / البحيرة (دمنهور)">Beheira / البحيرة (دمنهور)</option>
-                        <option value="Kafr El Sheikh / كفر الشيخ">Kafr El Sheikh / كفر الشيخ</option>
-                        <option value="Damietta / دمياط">Damietta / دمياط</option>
-                        <option value="Port Said / بورسعيد">Port Said / بورسعيد</option>
-                        <option value="Ismailia / الإسماعيلية">Ismailia / الإسماعيلية</option>
-                        <option value="Suez / السويس">Suez / السويس</option>
-                        <option value="Fayoum / الفيوم">Fayoum / الفيوم</option>
-                        <option value="Beni Suef / بني سويف">Beni Suef / بني سويف</option>
-                        <option value="Minya / المنيا">Minya / المنيا</option>
-                        <option value="Asyut / أسيوط">Asyut / أسيوط</option>
-                        <option value="Sohag / سوهاج">Sohag / سوهاج</option>
-                        <option value="Qena / قنا">Qena / قنا</option>
-                        <option value="Luxor / الأقصر">Luxor / الأقصر</option>
-                        <option value="Aswan / أسوان">Aswan / أسوان</option>
-                        <option value="Red Sea / البحر الأحمر">Red Sea / البحر الأحمر</option>
-                        <option value="Matrouh / مطروح">Matrouh / مطروح</option>
-                    </select>
-                </div>
+                    <!-- 1. Full Name -->
+                    <div class="form-group">
+                        <label for="custName" class="form-label" data-i18n="labelFullName">الاسم بالكامل *</label>
+                        <input type="text" id="custName" required class="input-field" placeholder="د. الاسم ثلاثي">
+                        <span id="custNameError" class="hidden" style="color: var(--danger); font-size: 0.6875rem;" data-i18n="errName">برجاء إدخال الاسم</span>
+                    </div>
 
-                <div>
-                    <label class="block text-xs font-bold mb-1 text-slate-700">Address / Hospital / العنوان بالتفصيل أو اسم المستشفى</label>
-                    <input type="text" id="custAddress" placeholder="Street, Building, Clinic / Hospital name" required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm bg-white text-slate-900 focus:border-slate-900 outline-none shadow-sm font-medium">
-                </div>
+                    <!-- 2. Mobile Number (Egyptian format) -->
+                    <div class="form-group">
+                        <label for="custPhone" class="form-label" data-i18n="labelPhone">رقم الموبايل / واتساب *</label>
+                        <input type="tel" id="custPhone" required class="input-field" placeholder="010XXXXXXXX" dir="ltr" style="text-align: start;">
+                        <span id="custPhoneError" class="hidden" style="color: var(--danger); font-size: 0.6875rem;" data-i18n="errPhone">برجاء إدخال رقم مصري صحيح (11 رقم يبدأ بـ 01)</span>
+                    </div>
 
-                <div>
-                    <label class="block text-xs font-bold mb-1 text-slate-700">Special Notes / ملاحظات خاصة</label>
-                    <textarea id="custNotes" rows="2" placeholder="Any specific fit requests or delivery instructions..." class="w-full border border-slate-300 rounded-xl px-4 py-2 text-sm bg-white text-slate-900 focus:border-slate-900 outline-none shadow-sm font-medium resize-none"></textarea>
-                </div>
+                    <!-- 3. Governorate -->
+                    <div class="form-group">
+                        <label for="custGov" class="form-label" data-i18n="labelGov">المحافظة *</label>
+                        <select id="custGov" required class="input-field">
+                            <option value="" data-i18n="selectGov">اختر المحافظة...</option>
+                            <option value="القاهرة">القاهرة</option>
+                            <option value="الجيزة">الجيزة</option>
+                            <option value="الإسكندرية">الإسكندرية</option>
+                            <option value="الدقهلية">الدقهلية (المنصورة)</option>
+                            <option value="الغربية">الغربية (طنطا)</option>
+                            <option value="الشرقية">الشرقية (الزقازيق)</option>
+                            <option value="القليوبية">القليوبية</option>
+                            <option value="المنوفية">المنوفية</option>
+                            <option value="البحيرة">البحيرة</option>
+                            <option value="كفر الشيخ">كفر الشيخ</option>
+                            <option value="دمياط">دمياط</option>
+                            <option value="بورسعيد">بورسعيد</option>
+                            <option value="الإسماعيلية">الإسماعيلية</option>
+                            <option value="السويس">السويس</option>
+                            <option value="الفيوم">الفيوم</option>
+                            <option value="بني سويف">بني سويف</option>
+                            <option value="المنيا">المنيا</option>
+                            <option value="أسيوط">أسيوط</option>
+                            <option value="سوهاج">سوهاج</option>
+                            <option value="قنا">قنا</option>
+                            <option value="الأقصر">الأقصر</option>
+                            <option value="أسوان">أسوان</option>
+                            <option value="البحر الأحمر">البحر الأحمر</option>
+                            <option value="مطروح">مطروح</option>
+                        </select>
+                        <span id="custGovError" class="hidden" style="color: var(--danger); font-size: 0.6875rem;" data-i18n="errGov">برجاء اختيار المحافظة</span>
+                    </div>
 
-                <div class="pt-2">
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 px-4 rounded-xl shadow-lg transition-transform transform active:scale-95 flex justify-center items-center gap-2 text-sm sm:text-base cursor-pointer">
-                        <i class="fa-brands fa-whatsapp text-xl"></i>
-                        <span>CONFIRM VIA WHATSAPP</span>
+                    <!-- 4. Detailed Address / Hospital -->
+                    <div class="form-group">
+                        <label for="custAddress" class="form-label" data-i18n="labelAddress">العنوان التفصيلي أو اسم المستشفى / القسم *</label>
+                        <input type="text" id="custAddress" required class="input-field" placeholder="اسم الشارع، العمارة، المستشفى، أو العيادة">
+                        <span id="custAddressError" class="hidden" style="color: var(--danger); font-size: 0.6875rem;" data-i18n="errAddress">برجاء إدخال العنوان بالتفصيل</span>
+                    </div>
+
+                    <!-- Collapsed Optional Details -->
+                    <button type="button" id="toggleOptionalBtn" class="form-optional-toggle" data-i18n="toggleOptional">+ إضافة رقم بديل أو ملاحظات (اختياري)</button>
+                    <div id="optionalFieldsBox" class="optional-fields-box hidden">
+                        <div class="form-group">
+                            <label for="custPhone2" class="form-label" data-i18n="labelPhone2">رقم موبايل بديل</label>
+                            <input type="tel" id="custPhone2" class="input-field" placeholder="01XXXXXXXXX" dir="ltr" style="text-align: start;">
+                        </div>
+                        <div class="form-group">
+                            <label for="custNotes" class="form-label" data-i18n="labelNotes">ملاحظات التوصيل أو توقيت النبطشية</label>
+                            <textarea id="custNotes" rows="2" class="input-field" placeholder="أي تعليمات خاصة بالتسليم..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Live Order Summary -->
+                    <div class="order-summary-box" aria-live="polite">
+                        <div class="summary-row">
+                            <span data-i18n="summaryItem">المنتج:</span>
+                            <span id="summaryItemDesc" style="color: var(--ink); font-weight: 600;">-</span>
+                        </div>
+                        <div class="summary-row">
+                            <span data-i18n="summaryQty">الكمية:</span>
+                            <span id="summaryQtyDesc" style="color: var(--ink);">-</span>
+                        </div>
+                        <div class="summary-row">
+                            <span data-i18n="summarySubtotal">سعر المنتج:</span>
+                            <span id="summarySubtotal">-</span>
+                        </div>
+                        <div class="summary-row">
+                            <span data-i18n="summaryShipping">مصاريف الشحن:</span>
+                            <span id="summaryShipping">-</span>
+                        </div>
+                        <div class="summary-row total-row">
+                            <span data-i18n="summaryTotal">الإجمالي عند الاستلام:</span>
+                            <span id="summaryTotal">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Error Banner if API fails -->
+                    <div id="checkoutErrorBanner" class="hidden" style="padding: 0.75rem; background: #FFEBEE; border: 1px solid #FFCDD2; border-radius: var(--radius); color: var(--danger); font-size: 0.75rem; margin-bottom: 1rem;">
+                        <span id="checkoutErrorMessage">حدث تعذر بسيط في تأكيد الطلب.</span>
+                        <div style="margin-top: 0.375rem;">
+                            <a id="fallbackWhatsAppBtn" href="#" target="_blank" class="btn btn-outline" style="padding: 0.375rem 0.75rem; font-size: 0.75rem; background: #fff;" data-i18n="btnFallbackWa">متابعة تأكيد الطلب عبر الواتساب مباشرة</a>
+                        </div>
+                    </div>
+
+                    <!-- ONE PRIMARY SUBMIT BUTTON -->
+                    <button type="submit" id="submitOrderBtn" class="btn btn-primary btn-full" style="padding: 0.875rem;">
+                        <span id="submitOrderBtnText" data-i18n="btnConfirmOrder">تأكيد الطلب والدفع عند الاستلام</span>
                     </button>
-                    <button type="button" id="skipBtn" class="w-full mt-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2.5 px-4 rounded-xl transition text-xs flex justify-center items-center gap-2 border border-slate-200 cursor-pointer">
-                        <span>Send Direct Order via WhatsApp</span>
-                    </button>
+                </form>
+            </div>
+
+            <!-- Confirmation View (Shown on OK) -->
+            <div id="checkoutConfirmationContainer" class="confirmation-panel hidden" aria-live="assertive">
+                <div class="confirm-icon-box" aria-hidden="true">
+                    <svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
                 </div>
-            </form>
+                <h3 class="serif-title" style="font-size: 1.625rem; margin-bottom: 0.5rem;" data-i18n="confirmHeading">تم استلام طلبك بنجاح</h3>
+                <div class="order-num-badge">
+                    <span data-i18n="orderNumLabel">رقم الطلب:</span> #<span id="confirmedOrderId"></span>
+                </div>
+                <!-- [CONFIRM: time frame for phone/WhatsApp confirmation e.g. خلال ساعتين] -->
+                <p style="font-size: 0.875rem; color: var(--muted); margin-bottom: 1.5rem;" data-i18n="confirmMsg">
+                    شكراً لاختيارك بايونير. سيقوم فريق خدمة العملاء بالتواصل معك هاتفياً أو عبر الواتساب لتأكيد موعد الشحن خلال [CONFIRM: وقت التأكيد].
+                </p>
+
+                <div class="order-summary-box" style="text-align: start; margin-bottom: 1.5rem;">
+                    <div class="summary-row">
+                        <span data-i18n="summaryItem">الطلب:</span>
+                        <span id="confirmSummaryItem" style="font-weight: 600; color: var(--ink);"></span>
+                    </div>
+                    <div class="summary-row">
+                        <span data-i18n="summaryTotal">الإجمالي المطلوب سداده:</span>
+                        <span id="confirmSummaryTotal" style="font-weight: 700; color: var(--ink);"></span>
+                    </div>
+                </div>
+
+                <!-- SECONDARY WhatsApp button with prefilled order number -->
+                <a id="confirmWhatsAppBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-full">
+                    <svg class="icon" viewBox="0 0 24 24" style="color: #25D366;"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm0 18.15c-1.52 0-3.01-.41-4.31-1.18l-.31-.18-3.2.84.85-3.12-.2-.32a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c.01 4.54-3.69 8.23-8.25 8.23zm4.52-6.17c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.84-.86 2.05s.88 2.38 1 2.55c.12.17 1.73 2.64 4.2 3.7.59.25 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.29z"/></svg>
+                    <span data-i18n="btnChatWhatsApp">متابعة عبر الواتساب برقم الطلب</span>
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- Floating WhatsApp Concierge -->
-    <a href="https://wa.me/201069337788" target="_blank" class="fixed bottom-6 left-5 z-40 bg-emerald-500 hover:bg-emerald-600 text-white w-13 h-13 rounded-full flex justify-center items-center shadow-xl hover:scale-105 transition-transform group p-3.5">
-        <i class="fa-brands fa-whatsapp text-2xl"></i>
-        <div class="absolute left-full ml-3 bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-xl shadow-xl opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none hidden md:block">
-            <span>24/7 VIP Medical Concierge</span>
+    <!-- POLICY & INFO MODAL (Shipping, Privacy, Contact) -->
+    <div id="infoModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
+        <div class="modal-panel info-modal-panel">
+            <button type="button" class="modal-close-btn" onclick="closeInfoModal()" aria-label="Close">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
+            <div id="infoModalBody" class="info-content">
+                <!-- Dynamically populated -->
+            </div>
         </div>
+    </div>
+
+    <!-- Floating WhatsApp Concierge Button -->
+    <a href="https://wa.me/201069337788" target="_blank" rel="noopener noreferrer" class="floating-whatsapp" aria-label="Chat on WhatsApp">
+        <svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm0 18.15c-1.52 0-3.01-.41-4.31-1.18l-.31-.18-3.2.84.85-3.12-.2-.32a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c.01 4.54-3.69 8.23-8.25 8.23zm4.52-6.17c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.84-.86 2.05s.88 2.38 1 2.55c.12.17 1.73 2.64 4.2 3.7.59.25 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.29z"/></svg>
     </a>
 
-    <!-- Minimalist Footer -->
-    <footer class="py-12 border-t border-slate-200 bg-white text-center text-xs text-slate-500">
-        <div class="container mx-auto px-4">
-            <div class="font-black tracking-[0.2em] text-slate-900 mb-1">PIONEER MEDICAL WEAR</div>
-            <p class="text-[11px] text-slate-400">Where Technical Excellence Meets Haute Couture.</p>
-            <div class="mt-4 flex justify-center items-center gap-6 text-[11px] text-slate-400 uppercase tracking-widest">
-                <span>Doorstep Inspection</span>
-                <span>•</span>
-                <span>On-the-Spot Return</span>
-                <span>•</span>
-                <span>3-Day Exchange Window</span>
-            </div>
-            <p class="text-[10px] text-slate-400 mt-4">© 2026 Pioneer Medical Wear. All Rights Reserved.</p>
-        </div>
-    </footer>
-
-    <script src="app.js"></script>
+    <!-- Application Script (Deferred, unblocking render) -->
+    <script src="app.js" defer></script>
 </body>
 </html>

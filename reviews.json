@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "name": "Dr. Ahmed Hassan",
+    "name_ar": "د. أحمد حسن",
+    "role": "General Surgery Specialist",
+    "role_ar": "أخصائي جراحة عامة",
+    "text": "Fabric quality and mobility engineered for demanding shifts.",
+    "text_ar": "خامة مريحة ومرنة جداً وعملية في النبطشيات الطويلة.",
+    "rating": 5,
+    "verified": false
+  },
+  {
+    "id": 2,
+    "name": "Dr. Mai Tarek",
+    "name_ar": "د. مي طارق",
+    "role": "Physician",
+    "role_ar": "طبيبة مقيمة",
+    "text": "Smooth delivery and doorstep inspection before payment.",
+    "text_ar": "تجربة استلام ممتازة والمعاينة مع المندوب قبل الدفع بتطمن.",
+    "rating": 5,
+    "verified": false
+  },
+  {
+    "id": 3,
+    "name": "Dr. Moustafa Kamal",
+    "name_ar": "د. مصطفى كمال",
+    "role": "Dental Surgeon",
+    "role_ar": "طبيب أسنان",
+    "text": "Tailored clean cut and durable material.",
+    "text_ar": "القصة مظبوطة جداً والخامة بتتحمل الغسيل المتكرر.",
+    "rating": 5,
+    "verified": false
+  }
+]

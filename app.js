@@ -1,641 +1,1422 @@
-// --- Dynamic CMS Data ---
-let cmsData = { prices: { basePrice: 900, fakePrice: 1300, twoPiecesPrice: 1800 }, inventory: null };
+/**
+ * Pioneer Medical Wear - Storefront Logic
+ * Pure ES6 with unblocking render, CMS cache, Meta Pixel + CAPI hooks,
+ * On-site checkout, live shipping calculation, and bilingual i18n.
+ */
+
+// --- Constants & Unchanged Endpoints ---
+const PIXEL_ID = '1835661177259760';
+const WHATSAPP_NUMBER = '201069337788';
 const scriptURL = "https://script.google.com/macros/s/AKfycbyxQt-QQQmcOIaA0d713LnPhhRm4P0HB1Qgzed1RbpPo1P6ipOBh-irib_FjhHAi1orLQ/exec";
+const CMS_CACHE_KEY = 'pioneer_cms_cache_v2';
+const LANG_STORAGE_KEY = 'pioneer_lang_pref';
 
-fetch(scriptURL + "?action=get_data")
-    .then(res => res.json())
-    .then(data => {
-        if(data.prices && data.inventory) {
-            let bp = parseFloat(data.prices.basePrice);
-            let fp = parseFloat(data.prices.fakePrice);
-            let tp = parseFloat(data.prices.twoPiecesPrice);
-            
-            cmsData = data;
-            cmsData.prices.basePrice = isNaN(bp) ? 900 : bp;
-            cmsData.prices.fakePrice = isNaN(fp) ? 1300 : fp;
-            cmsData.prices.twoPiecesPrice = isNaN(tp) ? 1800 : tp;
-
-            document.querySelectorAll(".product-price-tag").forEach(el => {
-                el.innerHTML = `<span>${cmsData.prices.basePrice} <span class="text-xs font-bold text-slate-500">EGP</span></span> <span class="text-xs text-slate-400 line-through font-normal font-mono">${cmsData.prices.fakePrice}</span>`;
-            });
-            
-            // Announcement Bar
-            if (cmsData.announcement && cmsData.announcement.active && cmsData.announcement.text) {
-                const bar = document.getElementById('cmsAnnouncement');
-                if(bar) {
-                    bar.innerHTML = cmsData.announcement.text;
-                    bar.classList.remove('hidden');
-                }
-            }
-
-            // Populate Governorates if custom rates exist
-            if (cmsData.shippingRates) {
-                const govSelect = document.getElementById('custGov');
-                if (govSelect) {
-                    govSelect.innerHTML = '<option value="">Select Governorate / اختر المحافظة...</option>';
-                    Object.keys(cmsData.shippingRates).forEach(gov => {
-                        const opt = document.createElement('option');
-                        opt.value = gov;
-                        opt.textContent = gov;
-                        govSelect.appendChild(opt);
-                    });
-                }
-            }
+// --- Static Product Catalog (Haute Couture Medical Series) ---
+const PRODUCTS = [
+    {
+        id: 'black',
+        nameEn: 'Onyx Black',
+        nameAr: 'أسود أونيكس',
+        hex: '#1F2022',
+        availableSizes: ['S', 'M', 'L', 'XL', 'XXL', '3XL'],
+        images: {
+            cardWebp: 'images/black_1_3x4.webp',
+            cardJpg: 'images/black_1_3x4.jpg',
+            gallery: [
+                { webp: 'images/black_1.webp', jpg: 'images/black_1.jpg' },
+                { webp: 'images/black_2.webp', jpg: 'images/black_2.jpg' },
+                { webp: 'images/black_3.webp', jpg: 'images/black_3.jpg' }
+            ]
         }
-    }).catch(err => console.error("CMS sync:", err));
-
-// --- Products Configuration (6 Distinctive Haute Couture Colors) ---
-const colors = [
-    { id: 'black', name: 'Onyx Black', hex: '#1f2022', images: ['Black_1.jpg', 'black_2.jpg', 'black_3.jpg'] },
-    { id: 'navy', name: 'Royal Navy', hex: '#1b263b', images: ['navy_1.jpg', 'navy_2.jpg', 'navy_3.jpg'] },
-    { id: 'blue', name: 'Ceil Blue', hex: '#274c77', images: ['blue_1.jpg', 'blue_2.jpg', 'blue_3.jpg'] },
-    { id: 'olive', name: 'Forest Olive', hex: '#4a5d23', images: ['olive_1.jpg', 'olive_2.jpg', 'olive_3.jpg'] },
-    { id: 'teal', name: 'Deep Teal', hex: '#1f4e5b', images: ['tael_1.jpg', 'tael_2.jpg', 'tael_3.jpg'] },
-    { id: 'pink', name: 'Dusty Rose', hex: '#e5989b', images: ['pink_1.png', 'pink_2.jpg', 'pink_3.jpg'] },
+    },
+    {
+        id: 'navy',
+        nameEn: 'Royal Navy',
+        nameAr: 'كحلي ملكي',
+        hex: '#1B263B',
+        availableSizes: ['S', 'M', 'L', 'XL', 'XXL', '3XL'],
+        images: {
+            cardWebp: 'images/navy_1_3x4.webp',
+            cardJpg: 'images/navy_1_3x4.jpg',
+            gallery: [
+                { webp: 'images/navy_1.webp', jpg: 'images/navy_1.jpg' },
+                { webp: 'images/navy_2.webp', jpg: 'images/navy_2.jpg' },
+                { webp: 'images/navy_3.webp', jpg: 'images/navy_3.jpg' }
+            ]
+        }
+    },
+    {
+        id: 'blue',
+        nameEn: 'Ceil Blue',
+        nameAr: 'أزرق سماوي',
+        hex: '#274C77',
+        availableSizes: ['XL', 'XXL'],
+        images: {
+            cardWebp: 'images/blue_1_3x4.webp',
+            cardJpg: 'images/blue_1_3x4.jpg',
+            gallery: [
+                { webp: 'images/blue_1.webp', jpg: 'images/blue_1.jpg' },
+                { webp: 'images/blue_2.webp', jpg: 'images/blue_2.jpg' },
+                { webp: 'images/blue_3.webp', jpg: 'images/blue_3.jpg' }
+            ]
+        }
+    },
+    {
+        id: 'olive',
+        nameEn: 'Forest Olive',
+        nameAr: 'زيتي غابي',
+        hex: '#4A5D23',
+        availableSizes: ['M', 'L', 'XXL'],
+        images: {
+            cardWebp: 'images/olive_1_3x4.webp',
+            cardJpg: 'images/olive_1_3x4.jpg',
+            gallery: [
+                { webp: 'images/olive_1.webp', jpg: 'images/olive_1.jpg' },
+                { webp: 'images/olive_2.webp', jpg: 'images/olive_2.jpg' },
+                { webp: 'images/olive_3.webp', jpg: 'images/olive_3.jpg' }
+            ]
+        }
+    },
+    {
+        id: 'teal',
+        nameEn: 'Deep Teal',
+        nameAr: 'تيل داكن',
+        hex: '#1F4E5B',
+        availableSizes: ['M', 'XL'],
+        images: {
+            cardWebp: 'images/tael_1_3x4.webp',
+            cardJpg: 'images/tael_1_3x4.jpg',
+            gallery: [
+                { webp: 'images/tael_1.webp', jpg: 'images/tael_1.jpg' },
+                { webp: 'images/tael_2.webp', jpg: 'images/tael_2.jpg' },
+                { webp: 'images/tael_3.webp', jpg: 'images/tael_3.jpg' }
+            ]
+        }
+    },
+    {
+        id: 'pink',
+        nameEn: 'Dusty Rose',
+        nameAr: 'وردي هادئ',
+        hex: '#E5989B',
+        availableSizes: ['S', 'M', 'L', 'XL', 'XXL'],
+        images: {
+            cardWebp: 'images/pink_1_3x4.webp',
+            cardJpg: 'images/pink_1_3x4.jpg',
+            gallery: [
+                { webp: 'images/pink_1.webp', jpg: 'images/pink_1.jpg' },
+                { webp: 'images/pink_2.webp', jpg: 'images/pink_2.jpg' },
+                { webp: 'images/pink_3.webp', jpg: 'images/pink_3.jpg' }
+            ]
+        }
+    }
 ];
 
-let selectedProduct = { color: colors[0], size: null, quantity: 1 };
-let currentBaseTotal = 0;
+// Technical specifications [CONFIRM]
+const PRODUCT_SPECS = {
+    composition: "72% Polyester, 21% Rayon, 7% Spandex",
+    compositionAr: "72% بوليستر تقني، 21% رايون ناعم، 7% سباندكس",
+    features: [
+        { en: "4-way technical stretch mobility", ar: "مرونة في 4 اتجاهات لحرية الحركة" },
+        { en: "Lightweight and breathable for 24h shifts", ar: "خفيف وجيد التهوية لنبطشيات الـ 24 ساعة" },
+        { en: "Fluid-resistant finish [CONFIRM]", ar: "لمسة نهائية مقاومة للبلل والسوائل العارضة [CONFIRM]" },
+        { en: "Wrinkle-resistant tailored drape [CONFIRM]", ar: "مقاوم للتجعد ويحافظ على مظهره المهني [CONFIRM]" }
+    ]
+};
 
-// DOM Elements
-const productGrid = document.getElementById('productGrid');
-const productModal = document.getElementById('productModal');
-const closeModalBtn = document.getElementById('closeModal');
-const colorSelector = document.getElementById('colorSelector');
-const selectedColorName = document.getElementById('selectedColorName');
-const selectedSizeLabel = document.getElementById('selectedSizeLabel');
-const modalTitle = document.getElementById('modalTitle');
-const modalPrice = document.getElementById('modalPrice');
-const modalFakePrice = document.getElementById('modalFakePrice');
-const modalMainImg = document.getElementById('modalMainImg');
-const modalThumbnails = document.getElementById('modalThumbnails');
+// Default Shipping Rates Fallback (Egypt)
+const DEFAULT_SHIPPING_RATES = {
+    "القاهرة": 45,
+    "الجيزة": 45,
+    "الإسكندرية": 50,
+    "الدقهلية": 55,
+    "الغربية": 55,
+    "الشرقية": 55,
+    "القليوبية": 50,
+    "المنوفية": 55,
+    "البحيرة": 55,
+    "كفر الشيخ": 60,
+    "دمياط": 60,
+    "بورسعيد": 60,
+    "الإسماعيلية": 60,
+    "السويس": 60,
+    "الفيوم": 65,
+    "بني سويف": 65,
+    "المنيا": 70,
+    "أسيوط": 75,
+    "سوهاج": 75,
+    "قنا": 80,
+    "الأقصر": 85,
+    "أسوان": 85,
+    "البحر الأحمر": 90,
+    "مطروح": 90
+};
 
-const sizeBtns = document.querySelectorAll('.size-btn');
-const qtyInput = document.getElementById('qtyInput');
-const qtyMinus = document.getElementById('qtyMinus');
-const qtyPlus = document.getElementById('qtyPlus');
-const totalPriceBtn = document.getElementById('totalPriceBtn');
-const pricingMessage = document.getElementById('pricingMessage');
-const buyBtn = document.getElementById('buyBtn');
+// --- Dynamic CMS State with LocalStorage Cache ---
+let cmsData = {
+    prices: { basePrice: 900, twoPiecesPrice: 1800 },
+    inventory: null,
+    announcement: null,
+    shippingRates: DEFAULT_SHIPPING_RATES
+};
 
-// Size Guide Elements
-const sizeModal = document.getElementById('sizeModal');
-const openSizeGuideBtn = document.getElementById('openSizeGuideBtn');
-const openSizeGuideNav = document.getElementById('openSizeGuideNav');
-const closeSizeModal = document.getElementById('closeSizeModal');
-const tabCalc = document.getElementById('tabCalc');
-const tabChart = document.getElementById('tabChart');
-const contentCalc = document.getElementById('contentCalc');
-const contentChart = document.getElementById('contentChart');
-const btnCalcSize = document.getElementById('btnCalcSize');
-const calcWeight = document.getElementById('calcWeight');
-const calcHeight = document.getElementById('calcHeight');
-const calcPhone = document.getElementById('calcPhone');
-const calcResult = document.getElementById('calcResult');
-const recommendedSizeTxt = document.getElementById('recommendedSizeTxt');
-const useRecommendedSize = document.getElementById('useRecommendedSize');
-
-// Checkout Elements
-const checkoutModal = document.getElementById('checkoutModal');
-const closeCheckoutBtn = document.getElementById('closeCheckout');
-const checkoutForm = document.getElementById('checkoutForm');
-const skipBtn = document.getElementById('skipBtn');
-const custName = document.getElementById('custName');
-const custPhone = document.getElementById('custPhone');
-const custPhone2 = document.getElementById('custPhone2');
-const custGov = document.getElementById('custGov');
-const custAddress = document.getElementById('custAddress');
-const custNotes = document.getElementById('custNotes');
-
-// --- Pricing Logic ---
-function calculatePrice(qty) {
-    let base = cmsData.prices.basePrice;
-    let two = cmsData.prices.twoPiecesPrice;
-    if (qty === 1) return { total: base, unit: base, shipping: 'Standard Shipping' };
-    if (qty === 2) return { total: two, unit: two / 2, shipping: 'Free Express Shipping' };
-    return { total: qty * (two / 2 - 50), unit: (two / 2 - 50), shipping: 'Free Express Shipping' };
-}
-
-// --- Initialize Catalog Grid (Clean Orova Minimalist Cards) ---
-function initProducts() {
-    if (!productGrid) return;
-    productGrid.innerHTML = '';
-    
-    colors.forEach(color => {
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-2xl transition-all duration-300 group border border-slate-200/90 hover:border-slate-400 overflow-hidden cursor-pointer flex flex-col shadow-sm hover:shadow-xl';
-        
-        card.innerHTML = `
-            <div class="relative w-full aspect-[3/4] overflow-hidden bg-slate-100">
-                <img src="${color.images[0]}" alt="${color.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-700" onerror="this.src='https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=800&q=80'">
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                    <span class="bg-white text-slate-950 font-black px-5 py-2.5 rounded-full text-xs shadow-lg tracking-wider transform translate-y-3 group-hover:translate-y-0 transition-all uppercase">
-                        Select Size & Color
-                    </span>
-                </div>
-            </div>
-            <div class="p-4 text-center bg-white group-hover:bg-slate-50/50 transition-colors border-t border-slate-100 flex-grow flex flex-col justify-between">
-                <div>
-                    <h3 class="font-extrabold text-slate-900 text-sm sm:text-base tracking-tight mb-0.5">${color.name}</h3>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Core Scrub Set</div>
-                </div>
-                <div class="product-price-tag text-slate-900 font-extrabold text-sm sm:text-base flex items-center justify-center gap-1.5 font-montserrat">
-                    <span>${cmsData.prices.basePrice} <span class="text-xs font-bold text-slate-500">EGP</span></span>
-                    <span class="text-xs text-slate-400 line-through font-normal font-mono">${cmsData.prices.fakePrice}</span>
-                </div>
-            </div>
-        `;
-        card.addEventListener('click', () => openProductModal(color));
-        productGrid.appendChild(card);
-    });
-}
-
-// --- Product Modal Gallery & Details (Orova Layout) ---
-function updateModalGallery() {
-    if (!modalMainImg || !modalThumbnails) return;
-    
-    // Set Main Image
-    modalMainImg.src = selectedProduct.color.images[0];
-    
-    // Render 3 Thumbnails
-    modalThumbnails.innerHTML = '';
-    selectedProduct.color.images.forEach((imgSrc, idx) => {
-        const thumb = document.createElement('button');
-        thumb.className = `w-14 h-16 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${idx === 0 ? 'border-slate-900 shadow-md scale-105' : 'border-slate-200 opacity-60 hover:opacity-100'}`;
-        thumb.innerHTML = `<img src="${imgSrc}" class="w-full h-full object-cover">`;
-        thumb.addEventListener('click', () => {
-            modalMainImg.src = imgSrc;
-            Array.from(modalThumbnails.children).forEach(t => {
-                t.className = 'w-14 h-16 rounded-lg overflow-hidden border-2 border-slate-200 opacity-60 hover:opacity-100 transition-all cursor-pointer';
-            });
-            thumb.className = 'w-14 h-16 rounded-lg overflow-hidden border-2 border-slate-900 shadow-md scale-105 transition-all cursor-pointer';
-        });
-        modalThumbnails.appendChild(thumb);
-    });
-}
-
-function renderColorSelector() {
-    if (!colorSelector) return;
-    colorSelector.innerHTML = '';
-    colors.forEach(c => {
-        const btn = document.createElement('button');
-        btn.className = `color-btn w-9 h-9 rounded-full shadow-sm cursor-pointer ${c.id === selectedProduct.color.id ? 'active' : ''}`;
-        btn.style.backgroundColor = c.hex;
-        btn.title = c.name;
-        btn.addEventListener('click', () => {
-            selectedProduct.color = c;
-            updateModalGallery();
-            updateSizeAvailability();
-            updateModalUI();
-            renderColorSelector();
-        });
-        colorSelector.appendChild(btn);
-    });
-}
-
-function updateSizeAvailability() {
-    selectedProduct.size = null;
-    if (selectedSizeLabel) selectedSizeLabel.innerText = '';
-    
-    sizeBtns.forEach(btn => {
-        btn.classList.remove('active', 'disabled');
-        const s = btn.getAttribute('data-size');
-        const colorId = selectedProduct.color.id;
-        
-        let isAvailable = true;
-        if (colorId === 'pink') {
-            if (s === '3XL') isAvailable = false;
-        } else if (colorId === 'olive') {
-            if (s !== 'M' && s !== 'L' && s !== 'XXL') isAvailable = false;
-        } else if (colorId === 'blue') {
-            if (s !== 'XL' && s !== 'XXL') isAvailable = false;
-        } else if (colorId === 'teal') {
-            if (s !== 'M' && s !== 'XL') isAvailable = false;
-        } else if (colorId === 'navy' || colorId === 'black') {
-            isAvailable = true;
-        }
-
-        if (!isAvailable) {
-            btn.classList.add('disabled');
-            btn.title = 'Sold Out';
-        } else {
-            btn.title = `Size ${s}`;
-        }
-    });
-}
-
-sizeBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (btn.classList.contains('disabled')) return;
-        setSize(btn.getAttribute('data-size'));
-    });
-});
-
-function setSize(size) {
-    sizeBtns.forEach(b => b.classList.remove('active'));
-    const btn = Array.from(sizeBtns).find(b => b.getAttribute('data-size') === size);
-    if (btn) btn.classList.add('active');
-    selectedProduct.size = size;
-    if (selectedSizeLabel) selectedSizeLabel.innerText = size;
-}
-
-qtyMinus.addEventListener('click', () => {
-    if (selectedProduct.quantity > 1) { 
-        selectedProduct.quantity--; 
-        updateModalUI(); 
-    }
-});
-
-qtyPlus.addEventListener('click', () => {
-    selectedProduct.quantity++; 
-    updateModalUI();
-});
-
-function updateModalUI() {
-    if (selectedColorName) selectedColorName.innerText = selectedProduct.color.name;
-    if (modalTitle) modalTitle.innerText = `${selectedProduct.color.name} Set`;
-    if (qtyInput) qtyInput.value = selectedProduct.quantity;
-
-    const pricing = calculatePrice(selectedProduct.quantity);
-    currentBaseTotal = pricing.total;
-    
-    if (modalPrice) modalPrice.innerText = `${currentBaseTotal} EGP`;
-    if (modalFakePrice) modalFakePrice.innerText = `${cmsData.prices.fakePrice * selectedProduct.quantity} EGP`;
-    if (totalPriceBtn) totalPriceBtn.innerText = `(${currentBaseTotal} EGP)`;
-
-    if (pricingMessage) {
-        if (selectedProduct.quantity === 1) {
-            pricingMessage.innerHTML = '<i class="fa-solid fa-truck-fast text-gold-600"></i> <span>Add 1 more set to unlock complimentary express delivery</span>';
-        } else {
-            pricingMessage.innerHTML = '<i class="fa-solid fa-sparkles text-emerald-600"></i> <span class="text-emerald-800 font-bold">Complimentary VIP Express Delivery Unlocked!</span>';
+// Restore from cache immediately to prevent render delay
+try {
+    const cached = localStorage.getItem(CMS_CACHE_KEY);
+    if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && parsed.prices) {
+            cmsData = Object.assign(cmsData, parsed);
         }
     }
-}
+} catch (e) {}
 
-function openProductModal(color) {
-    selectedProduct.color = color;
-    selectedProduct.quantity = 1;
-    
-    updateModalGallery();
-    updateSizeAvailability();
-    updateModalUI();
-    renderColorSelector();
-    
-    productModal.classList.remove('hidden');
-    setTimeout(() => { productModal.classList.add('show'); }, 10);
-}
+// Selected state
+let currentProduct = PRODUCTS[0];
+let selectedSize = null;
+let currentQuantity = 1;
+let currentLang = 'ar'; // Default Arabic
 
-function closeProductModal() {
-    productModal.classList.remove('show');
-    setTimeout(() => { productModal.classList.add('hidden'); }, 300);
-}
+// Lead capture cache
+const capturedLeads = new Set();
+let isOrderCompleted = false;
 
-if (closeModalBtn) closeModalBtn.addEventListener('click', closeProductModal);
-if (productModal) {
-    productModal.addEventListener('click', (e) => {
-        if (e.target === productModal) closeProductModal();
-    });
-}
-
-// --- Accordion Toggle Function ---
-window.toggleAccordion = function(headerEl) {
-    const item = headerEl.parentElement;
-    const isActive = item.classList.contains('active');
-    
-    // Close other open accordions
-    document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active'));
-    
-    if (!isActive) {
-        item.classList.add('active');
+// --- i18n Dictionary ---
+const i18n = {
+    ar: {
+        announcementDefault: "توصيل مجاني عند طلب طقمين أو أكثر • الدفع عند الاستلام",
+        brandTag: "Medical Wear",
+        navCollection: "المجموعة",
+        navWhy: "لماذا بايونير",
+        navSize: "دليل المقاسات",
+        navFaq: "الأسئلة الشائعة",
+        conciergeLabel: "خدمة العملاء",
+        heroEyebrow: "المجموعة الأساسية 2026",
+        heroTitle: "ملابس طبية بتتحمل ورديتك كلها",
+        heroSubtitle: "نسيج تقني مرن بـ 4 اتجاهات وقصة مريحة تليق بيومك الطبي الطويل",
+        heroCta: "اكتشف المجموعة",
+        trustInspection: "معاينة عند الاستلام مع المندوب",
+        trustExchange: "استبدال المقاس خلال 3 أيام",
+        trustCod: "الدفع عند الاستلام",
+        collectionEyebrow: "كولكشن 2026",
+        collectionTitle: "طقم سكراب بايونير الأساسي",
+        collectionDesc: "متاح بـ 6 ألوان كلاسيكية بقصة طبية موحدة وأداء استثنائي",
+        viewProduct: "اختيار المقاس واللون",
+        whyEyebrow: "المعايير التقنية",
+        whyTitle: "لماذا يختار الأطباء بايونير؟",
+        feature1Title: "مرونة في 4 اتجاهات",
+        feature1Desc: "نسيج تقني مرن يمنحك حرية حركة تامة في العيادة وغرفة العمليات دون أي شعور بالتقيد.",
+        feature2Title: "معاينة قبل الدفع",
+        feature2Desc: "افتح الشحنة وعاين جودة القماش والتقفيل والمقاس بنفسك في وجود مندوب الشحن قبل سداد أي مبلغ.",
+        feature3Title: "استبدال سهل خلال 3 أيام",
+        feature3Desc: "لو المقاس محتاج تعديل، بنرتب استبدال للمقاس أو اللون خلال 3 أيام من تاريخ الاستلام مباشرة.",
+        reviewsEyebrow: "آراء الأطباء",
+        reviewsTitle: "تجارب من الميدان الطبي",
+        faqEyebrow: "إجابات واضحة",
+        faqTitle: "الأسئلة الشائعة",
+        faq1Q: "هل يمكنني معاينة السكراب والتأكد من المقاس قبل الدفع؟",
+        faq1A: "نعم بالتأكيد. لديك كامل الحق في فتح الشحنة ومعاينة السكراب والتأكد من ملمس الخامة والمقاس والمظهر مع المندوب قبل دفع قيمة الطلب.",
+        faq2Q: "ما هي سياسة استبدال المقاس إذا لم يكن مناسباً؟",
+        faq2A: "نوفر استبدالاً للمقاس أو اللون خلال 3 أيام من الاستلام، بشرط الحفاظ على السكراب بحالته الأصلية غير ملبوس وغير مغسول وبالبطاقة الخاصة به.",
+        faq3Q: "كم تستغرق مدة الشحن لمحافظتي؟",
+        faq3A: "القاهرة والجيزة والإسكندرية: خلال 24 إلى 48 ساعة عمل. باقي المحافظات: من 2 إلى 4 أيام عمل بحد أقصى.",
+        faq4Q: "ما هي تفاصيل تركيبة القماش؟",
+        faq4A: "نسيج ثلاثي التركيب: بوليستر تقني مع رايون مع سباندكس مرن. يوفر متانة عالية ومقاومة للتجعد وملمساً ناعماً على البشرة.",
+        faq5Q: "كيف أحصل على توصيل مجاني؟",
+        faq5A: "عند طلب طقمين أو أكثر، يتم تطبيق الشحن السريع مجاناً وبشكل تلقائي لجميع المحافظات.",
+        footerAbout: "ملابس طبية مصرية بريميم، مصممة لمعايير الأداء والراحة في المستشفيات والعيادات.",
+        footerAddressLabel: "المقر:",
+        footerAddress: "القاهرة، جمهورية مصر العربية",
+        footerColCollection: "المجموعة",
+        footerCoreSets: "أطقم السكراب الأساسية",
+        footerSizeChart: "جدول المقاسات",
+        footerFitCalc: "حاسبة المقاس",
+        footerColPolicies: "السياسات والشروط",
+        footerShippingPolicy: "الشحن والمعاينة والاستبدال",
+        footerPrivacyPolicy: "سياسة الخصوصية",
+        footerColContact: "تواصل معنا",
+        footerHours: "ساعات العمل: 10 ص - 10 م يومياً",
+        footerTagline: "الدفع عند الاستلام • المعاينة مع المندوب • استبدال خلال 3 أيام",
+        modalEyebrow: "طقم سكراب بايونير الأساسي",
+        modalCut: "قصة طبية مريحة • تصميم مناسب للجميع",
+        currency: "ج.م",
+        labelColor: "اللون:",
+        labelSize: "المقاس:",
+        btnSizeChart: "دليل المقاسات",
+        btnBuy: "اطلب الآن والدفع عند الاستلام",
+        freeShippingUnlocked: "تم تفعيل الشحن السريع المجاني لحسابك!",
+        addMoreForFreeShipping: "أضف طقم إضافي لتفعيل الشحن المجاني",
+        accSizeTitle: "دليل المقاسات وحاسبة القياس الدقيقة",
+        thSize: "المقاس",
+        thChest: "محيط الصدر / العرض",
+        thLength: "الطول",
+        calcHeading: "حاسبة المقاس التلقائية:",
+        labelWeight: "الوزن (كجم)",
+        labelHeight: "الطول (سم)",
+        btnCalculate: "احسب مقاسي المناسب",
+        calcRecLabel: "المقاس المقترح لك:",
+        calcRelaxedNote: "بين مقاسين؟ اختر المقاس الأكبر لقصة مريحة. [CONFIRM]",
+        btnSelectRec: "اختيار هذا المقاس ومتابعة الطلب",
+        calcPhoneOptional: "تحب نبعتلك المقاس وتفاصيل التأكيد على الواتساب؟ (اختياري)",
+        btnSendWhatsApp: "إرسال",
+        accFabricTitle: "الخامة والمواصفات الفنية [CONFIRM]",
+        fabricContentText: "تركيبة نسيج ثلاثية: 72% بوليستر تقني، 21% رايون ناعم، 7% سباندكس فائق المرونة. مزود بلمسة نهائية مقاومة للبلل والسوائل العارضة، خفيف الوزن وجيد التهوية لنبطشيات العمل الطويلة.",
+        accCareTitle: "تعليمات الغسيل والعناية",
+        care1: "يغسل بالماء البارد مع ألوان مماثلة.",
+        care2: "تجنب المبيضات القوية أو الكلور.",
+        care3: "تجفيف منخفض الحرارة أو تعليق حر.",
+        care4: "كي خفيف عند الحاجة.",
+        accInspectionTitle: "سياسة المعاينة والاستبدال",
+        inspectionContent: "المعاينة: يمكنك فحص السكراب والتأكد من تقفيله ومقاسه مع المندوب قبل دفع أي نقود. الاستبدال: استبدال المقاس متاح خلال 3 أيام من الاستلام عبر التواصل مع خدمة العملاء.",
+        checkoutEyebrow: "إتمام الطلب",
+        checkoutHeading: "بيانات الشحن والتوصيل",
+        checkoutSub: "الدفع عند الاستلام بعد معاينة السكراب والتأكد من المقاس",
+        labelFullName: "الاسم بالكامل *",
+        errName: "برجاء إدخال الاسم",
+        labelPhone: "رقم الموبايل / واتساب *",
+        errPhone: "برجاء إدخال رقم مصري صحيح (11 رقم يبدأ بـ 01)",
+        labelGov: "المحافظة *",
+        selectGov: "اختر المحافظة...",
+        errGov: "برجاء اختيار المحافظة",
+        labelAddress: "العنوان التفصيلي أو اسم المستشفى / القسم *",
+        errAddress: "برجاء إدخال العنوان بالتفصيل",
+        toggleOptional: "+ إضافة رقم بديل أو ملاحظات (اختياري)",
+        labelPhone2: "رقم موبايل بديل",
+        labelNotes: "ملاحظات التوصيل أو توقيت النبطشية",
+        summaryItem: "المنتج:",
+        summaryQty: "الكمية:",
+        summarySubtotal: "سعر المنتج:",
+        summaryShipping: "مصاريف الشحن:",
+        summaryTotal: "الإجمالي عند الاستلام:",
+        shippingFree: "شحن مجاني",
+        shippingPending: "يحسب عند التأكيد",
+        btnConfirmOrder: "تأكيد الطلب والدفع عند الاستلام",
+        btnFallbackWa: "متابعة تأكيد الطلب عبر الواتساب مباشرة",
+        confirmHeading: "تم استلام طلبك بنجاح",
+        orderNumLabel: "رقم الطلب:",
+        confirmMsg: "شكراً لاختيارك بايونير. سيقوم فريق خدمة العملاء بالتواصل معك هاتفياً أو عبر الواتساب لتأكيد موعد الشحن خلال [CONFIRM: وقت التأكيد].",
+        btnChatWhatsApp: "متابعة عبر الواتساب برقم الطلب",
+        alertSelectSize: "برجاء اختيار المقاس المطلوب أولاً"
+    },
+    en: {
+        announcementDefault: "Complimentary express delivery on 2+ sets • Cash on Delivery",
+        brandTag: "Medical Wear",
+        navCollection: "Collection",
+        navWhy: "Why Pioneer",
+        navSize: "Size Guide",
+        navFaq: "FAQ",
+        conciergeLabel: "Concierge",
+        heroEyebrow: "Core Collection 2026",
+        heroTitle: "Engineered for your demanding shifts",
+        heroSubtitle: "4-way technical stretch and tailored comfort crafted for long clinical hours",
+        heroCta: "Explore Collection",
+        trustInspection: "Doorstep inspection with courier",
+        trustExchange: "3-day size exchange",
+        trustCod: "Cash on delivery",
+        collectionEyebrow: "Collection 2026",
+        collectionTitle: "Pioneer Core Scrub Set",
+        collectionDesc: "Available in 6 distinctive colorways with a tailored unisex medical silhouette",
+        viewProduct: "Select Size & Color",
+        whyEyebrow: "Technical Standards",
+        whyTitle: "Why Physicians Choose Pioneer",
+        feature1Title: "4-Way Technical Stretch",
+        feature1Desc: "Unrestricted mobility engineered for active clinical and surgical duties.",
+        feature2Title: "Doorstep Inspection",
+        feature2Desc: "Open and thoroughly inspect your scrub with the courier before paying.",
+        feature3Title: "Seamless 3-Day Exchange",
+        feature3Desc: "Need a size adjustment? We arrange a fast size replacement within 3 days.",
+        reviewsEyebrow: "Physician Reviews",
+        reviewsTitle: "Verified Clinical Feedback",
+        faqEyebrow: "Clear Answers",
+        faqTitle: "Frequently Asked Questions",
+        faq1Q: "Can I inspect the scrub and check sizing before paying?",
+        faq1A: "Yes. You have the full right to unbox and inspect your scrub set in the presence of the courier before paying.",
+        faq2Q: "What is your size exchange policy?",
+        faq2A: "We provide size or color exchanges within 3 days of delivery, provided the garment is in its original unworn condition with tags attached.",
+        faq3Q: "How long does delivery take?",
+        faq3A: "Cairo, Giza & Alexandria: within 24-48 business hours. Other governorates: 2-4 business days maximum.",
+        faq4Q: "What is the fabric composition?",
+        faq4A: "A proprietary tri-blend: technical polyester, soft rayon, and flexible spandex for breathability and wrinkle resistance.",
+        faq5Q: "How do I unlock free delivery?",
+        faq5A: "Order 2 sets or more and complimentary express delivery is automatically applied.",
+        footerAbout: "Egyptian premium medical wear tailored for peak performance and comfort.",
+        footerAddressLabel: "HQ:",
+        footerAddress: "Cairo, Egypt",
+        footerColCollection: "Collection",
+        footerCoreSets: "Core Scrub Sets",
+        footerSizeChart: "Size Chart",
+        footerFitCalc: "Fit Calculator",
+        footerColPolicies: "Policies",
+        footerShippingPolicy: "Shipping, Inspection & Returns",
+        footerPrivacyPolicy: "Privacy Policy",
+        footerColContact: "Contact",
+        footerHours: "Hours: 10 AM - 10 PM Daily",
+        footerTagline: "Cash on Delivery • Doorstep Inspection • 3-Day Exchange",
+        modalEyebrow: "Pioneer Core Series",
+        modalCut: "Tailored athletic silhouette • Unisex cut",
+        currency: "EGP",
+        labelColor: "Color:",
+        labelSize: "Size:",
+        btnSizeChart: "Size Chart",
+        btnBuy: "Order Now • Pay on Delivery",
+        freeShippingUnlocked: "Complimentary Express Delivery Unlocked!",
+        addMoreForFreeShipping: "Add 1 more set to unlock complimentary express delivery",
+        accSizeTitle: "Size Chart & Smart Fit Calculator",
+        thSize: "Size",
+        thChest: "Chest / Width",
+        thLength: "Length",
+        calcHeading: "Smart Fit Calculator:",
+        labelWeight: "Weight (KG)",
+        labelHeight: "Height (CM)",
+        btnCalculate: "Calculate Optimal Size",
+        calcRecLabel: "Recommended Size:",
+        calcRelaxedNote: "Between two sizes? Choose the larger for a relaxed fit. [CONFIRM]",
+        btnSelectRec: "Select This Size & Continue",
+        calcPhoneOptional: "Want this recommendation on WhatsApp? (Optional)",
+        btnSendWhatsApp: "Send",
+        accFabricTitle: "Fabric & Technical Specifications [CONFIRM]",
+        fabricContentText: "Tri-blend composition: 72% technical polyester, 21% silky rayon, 7% high-stretch spandex. Treated with a fluid-resistant finish, lightweight and breathable for 24h hospital shifts.",
+        accCareTitle: "Care & Laundering Instructions",
+        care1: "Machine wash cold inside out with similar colors.",
+        care2: "Do not bleach or use chlorine softeners.",
+        care3: "Tumble dry low or hang dry.",
+        care4: "Cool iron if needed.",
+        accInspectionTitle: "Doorstep Inspection & Exchange Policy",
+        inspectionContent: "Doorstep Inspection: Inspect the garment and verify size with the courier before paying. Exchange: 3-day complimentary exchange window by contacting customer support.",
+        checkoutEyebrow: "Checkout",
+        checkoutHeading: "Delivery Information",
+        checkoutSub: "Cash on Delivery • Doorstep inspection guaranteed",
+        labelFullName: "Full Name *",
+        errName: "Please enter your full name",
+        labelPhone: "Mobile / WhatsApp *",
+        errPhone: "Please enter a valid Egyptian number (11 digits starting with 01)",
+        labelGov: "Governorate *",
+        selectGov: "Select governorate...",
+        errGov: "Please select your governorate",
+        labelAddress: "Detailed Address / Hospital name *",
+        errAddress: "Please enter your delivery address",
+        toggleOptional: "+ Add alternative phone or delivery notes (Optional)",
+        labelPhone2: "Alternative Phone",
+        labelNotes: "Delivery Notes",
+        summaryItem: "Item:",
+        summaryQty: "Quantity:",
+        summarySubtotal: "Subtotal:",
+        summaryShipping: "Delivery:",
+        summaryTotal: "Total on Delivery:",
+        shippingFree: "Free Express",
+        shippingPending: "Calculated at confirmation",
+        btnConfirmOrder: "Confirm Order • Pay on Delivery",
+        btnFallbackWa: "Confirm directly via WhatsApp instead",
+        confirmHeading: "Order Received Successfully",
+        orderNumLabel: "Order ID:",
+        confirmMsg: "Thank you for choosing Pioneer. Our team will contact you by phone or WhatsApp to confirm delivery within [CONFIRM: confirmation window].",
+        btnChatWhatsApp: "Chat with us on WhatsApp with Order ID",
+        alertSelectSize: "Please select your preferred size first"
     }
 };
 
-// --- Size Chart Modal Logic ---
-function openSizeModalFunc() {
-    if (!sizeModal) return;
-    sizeModal.classList.remove('hidden');
-    setTimeout(() => { sizeModal.classList.add('show'); }, 10);
-}
-function closeSizeModalFunc() {
-    if (!sizeModal) return;
-    sizeModal.classList.remove('show');
-    setTimeout(() => { sizeModal.classList.add('hidden'); }, 300);
+// --- Meta Tracking Helper (Browser Pixel + CAPI Dedup) ---
+function generateEventId() {
+    return 'pioneer_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
-if (openSizeGuideBtn) openSizeGuideBtn.addEventListener('click', openSizeModalFunc);
-if (openSizeGuideNav) openSizeGuideNav.addEventListener('click', openSizeModalFunc);
-if (closeSizeModal) closeSizeModal.addEventListener('click', closeSizeModalFunc);
-if (sizeModal) {
-    sizeModal.addEventListener('click', (e) => {
-        if (e.target === sizeModal) closeSizeModalFunc();
+function trackPixelEvent(eventName, params = {}, eventId = null) {
+    const eid = eventId || generateEventId();
+    if (typeof window.fbq === 'function') {
+        window.fbq('track', eventName, params, { eventID: eid });
+    }
+    forwardToCapi(eventName, params, eid);
+    return eid;
+}
+
+function forwardToCapi(eventName, params, eventId) {
+    try {
+        fetch('/api/capi', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                eventName,
+                eventId,
+                params,
+                eventSourceUrl: window.location.href,
+                phone: params.phone || null
+            })
+        }).catch(() => {});
+    } catch (e) {}
+}
+
+// --- Pricing Calculations (Rules Preserved) ---
+function calculatePricing(qty) {
+    const bp = cmsData.prices.basePrice || 900;
+    const tp = cmsData.prices.twoPiecesPrice || 1800;
+    let total = 0;
+    let isFreeShipping = false;
+
+    if (qty === 1) {
+        total = bp;
+        isFreeShipping = false;
+    } else if (qty === 2) {
+        total = tp;
+        isFreeShipping = true;
+    } else {
+        total = qty * (tp / 2 - 50);
+        isFreeShipping = true;
+    }
+
+    return { total, isFreeShipping };
+}
+
+// --- DOM Initialization & Render ---
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Language Preference
+    try {
+        const savedLang = localStorage.getItem(LANG_STORAGE_KEY);
+        if (savedLang === 'en' || savedLang === 'ar') {
+            currentLang = savedLang;
+        }
+    } catch (e) {}
+    applyLanguage(currentLang);
+
+    // 2. Render Collection Grid Immediately
+    renderProductGrid();
+
+    // 3. Setup Deep Links (?color=navy or #navy)
+    handleDeepLinks();
+
+    // 4. Fetch Dynamic CMS data (Non-blocking, 4s timeout)
+    fetchCmsData();
+
+    // 5. Load Reviews from reviews.json
+    loadReviewsData();
+
+    // 6. Bind Event Listeners
+    setupEventListeners();
+});
+
+// --- Language Switcher ---
+function applyLanguage(lang) {
+    currentLang = lang;
+    const htmlEl = document.documentElement;
+    htmlEl.lang = lang;
+    htmlEl.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+    const langLabel = document.getElementById('langLabel');
+    if (langLabel) {
+        langLabel.innerText = lang === 'ar' ? 'English' : 'عربي';
+    }
+
+    const dict = i18n[lang] || i18n.ar;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) {
+            el.innerText = dict[key];
+        }
+    });
+
+    // Re-render dynamic text in active modal / summary
+    updateModalPriceAndShipping();
+    updateCheckoutSummary();
+    renderProductGrid();
+}
+
+document.getElementById('langToggleBtn')?.addEventListener('click', () => {
+    const newLang = currentLang === 'ar' ? 'en' : 'ar';
+    try { localStorage.setItem(LANG_STORAGE_KEY, newLang); } catch (e) {}
+    applyLanguage(newLang);
+});
+
+// --- CMS Fetch with 4-Second AbortController ---
+function fetchCmsData() {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+    fetch(scriptURL + "?action=get_data", { signal: controller.signal })
+        .then(res => res.json())
+        .then(data => {
+            clearTimeout(timeoutId);
+            if (data && data.prices) {
+                const bp = parseFloat(data.prices.basePrice);
+                const tp = parseFloat(data.prices.twoPiecesPrice);
+                cmsData.prices.basePrice = isNaN(bp) ? 900 : bp;
+                cmsData.prices.twoPiecesPrice = isNaN(tp) ? 1800 : tp;
+
+                if (data.inventory) cmsData.inventory = data.inventory;
+                if (data.shippingRates) cmsData.shippingRates = data.shippingRates;
+                if (data.announcement) cmsData.announcement = data.announcement;
+
+                try {
+                    localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(cmsData));
+                } catch (e) {}
+
+                // Update UI with new prices/announcements
+                updateAnnouncementBar();
+                populateGovernorates();
+                renderProductGrid();
+                updateModalPriceAndShipping();
+                updateCheckoutSummary();
+            }
+        })
+        .catch(err => {
+            console.warn("CMS non-blocking sync finished (cached data active):", err.name);
+        });
+}
+
+function updateAnnouncementBar() {
+    const bar = document.getElementById('cmsAnnouncement');
+    const textEl = document.getElementById('announcementText');
+    if (!bar || !textEl) return;
+
+    if (cmsData.announcement && cmsData.announcement.active && cmsData.announcement.text) {
+        textEl.innerText = cmsData.announcement.text;
+    }
+}
+
+function populateGovernorates() {
+    const govSelect = document.getElementById('custGov');
+    if (!govSelect || !cmsData.shippingRates) return;
+
+    const currentVal = govSelect.value;
+    const rates = cmsData.shippingRates;
+    const defaultPlaceholder = i18n[currentLang]?.selectGov || 'Select governorate...';
+
+    govSelect.innerHTML = `<option value="">${defaultPlaceholder}</option>`;
+    Object.keys(rates).forEach(gov => {
+        const opt = document.createElement('option');
+        opt.value = gov;
+        opt.textContent = gov;
+        if (gov === currentVal) opt.selected = true;
+        govSelect.appendChild(opt);
     });
 }
 
-// Tab Switching (Chart vs Calculator)
-if (tabChart && tabCalc) {
-    tabChart.addEventListener('click', () => {
-        tabChart.className = 'flex-1 py-2 text-xs font-bold bg-white shadow-sm rounded-md text-slate-900 transition cursor-pointer';
-        tabCalc.className = 'flex-1 py-2 text-xs font-bold text-slate-500 transition cursor-pointer';
-        contentChart.classList.remove('hidden');
-        contentCalc.classList.add('hidden');
-    });
+// --- Product Grid Rendering ---
+function renderProductGrid() {
+    const grid = document.getElementById('productGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
 
-    tabCalc.addEventListener('click', () => {
-        tabCalc.className = 'flex-1 py-2 text-xs font-bold bg-white shadow-sm rounded-md text-slate-900 transition cursor-pointer';
-        tabChart.className = 'flex-1 py-2 text-xs font-bold text-slate-500 transition cursor-pointer';
-        contentCalc.classList.remove('hidden');
-        contentChart.classList.add('hidden');
+    const lang = currentLang;
+    const dict = i18n[lang] || i18n.ar;
+
+    PRODUCTS.forEach(p => {
+        const card = document.createElement('article');
+        card.className = 'product-card';
+        card.setAttribute('role', 'listitem');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-label', lang === 'ar' ? p.nameAr : p.nameEn);
+
+        const displayName = lang === 'ar' ? p.nameAr : p.nameEn;
+        const price = cmsData.prices.basePrice || 900;
+        const currency = dict.currency || 'ج.م';
+
+        card.innerHTML = `
+            <div class="product-card-media">
+                <picture>
+                    <source type="image/webp" srcset="${p.images.cardWebp}">
+                    <img src="${p.images.cardJpg}" alt="${displayName}" class="product-card-img" width="600" height="800" loading="lazy" decoding="async">
+                </picture>
+                <span class="product-card-badge">${displayName}</span>
+            </div>
+            <div class="product-card-body">
+                <h3 class="product-card-name">${displayName}</h3>
+                <p class="product-card-meta">${lang === 'ar' ? 'طقم سكراب طبي مرن' : '4-Way Technical Scrub Set'}</p>
+                <div class="product-card-footer">
+                    <span class="product-card-price">${price} ${currency}</span>
+                    <span class="product-card-action">${dict.viewProduct} &larr;</span>
+                </div>
+            </div>
+        `;
+
+        card.addEventListener('click', () => openProductModal(p.id));
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openProductModal(p.id);
+            }
+        });
+        grid.appendChild(card);
     });
 }
 
-// --- Lead Tracking & Abandoned Checkout Capture System ---
-let isOrderSubmitted = false;
-const capturedPhoneNumbers = new Set();
+// --- Product Modal Logic ---
+function openProductModal(productId) {
+    const p = PRODUCTS.find(item => item.id === productId) || PRODUCTS[0];
+    currentProduct = p;
+    selectedSize = null;
+    currentQuantity = 1;
 
-function logLeadToGoogleSheet(leadData) {
+    // Update Deep link in URL
+    try {
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('color', p.id);
+        window.history.replaceState({}, '', newUrl);
+    } catch (e) {}
+
+    // Track ViewContent Pixel Event
+    const price = cmsData.prices.basePrice || 900;
+    trackPixelEvent('ViewContent', {
+        content_ids: [p.id],
+        content_name: p.nameEn,
+        content_type: 'product',
+        value: price,
+        currency: 'EGP'
+    });
+
+    updateModalUI();
+
+    const modal = document.getElementById('productModal');
+    if (modal) {
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeProductModal() {
+    const modal = document.getElementById('productModal');
+    if (modal) {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    // Remove search param
+    try {
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.delete('color');
+        window.history.replaceState({}, '', newUrl);
+    } catch (e) {}
+}
+
+function updateModalUI() {
+    const lang = currentLang;
+    const p = currentProduct;
+    const displayName = lang === 'ar' ? p.nameAr : p.nameEn;
+
+    // Title & Color Label
+    const titleEl = document.getElementById('modalTitle');
+    if (titleEl) titleEl.innerText = displayName;
+
+    const colorNameEl = document.getElementById('selectedColorName');
+    if (colorNameEl) colorNameEl.innerText = displayName;
+
+    const sizeLabel = document.getElementById('selectedSizeLabel');
+    if (sizeLabel) sizeLabel.innerText = selectedSize || '-';
+
+    // Gallery & Thumbnails
+    const mainWebp = document.getElementById('modalMainWebp');
+    const mainImg = document.getElementById('modalMainImg');
+    if (mainWebp) mainWebp.srcset = p.images.gallery[0].webp;
+    if (mainImg) {
+        mainImg.src = p.images.gallery[0].jpg;
+        mainImg.alt = displayName;
+    }
+
+    const thumbWrap = document.getElementById('modalThumbnails');
+    if (thumbWrap) {
+        thumbWrap.innerHTML = '';
+        p.images.gallery.forEach((g, idx) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `modal-thumb-btn ${idx === 0 ? 'active' : ''}`;
+            btn.setAttribute('aria-label', `Thumbnail ${idx + 1}`);
+            btn.innerHTML = `
+                <picture>
+                    <source type="image/webp" srcset="${g.webp}">
+                    <img src="${g.jpg}" alt="${displayName} ${idx + 1}" width="56" height="70" loading="lazy">
+                </picture>
+            `;
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.modal-thumb-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                if (mainWebp) mainWebp.srcset = g.webp;
+                if (mainImg) mainImg.src = g.jpg;
+            });
+            thumbWrap.appendChild(btn);
+        });
+    }
+
+    // Color Selector
+    const colorSelector = document.getElementById('colorSelector');
+    if (colorSelector) {
+        colorSelector.innerHTML = '';
+        PRODUCTS.forEach(item => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `color-pill ${item.id === p.id ? 'active' : ''}`;
+            btn.style.backgroundColor = item.hex;
+            btn.title = lang === 'ar' ? item.nameAr : item.nameEn;
+            btn.setAttribute('aria-label', item.nameEn);
+            btn.addEventListener('click', () => {
+                currentProduct = item;
+                selectedSize = null;
+                updateModalUI();
+            });
+            colorSelector.appendChild(btn);
+        });
+    }
+
+    // Size Selector with Availability map + CMS inventory override
+    updateSizeButtons();
+
+    // Price & Shipping Line
+    updateModalPriceAndShipping();
+}
+
+function updateSizeButtons() {
+    const p = currentProduct;
+    // CMS inventory override if present
+    let availableSizes = p.availableSizes;
+    if (cmsData.inventory && cmsData.inventory[p.id]) {
+        availableSizes = cmsData.inventory[p.id];
+    }
+
+    const sizeBtns = document.querySelectorAll('.size-pill');
+    sizeBtns.forEach(btn => {
+        const s = btn.getAttribute('data-size');
+        const isAvailable = availableSizes.includes(s);
+
+        btn.disabled = !isAvailable;
+        btn.classList.remove('active');
+        if (isAvailable && selectedSize === s) {
+            btn.classList.add('active');
+        }
+
+        btn.onclick = () => {
+            if (!isAvailable) return;
+            selectedSize = s;
+            const sizeLabel = document.getElementById('selectedSizeLabel');
+            if (sizeLabel) sizeLabel.innerText = s;
+            document.querySelectorAll('.size-pill').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        };
+    });
+}
+
+function updateModalPriceAndShipping() {
+    const qtyInput = document.getElementById('qtyInput');
+    if (qtyInput) qtyInput.value = currentQuantity;
+
+    const pricing = calculatePricing(currentQuantity);
+    const dict = i18n[currentLang] || i18n.ar;
+    const currency = dict.currency || 'ج.م';
+
+    const priceEl = document.getElementById('modalPrice');
+    if (priceEl) priceEl.innerText = pricing.total;
+
+    const totalBtnEl = document.getElementById('totalPriceBtn');
+    if (totalBtnEl) totalBtnEl.innerText = `(${pricing.total} ${currency})`;
+
+    const noteEl = document.getElementById('pricingMessage');
+    if (noteEl) {
+        if (pricing.isFreeShipping) {
+            noteEl.className = 'shipping-privilege-note unlocked';
+            noteEl.innerHTML = `
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+                <span>${dict.freeShippingUnlocked}</span>
+            `;
+        } else {
+            noteEl.className = 'shipping-privilege-note';
+            noteEl.innerHTML = `
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                <span>${dict.addMoreForFreeShipping}</span>
+            `;
+        }
+    }
+}
+
+// Quantity Adjustments
+document.getElementById('qtyMinus')?.addEventListener('click', () => {
+    if (currentQuantity > 1) {
+        currentQuantity--;
+        updateModalPriceAndShipping();
+    }
+});
+document.getElementById('qtyPlus')?.addEventListener('click', () => {
+    if (currentQuantity < 10) {
+        currentQuantity++;
+        updateModalPriceAndShipping();
+    }
+});
+
+// Inline Accordion Toggle
+window.toggleModalAccordion = function(accId) {
+    const item = document.getElementById(accId);
+    if (!item) return;
+    const wasActive = item.classList.contains('active');
+    document.querySelectorAll('.modal-acc-item').forEach(el => el.classList.remove('active'));
+    if (!wasActive) item.classList.add('active');
+};
+
+document.getElementById('inlineSizeGuideLink')?.addEventListener('click', () => {
+    const acc = document.getElementById('accSizeGuide');
+    if (acc) {
+        acc.classList.add('active');
+        acc.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+});
+
+// Size Calculator Calculation (No phone required!)
+document.getElementById('btnCalcSize')?.addEventListener('click', () => {
+    const weight = parseFloat(document.getElementById('calcWeight')?.value);
+    const height = parseFloat(document.getElementById('calcHeight')?.value);
+
+    if (!weight || !height) {
+        alert(currentLang === 'ar' ? 'برجاء إدخال الوزن والطول' : 'Please enter height and weight');
+        return;
+    }
+
+    let rec = 'L';
+    if (weight < 65) rec = 'S';
+    else if (weight < 78) rec = 'M';
+    else if (weight < 90) rec = 'L';
+    else if (weight < 102) rec = 'XL';
+    else if (weight < 115) rec = 'XXL';
+    else rec = '3XL';
+
+    // Height bump if > 180 cm
+    if (height > 180) {
+        const order = ['S', 'M', 'L', 'XL', 'XXL', '3XL'];
+        const idx = order.indexOf(rec);
+        if (idx < order.length - 1) rec = order[idx + 1];
+    }
+
+    const recTxt = document.getElementById('recommendedSizeTxt');
+    if (recTxt) recTxt.innerText = rec;
+
+    const resultBox = document.getElementById('calcResult');
+    if (resultBox) resultBox.classList.remove('hidden');
+});
+
+document.getElementById('useRecommendedSize')?.addEventListener('click', () => {
+    const recTxt = document.getElementById('recommendedSizeTxt')?.innerText;
+    if (recTxt) {
+        selectedSize = recTxt;
+        updateSizeButtons();
+        const sizeLabel = document.getElementById('selectedSizeLabel');
+        if (sizeLabel) sizeLabel.innerText = recTxt;
+    }
+});
+
+// Optional WhatsApp phone from calculator
+document.getElementById('btnSendCalcPhone')?.addEventListener('click', () => {
+    const phoneInput = document.getElementById('calcPhone');
+    const phone = phoneInput ? phoneInput.value.trim() : '';
+    const cleanDigits = phone.replace(/\D/g, '');
+
+    if (cleanDigits.length < 10) {
+        alert(currentLang === 'ar' ? 'برجاء إدخال رقم صحيح' : 'Please enter a valid phone number');
+        return;
+    }
+
+    const recSize = document.getElementById('recommendedSizeTxt')?.innerText || 'L';
+    captureLead({
+        name: "استشارة مقاس (حاسبة)",
+        phone: phone,
+        details: `الموديل: ${currentProduct.nameEn} | المقاس المقترح: ${recSize}`
+    });
+
+    alert(currentLang === 'ar' ? 'تم تسجيل طلبك، وسيتواصل معك فريقنا.' : 'Recommendation saved. Our team will contact you.');
+    if (phoneInput) phoneInput.value = '';
+});
+
+// --- Checkout Modal Opening & Closing ---
+document.getElementById('buyBtn')?.addEventListener('click', () => {
+    const dict = i18n[currentLang] || i18n.ar;
+    if (!selectedSize) {
+        alert(dict.alertSelectSize);
+        // Scroll to size selector
+        document.getElementById('sizeSelector')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        return;
+    }
+
+    // Fire AddToCart event
+    const pricing = calculatePricing(currentQuantity);
+    trackPixelEvent('AddToCart', {
+        content_ids: [currentProduct.id],
+        content_name: currentProduct.nameEn,
+        content_type: 'product',
+        value: pricing.total,
+        currency: 'EGP'
+    });
+
+    // Fire InitiateCheckout event
+    trackPixelEvent('InitiateCheckout', {
+        content_ids: [currentProduct.id],
+        content_name: currentProduct.nameEn,
+        content_type: 'product',
+        value: pricing.total,
+        currency: 'EGP'
+    });
+
+    openCheckoutModal();
+});
+
+function openCheckoutModal() {
+    isOrderCompleted = false;
+    updateCheckoutSummary();
+
+    const formView = document.getElementById('checkoutFormContainer');
+    const confirmView = document.getElementById('checkoutConfirmationContainer');
+    const errorBanner = document.getElementById('checkoutErrorBanner');
+
+    if (formView) formView.classList.remove('hidden');
+    if (confirmView) confirmView.classList.add('hidden');
+    if (errorBanner) errorBanner.classList.add('hidden');
+
+    const modal = document.getElementById('checkoutModal');
+    if (modal) {
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeCheckoutModal() {
+    if (!isOrderCompleted) {
+        captureAbandonedCheckoutLead();
+    }
+    const modal = document.getElementById('checkoutModal');
+    if (modal) {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+}
+
+document.getElementById('closeModal')?.addEventListener('click', closeProductModal);
+document.getElementById('closeCheckout')?.addEventListener('click', closeCheckoutModal);
+
+// Close on backdrop click
+document.getElementById('productModal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'productModal') closeProductModal();
+});
+document.getElementById('checkoutModal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'checkoutModal') closeCheckoutModal();
+});
+
+// Toggle Optional Details
+document.getElementById('toggleOptionalBtn')?.addEventListener('click', () => {
+    const box = document.getElementById('optionalFieldsBox');
+    if (box) box.classList.toggle('hidden');
+});
+
+// Governorate Change -> Live Shipping & Total Update
+document.getElementById('custGov')?.addEventListener('change', updateCheckoutSummary);
+
+function updateCheckoutSummary() {
+    const dict = i18n[currentLang] || i18n.ar;
+    const currency = dict.currency || 'ج.م';
+    const pricing = calculatePricing(currentQuantity);
+
+    const displayName = currentLang === 'ar' ? currentProduct.nameAr : currentProduct.nameEn;
+    const itemDesc = `${displayName} (${selectedSize || '-'})`;
+
+    const itemDescEl = document.getElementById('summaryItemDesc');
+    if (itemDescEl) itemDescEl.innerText = itemDesc;
+
+    const qtyDescEl = document.getElementById('summaryQtyDesc');
+    if (qtyDescEl) qtyDescEl.innerText = `${currentQuantity}`;
+
+    const subtotalEl = document.getElementById('summarySubtotal');
+    if (subtotalEl) subtotalEl.innerText = `${pricing.total} ${currency}`;
+
+    // Shipping calculation
+    const govSelect = document.getElementById('custGov');
+    const chosenGov = govSelect ? govSelect.value : '';
+    let shippingCost = 0;
+    let shippingLabel = '';
+
+    if (pricing.isFreeShipping) {
+        shippingCost = 0;
+        shippingLabel = dict.shippingFree;
+    } else if (chosenGov && cmsData.shippingRates && cmsData.shippingRates[chosenGov] !== undefined) {
+        shippingCost = cmsData.shippingRates[chosenGov];
+        shippingLabel = `${shippingCost} ${currency}`;
+    } else if (!chosenGov) {
+        shippingCost = 0;
+        shippingLabel = dict.shippingPending;
+    } else {
+        // [CONFIRM: shipping rate missing for chosen governorate]
+        shippingCost = 50; // Fallback
+        shippingLabel = `${shippingCost} ${currency} [CONFIRM]`;
+    }
+
+    const shippingEl = document.getElementById('summaryShipping');
+    if (shippingEl) shippingEl.innerText = shippingLabel;
+
+    const finalTotal = pricing.total + (pricing.isFreeShipping ? 0 : shippingCost);
+    const totalEl = document.getElementById('summaryTotal');
+    if (totalEl) totalEl.innerText = `${finalTotal} ${currency}`;
+}
+
+// --- Order Submission (Real On-Site Order via /api/order.js) ---
+document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Check honeypot anti-spam
+    const honeypot = document.getElementById('honeypot')?.value;
+    if (honeypot) {
+        console.warn('Bot detected via honeypot.');
+        return;
+    }
+
+    const name = document.getElementById('custName')?.value.trim();
+    const phone = document.getElementById('custPhone')?.value.trim();
+    const gov = document.getElementById('custGov')?.value;
+    const address = document.getElementById('custAddress')?.value.trim();
+    const phone2 = document.getElementById('custPhone2')?.value.trim();
+    const notes = document.getElementById('custNotes')?.value.trim();
+
+    // Reset error messages
+    ['custNameError', 'custPhoneError', 'custGovError', 'custAddressError'].forEach(id => {
+        document.getElementById(id)?.classList.add('hidden');
+    });
+
+    let isValid = true;
+    if (!name) {
+        document.getElementById('custNameError')?.classList.remove('hidden');
+        isValid = false;
+    }
+
+    // Egyptian Mobile Regex: ^01[0125][0-9]{8}$
+    const cleanPhone = phone.replace(/[\s\-]/g, '');
+    const egRegex = /^01[0125][0-9]{8}$/;
+    if (!egRegex.test(cleanPhone)) {
+        document.getElementById('custPhoneError')?.classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!gov) {
+        document.getElementById('custGovError')?.classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!address) {
+        document.getElementById('custAddressError')?.classList.remove('hidden');
+        isValid = false;
+    }
+
+    if (!isValid) return;
+
+    const submitBtn = document.getElementById('submitOrderBtn');
+    const submitBtnText = document.getElementById('submitOrderBtnText');
+    if (submitBtn) submitBtn.disabled = true;
+    if (submitBtnText) submitBtnText.innerText = currentLang === 'ar' ? 'جاري تأكيد الطلب...' : 'Confirming order...';
+
+    const pricing = calculatePricing(currentQuantity);
+    let shippingCost = 0;
+    if (!pricing.isFreeShipping && cmsData.shippingRates && cmsData.shippingRates[gov]) {
+        shippingCost = cmsData.shippingRates[gov];
+    }
+    const finalTotal = pricing.total + shippingCost;
+    const orderPayload = {
+        name,
+        phone: cleanPhone,
+        phone2,
+        gov,
+        address,
+        notes,
+        product: currentProduct.nameEn,
+        color: currentProduct.nameEn,
+        size: selectedSize,
+        quantity: currentQuantity,
+        subtotal: pricing.total,
+        shipping: shippingCost,
+        finalTotal,
+        isFreeShipping: pricing.isFreeShipping
+    };
+
+    try {
+        const res = await fetch('/api/order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderPayload)
+        });
+
+        const data = await res.json();
+        if (res.ok && data.ok) {
+            handleOrderSuccess(data.orderId || Math.floor(100000 + Math.random() * 900000), orderPayload);
+        } else {
+            throw new Error(data.error || 'Server rejected order');
+        }
+    } catch (err) {
+        console.error('Order submission error:', err);
+        handleOrderFailure(orderPayload, err.message);
+    } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        if (submitBtnText) {
+            submitBtnText.innerText = i18n[currentLang]?.btnConfirmOrder || 'تأكيد الطلب والدفع عند الاستلام';
+        }
+    }
+});
+
+function handleOrderSuccess(orderId, orderPayload) {
+    isOrderCompleted = true;
+
+    // Fire Purchase event ONLY after success!
+    const purchaseEventId = generateEventId();
+    trackPixelEvent('Purchase', {
+        content_ids: [currentProduct.id],
+        content_name: currentProduct.nameEn,
+        content_type: 'product',
+        value: orderPayload.finalTotal,
+        currency: 'EGP',
+        num_items: orderPayload.quantity,
+        phone: orderPayload.phone
+    }, purchaseEventId);
+
+    // Show on-page confirmation view
+    const formView = document.getElementById('checkoutFormContainer');
+    const confirmView = document.getElementById('checkoutConfirmationContainer');
+    if (formView) formView.classList.add('hidden');
+    if (confirmView) confirmView.classList.remove('hidden');
+
+    const confirmedIdEl = document.getElementById('confirmedOrderId');
+    if (confirmedIdEl) confirmedIdEl.innerText = orderId;
+
+    const dict = i18n[currentLang] || i18n.ar;
+    const currency = dict.currency || 'ج.م';
+
+    const confirmItemEl = document.getElementById('confirmSummaryItem');
+    if (confirmItemEl) {
+        confirmItemEl.innerText = `${currentProduct.nameEn} (${selectedSize}) × ${orderPayload.quantity}`;
+    }
+
+    const confirmTotalEl = document.getElementById('confirmSummaryTotal');
+    if (confirmTotalEl) {
+        confirmTotalEl.innerText = `${orderPayload.finalTotal} ${currency}`;
+    }
+
+    // Prefill Secondary WhatsApp button
+    const waMsg = `مرحباً بايونير، أود الاستفسار عن طلبي رقم #${orderId} (${currentProduct.nameEn} - مقاس ${selectedSize}).`;
+    const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
+    const confirmWaBtn = document.getElementById('confirmWhatsAppBtn');
+    if (confirmWaBtn) confirmWaBtn.href = waUrl;
+}
+
+function handleOrderFailure(orderPayload, errMsg) {
+    const errorBanner = document.getElementById('checkoutErrorBanner');
+    const errorMsgEl = document.getElementById('checkoutErrorMessage');
+    if (errorBanner) errorBanner.classList.remove('hidden');
+    if (errorMsgEl) {
+        errorMsgEl.innerText = currentLang === 'ar'
+            ? 'تعذر تأكيد الطلب مؤقتاً عبر النظام. يمكنك الضغط أدناه لتأكيده فوراً مع خدمة العملاء على الواتساب:'
+            : 'Order confirmation encountered a temporary error. You can confirm directly via WhatsApp below:';
+    }
+
+    const fallbackWa = document.getElementById('fallbackWhatsAppBtn');
+    if (fallbackWa) {
+        const waMsg = `مرحباً بايونير، أود طلب سكراب:\n• الموديل: ${currentProduct.nameEn}\n• المقاس: ${selectedSize}\n• الكمية: ${orderPayload.quantity}\n• الاسم: ${orderPayload.name}\n• الموبايل: ${orderPayload.phone}\n• المحافظة: ${orderPayload.gov}\n• العنوان: ${orderPayload.address}`;
+        fallbackWa.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
+    }
+}
+
+// --- Lead Capture & Abandoned Checkout ---
+function captureLead(leadData) {
     if (!leadData || !leadData.phone) return;
     const cleanDigits = leadData.phone.replace(/\D/g, '');
     if (cleanDigits.length < 10) return;
 
+    if (capturedLeads.has(cleanDigits)) return;
+    capturedLeads.add(cleanDigits);
+
+    // Track Lead pixel event
+    trackPixelEvent('Lead', {
+        value: 0,
+        currency: 'EGP',
+        phone: cleanDigits
+    });
+
+    // Write to Google Sheet (fallback no-cors)
     try {
         fetch(scriptURL, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(leadData)
-        });
-    } catch (err) {
-        console.error('Google Sheet lead error:', err);
-    }
+            body: JSON.stringify({
+                name: leadData.name || "عميل مهتم",
+                phone: leadData.phone,
+                city: leadData.gov || "-",
+                address: leadData.address || "-",
+                productDetails: leadData.details || `سكراب: ${currentProduct.nameEn}`
+            })
+        }).catch(() => {});
+    } catch (e) {}
+
+    // Alert Telegram via /api/notify
+    try {
+        fetch('/api/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'abandoned_checkout',
+                phone: leadData.phone,
+                name: leadData.name || "دكتور مهتم",
+                color: currentProduct.nameEn,
+                resultSize: selectedSize || "غير محدد",
+                details: leadData.details || `اهتمام بالسكراب ${currentProduct.nameEn}`
+            })
+        }).catch(() => {});
+    } catch (e) {}
 }
 
 function captureAbandonedCheckoutLead() {
-    if (isOrderSubmitted || !custPhone) return;
-    const phoneVal = custPhone.value.trim();
-    const cleanDigits = phoneVal.replace(/\D/g, '');
+    if (isOrderCompleted) return;
+    const phoneInput = document.getElementById('custPhone');
+    const phone = phoneInput ? phoneInput.value.trim() : '';
+    const cleanDigits = phone.replace(/\D/g, '');
     if (cleanDigits.length < 10) return;
 
-    const cacheKey = `abandoned_${cleanDigits}`;
-    if (capturedPhoneNumbers.has(cacheKey)) return;
-    capturedPhoneNumbers.add(cacheKey);
+    const name = document.getElementById('custName')?.value.trim() || 'عميل في صفحة الدفع';
+    const gov = document.getElementById('custGov')?.value || '-';
+    const address = document.getElementById('custAddress')?.value.trim() || '-';
 
-    const nameVal = custName ? custName.value.trim() : '';
-    const govVal = custGov ? custGov.value : '';
-    const addrVal = custAddress ? custAddress.value.trim() : '';
-
-    const leadInfo = {
-        name: (nameVal ? `د. ${nameVal}` : "عميل مهتم") + " (لم يكمل الطلب)",
-        phone: phoneVal,
-        city: govVal || "-",
-        address: addrVal || "-",
-        productDetails: `سكراب طبي | لون: ${selectedProduct.color.name} | مقاس: ${selectedProduct.size || 'لم يحدد'} | كمية: ${selectedProduct.quantity}`
-    };
-
-    logLeadToGoogleSheet(leadInfo);
-
-    // Telegram Notification with Direct WhatsApp Chat Link
-    fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            type: 'abandoned_checkout',
-            phone: phoneVal,
-            name: nameVal || "دكتور مهتم",
-            color: selectedProduct.color.name,
-            resultSize: selectedProduct.size || "غير محدد",
-            details: `بدأ كتابة بياناته في صفحة الدفع ولم يكمل بعد | ${selectedProduct.color.name} (${selectedProduct.size || 'غير محدد'})`
-        })
-    }).catch(e => {});
-}
-
-// --- Smart Size Calculator Calculation & Lead Capture ---
-if (btnCalcSize) {
-    btnCalcSize.addEventListener('click', () => {
-        const w = parseFloat(calcWeight.value);
-        const h = parseFloat(calcHeight.value);
-        const phone = calcPhone ? calcPhone.value.trim() : '';
-        
-        if (!w || !h) {
-            alert('Please enter your weight and height values');
-            return;
-        }
-
-        if (!phone || phone.replace(/\D/g, '').length < 10) {
-            alert('Please enter your WhatsApp number to receive your fit recommendation & VIP consultation');
-            if (calcPhone) calcPhone.focus();
-            return;
-        }
-        
-        let rec = 'L';
-        if (w < 65) rec = 'S';
-        else if (w >= 65 && w < 78) rec = 'M';
-        else if (w >= 78 && w < 90) rec = 'L';
-        else if (w >= 90 && w < 102) rec = 'XL';
-        else if (w >= 102 && w < 115) rec = 'XXL';
-        else rec = '3XL';
-        
-        recommendedSizeTxt.innerText = rec;
-        calcResult.classList.remove('hidden');
-
-        // Always log Size Guide Lead to Google Sheet
-        logLeadToGoogleSheet({
-            name: "استشارة مقاس (حاسبة)",
-            phone: phone,
-            city: "حاسبة المقاسات",
-            address: `وزن: ${w} كجم - طول: ${h} سم`,
-            productDetails: `استعلام مقاس | الموديل المختار: ${selectedProduct.color.name} | المقاس المقترح: ${rec} (وزن ${w}كجم / طول ${h}سم)`
-        });
-
-        // Always trigger Telegram VIP Alert
-        fetch('/api/notify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: 'size_guide',
-                phone: phone,
-                weight: w,
-                height: h,
-                resultSize: rec,
-                details: `وزن: ${w} كجم، طول: ${h} سم، المقاس المقترح: ${rec} (${selectedProduct.color.name})`
-            })
-        }).catch(e => {});
+    captureLead({
+        name: `${name} (لم يكمل الطلب)`,
+        phone: phone,
+        gov,
+        address,
+        details: `وصل لصفحة الدفع: ${currentProduct.nameEn} (مقاس ${selectedSize || 'لم يحدد'})`
     });
 }
 
-if (calcPhone) {
-    calcPhone.addEventListener('blur', () => {
-        const phone = calcPhone.value.trim();
-        const cleanDigits = phone.replace(/\D/g, '');
-        if (cleanDigits.length >= 10) {
-            const cacheKey = `calc_${cleanDigits}`;
-            if (!capturedPhoneNumbers.has(cacheKey)) {
-                capturedPhoneNumbers.add(cacheKey);
-                const w = calcWeight && calcWeight.value ? `${calcWeight.value} كجم` : '-';
-                const h = calcHeight && calcHeight.value ? `${calcHeight.value} سم` : '-';
-                logLeadToGoogleSheet({
-                    name: "استشارة مقاس (رقم مدخل)",
-                    phone: phone,
-                    city: "حاسبة المقاسات",
-                    address: `وزن: ${w} - طول: ${h}`,
-                    productDetails: `استعلام مقاس | الموديل المختار: ${selectedProduct.color.name}`
-                });
+// Track phone input on blur
+document.getElementById('custPhone')?.addEventListener('blur', captureAbandonedCheckoutLead);
+
+// --- Deep Linking (?color=navy or #navy) ---
+function handleDeepLinks() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        let colorParam = urlParams.get('color');
+
+        if (!colorParam && window.location.hash) {
+            colorParam = window.location.hash.replace('#', '').toLowerCase();
+        }
+
+        if (colorParam) {
+            const found = PRODUCTS.find(p => p.id === colorParam.toLowerCase());
+            if (found) {
+                setTimeout(() => openProductModal(found.id), 100);
             }
         }
-    });
+    } catch (e) {}
 }
 
-if (useRecommendedSize) {
-    useRecommendedSize.addEventListener('click', () => {
-        const rec = recommendedSizeTxt.innerText.trim();
-        setSize(rec);
-        closeSizeModalFunc();
-    });
-}
+// --- Load Reviews Data from reviews.json ---
+function loadReviewsData() {
+    fetch('reviews.json')
+        .then(res => res.json())
+        .then(reviews => {
+            const container = document.getElementById('reviewsGrid');
+            const section = document.getElementById('reviewsSection');
+            if (!container || !section) return;
 
-// --- Checkout Modal Logic ---
-if (buyBtn) {
-    buyBtn.addEventListener('click', () => {
-        if (!selectedProduct.size) {
-            alert('Please select your preferred size first');
-            return;
-        }
-        checkoutModal.classList.remove('hidden');
-        setTimeout(() => { checkoutModal.classList.add('show'); }, 10);
-    });
-}
+            // Check if reviews are verified
+            const verifiedReviews = reviews.filter(r => r.verified === true);
+            if (verifiedReviews.length === 0) {
+                // Keep hidden as per Phase 6 requirements [CONFIRM: real reviews + permission]
+                section.classList.add('hidden');
+                return;
+            }
 
-if (closeCheckoutBtn) {
-    closeCheckoutBtn.addEventListener('click', () => {
-        captureAbandonedCheckoutLead();
-        checkoutModal.classList.remove('show');
-        setTimeout(() => { checkoutModal.classList.add('hidden'); }, 300);
-    });
-}
-
-if (checkoutModal) {
-    checkoutModal.addEventListener('click', (e) => {
-        if (e.target === checkoutModal) {
-            captureAbandonedCheckoutLead();
-            checkoutModal.classList.remove('show');
-            setTimeout(() => { checkoutModal.classList.add('hidden'); }, 300);
-        }
-    });
-}
-
-// Track input on customer phone field
-let phoneDebounceTimer = null;
-if (custPhone) {
-    custPhone.addEventListener('blur', captureAbandonedCheckoutLead);
-    custPhone.addEventListener('input', () => {
-        const cleanDigits = custPhone.value.replace(/\D/g, '');
-        if (cleanDigits.length >= 11) {
-            clearTimeout(phoneDebounceTimer);
-            phoneDebounceTimer = setTimeout(captureAbandonedCheckoutLead, 2500);
-        }
-    });
-}
-
-// --- Order Submission (WhatsApp + Google Sheet + Meta Pixel) ---
-function submitOrder(customerData = null) {
-    isOrderSubmitted = true;
-    const pricing = calculatePrice(selectedProduct.quantity);
-    let finalTotal = pricing.total;
-    
-    let msg = `*NEW MEDICAL SCRUB ORDER (PIONEER)*\n\n`;
-    msg += `• Item: [Core Series] ${selectedProduct.color.name} Set\n`;
-    msg += `• Size: ${selectedProduct.size}\n`;
-    msg += `• Quantity: ${selectedProduct.quantity}\n`;
-    msg += `• Total: ${finalTotal} EGP (${pricing.shipping})\n`;
-    msg += `• Policy: Doorstep Inspection with Courier • 3-Day Size Exchange\n\n`;
-    
-    if (customerData) {
-        msg += `*DELIVERY INFORMATION:*\n`;
-        msg += `• Name: ${customerData.name}\n`;
-        msg += `• Phone: ${customerData.phone}\n`;
-        if (customerData.phone2) msg += `• Alt Phone: ${customerData.phone2}\n`;
-        msg += `• Governorate: ${customerData.gov}\n`;
-        msg += `• Address: ${customerData.address}\n`;
-        if (customerData.notes) msg += `• Special Notes: ${customerData.notes}\n`;
-    }
-    
-    const merchantPhone = "201069337788";
-    const whatsappUrl = `https://wa.me/${merchantPhone}?text=${encodeURIComponent(msg)}`;
-    
-    if (customerData) {
-        const fullPhone = customerData.phone2 ? `${customerData.phone} / ${customerData.phone2}` : customerData.phone;
-        const productDetailsText = `Medical Scrub | ${selectedProduct.color.name} | Size: ${selectedProduct.size} | Qty: ${selectedProduct.quantity} | Total: ${finalTotal}`;
-        
-        try {
-            fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: customerData.name,
-                    phone: fullPhone,
-                    city: customerData.gov,
-                    address: customerData.address + (customerData.notes ? ` (Notes: ${customerData.notes})` : ''),
-                    productDetails: productDetailsText
-                })
+            section.classList.remove('hidden');
+            container.innerHTML = '';
+            verifiedReviews.forEach(r => {
+                const card = document.createElement('div');
+                card.className = 'review-card';
+                card.innerHTML = `
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">"${currentLang === 'ar' ? r.text_ar : r.text}"</p>
+                    <div class="review-author">
+                        <span class="review-name">${currentLang === 'ar' ? r.name_ar : r.name}</span>
+                        <span class="review-role">${currentLang === 'ar' ? r.role_ar : r.role}</span>
+                    </div>
+                `;
+                container.appendChild(card);
             });
-            
-            // Meta Pixel Purchase
-            if (typeof fbq === 'function') {
-                fbq('track', 'Purchase', {
-                    value: finalTotal,
-                    currency: 'EGP',
-                    content_ids: [selectedProduct.color.id],
-                    content_type: 'product'
-                });
+        })
+        .catch(() => {});
+}
+
+// --- Policy & Information Modals ---
+window.openInfoModal = function(type) {
+    const modal = document.getElementById('infoModal');
+    const body = document.getElementById('infoModalBody');
+    if (!modal || !body) return;
+
+    const isAr = currentLang === 'ar';
+    let html = '';
+
+    if (type === 'shipping') {
+        html = isAr ? `
+            <h3>سياسة الشحن والمعاينة والاستبدال</h3>
+            <p><strong>المعاينة عند الاستلام:</strong> نؤمن بحق العميل الكامل في فحص السكراب والتأكد من مطابقة المقاس وجودة النسيج والخياطة قبل الدفع للمندوب. في حال عدم الرضا يمكنك إرجاع الطلب فوراً مع المندوب.</p>
+            <p><strong>استبدال المقاس:</strong> نوفر خدمة استبدال المقاس أو اللون خلال 3 أيام من تاريخ الاستلام، بشرط بقاء المنتج في حالته الأصلية بدون غسيل أو استخدام مع وجود البطاقات الأصلية.</p>
+            <p><strong>مدة الشحن:</strong> القاهرة والجيزة والإسكندرية: 24-48 ساعة عمل. باقي المحافظات: 2-4 أيام عمل.</p>
+        ` : `
+            <h3>Shipping, Inspection & Returns Policy</h3>
+            <p><strong>Doorstep Inspection:</strong> We guarantee your right to unbox and inspect your scrub set with the courier before completing payment. If not fully satisfied, you may return it on the spot.</p>
+            <p><strong>3-Day Size Exchange:</strong> Sizing adjustments or color exchanges are available within 3 days of delivery, provided the garment is in original unworn, unwashed condition with tags.</p>
+            <p><strong>Delivery Time:</strong> Cairo, Giza & Alexandria: 24-48 hours. Other governorates: 2-4 business days.</p>
+        `;
+    } else if (type === 'privacy') {
+        html = isAr ? `
+            <h3>سياسة الخصوصية</h3>
+            <p>نحن نحترم خصوصية بياناتك الطبية والشخصية. نستخدم الاسم ورقم الهاتف والعنوان حصرياً لمعالجة وتسليم طلبك وتأكيد موعد الشحن.</p>
+            <p>لا نقوم بمشاركة أو بيع بياناتك لأي طرف خارجي باستثناء شركة الشحن المسؤولة عن تسليم طردك.</p>
+        ` : `
+            <h3>Privacy Policy</h3>
+            <p>We respect your privacy. Your name, mobile number, and delivery address are used exclusively for fulfilling your order and dispatch confirmation.</p>
+            <p>We never sell or share your data with third parties other than the delivery courier handling your parcel.</p>
+        `;
+    }
+
+    body.innerHTML = html;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+};
+
+window.closeInfoModal = function() {
+    const modal = document.getElementById('infoModal');
+    if (modal) {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+};
+
+document.getElementById('infoModal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'infoModal') closeInfoModal();
+});
+
+// Direct open size guide from footer or nav
+window.openSizeGuideModalDirect = function(focusCalc = false) {
+    openProductModal(currentProduct.id);
+    setTimeout(() => {
+        const acc = document.getElementById('accSizeGuide');
+        if (acc) {
+            acc.classList.add('active');
+            if (focusCalc) {
+                document.getElementById('calcWeight')?.focus();
             }
-        } catch (error) {
-            console.error('Save error:', error);
+            acc.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
-        
-        // Notify API
-        fetch('/api/notify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: 'new_order',
-                phone: customerData.phone,
-                name: customerData.name,
-                color: selectedProduct.color.name,
-                resultSize: selectedProduct.size,
-                details: `طلب مؤكد: ${selectedProduct.color.name} مقاس ${selectedProduct.size} كمية ${selectedProduct.quantity} | العنوان: ${customerData.gov} - ${customerData.address}`,
-                finalTotal: finalTotal
-            })
-        }).catch(e => {});
-    }
+    }, 200);
+};
 
-    window.open(whatsappUrl, '_blank');
-    if (checkoutModal) {
-        checkoutModal.classList.remove('show');
-        setTimeout(() => { checkoutModal.classList.add('hidden'); }, 300);
-    }
-}
+document.getElementById('openSizeGuideNav')?.addEventListener('click', () => {
+    openSizeGuideModalDirect(false);
+});
 
-if (checkoutForm) {
-    checkoutForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = custName ? custName.value.trim() : '';
-        const phone = custPhone ? custPhone.value.trim() : '';
-        const phone2 = custPhone2 ? custPhone2.value.trim() : '';
-        const gov = custGov ? custGov.value : '';
-        const address = custAddress ? custAddress.value.trim() : '';
-        const notes = custNotes ? custNotes.value.trim() : '';
-        
-        submitOrder({ name, phone, phone2, gov, address, notes });
+// Setup General Listeners (FAQ Accordion, etc.)
+function setupEventListeners() {
+    // FAQ Accordion
+    document.querySelectorAll('.faq-trigger').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const item = btn.parentElement;
+            const wasActive = item.classList.contains('active');
+            document.querySelectorAll('.faq-item').forEach(i => {
+                i.classList.remove('active');
+                i.querySelector('.faq-trigger')?.setAttribute('aria-expanded', 'false');
+            });
+            if (!wasActive) {
+                item.classList.add('active');
+                btn.setAttribute('aria-expanded', 'true');
+            }
+        });
     });
 }
-
-if (skipBtn) {
-    skipBtn.addEventListener('click', () => {
-        captureAbandonedCheckoutLead();
-        submitOrder(null);
-    });
-}
-
-// Initialize on Load
-initProducts();
