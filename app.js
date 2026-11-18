@@ -774,6 +774,10 @@ function updateSizeButtons() {
 
         btn.disabled = !isAvailable;
         btn.classList.remove('active');
+        btn.title = isAvailable
+            ? (currentLang === 'ar' ? `مقاس ${s}` : `Size ${s}`)
+            : (currentLang === 'ar' ? `مقاس ${s} - غير متوفر حالياً` : `Size ${s} - Sold Out`);
+
         if (isAvailable && selectedSize === s) {
             btn.classList.add('active');
         }
@@ -1296,6 +1300,9 @@ function handleDeepLinks() {
         }
     } catch (e) {}
 }
+
+window.addEventListener('popstate', handleDeepLinks);
+window.addEventListener('hashchange', handleDeepLinks);
 
 // --- Load Reviews Data from reviews.json ---
 function loadReviewsData() {
